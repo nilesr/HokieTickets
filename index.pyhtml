@@ -1,0 +1,30 @@
+<%!
+import libgoblin
+import traceback
+%>
+<%
+block_info = False
+exc = False
+try:
+	block_info = libgoblin.get_info()
+except Exception, e:
+	exc = e
+%>
+
+
+% if block_info:
+<h1>Connected to local EOSIO backend via <span style="font-family: monospace;">libgoblin</span> by Niles.</h1>
+Server version: ${block_info["server_version"] | h} <br />
+Server version string: ${block_info["server_version_string"] | h} <br />
+Chain ID: ${block_info["chain_id"] | h} <br />
+Head block number: ${block_info["head_block_num"] | h} <br />
+Head block ID: ${block_info["head_block_id"] | h} <br />
+Head block time: ${block_info["head_block_time"] | h} <br />
+% else:
+<h1>Failed to connect to backend.</h1>
+% if exc:
+${exc | h}
+% else:
+No exception (??)
+% endif
+% endif
