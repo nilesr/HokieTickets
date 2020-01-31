@@ -18,6 +18,8 @@
 	Head block number: ${block_info["head_block_num"] | h} <br />
 	Head block ID: ${block_info["head_block_id"] | h} <br />
 	Head block time: ${block_info["head_block_time"] | h} <br />
+
+	<h3><a href="/login.pyhtml">Login</a></h3>
 % else:
 	<h1>Failed to connect to backend.</h1>
 	% if exc:
@@ -26,3 +28,4 @@
 		No exception (??)
 	% endif
 % endif
+

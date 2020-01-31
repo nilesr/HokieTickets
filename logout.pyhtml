@@ -1,0 +1,13 @@
+<%!
+	import goblin_auth
+%>
+<%
+	success = goblin_auth.destroy_session(c)
+%>
+% if success:
+	<h2>You have been logged out</h2>
+% else:
+	<h2>You were not logged in</h2>
+% endif
+<h3><a href="/">Home</a></h3>
+<h3><a href="/login.pyhtml">Login</a></h3>
