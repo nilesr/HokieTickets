@@ -1,13 +1,13 @@
 <%!
-import libgoblin
+	import libgoblin
 %>
 <%
-block_info = False
-exc = False
-try:
-	block_info = libgoblin.get_info()
-except Exception, e:
-	exc = e
+	block_info = False
+	exc = False
+	try:
+		block_info = libgoblin.get_info()
+	except Exception, e:
+		exc = e
 %>
 
 % if block_info:
