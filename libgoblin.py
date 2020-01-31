@@ -21,3 +21,6 @@ def _exec(l):
 
 def get_info():
 	return _exec(["get", "info"])
+
+def get_user_info(user):
+	return _exec(["get", "account", "-j", user])
