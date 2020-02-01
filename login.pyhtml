@@ -11,14 +11,19 @@ else:
 
 %>
 % if user:
-you are logged in as ${user | h}<br />
-your session is ${session | h}<br />
-<a href="/logout.pyhtml">Logout</a><br />
-% elif session:
-Error logging you in: ${session | h}<br />
+	you are logged in as ${user | h}<br />
+	you have ${libgoblin.get_balance(user)} HTK available. <br />
+	your session is ${session | h}<br />
+	<a href="/logout.pyhtml">Logout</a><br />
+% else:
+	% if session:
+		Error logging you in: ${session | h}<br />
+	% endif
+	<form method="post">
+	<input type="text" name="user" placeholder="user" />
+	<input type="password" name="pass" placeholder="pass" />
+	<input type="submit" name="submit" value="submit" />
+	</form><br />
 % endif
-<form method="post">
-<input type="text" name="user" placeholder="user" />
-<input type="text" name="pass" placeholder="pass" />
-<input type="submit" name="submit" value="submit" />
-</form>
+<a href="/">Home</a><br />
+
