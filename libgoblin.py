@@ -40,3 +40,6 @@ def get_balance(user):
 
 def get_currency_stats():
 	return _exec(["get", "currency", "stats", "eosio.token", "HTK"]).HTK
+
+def format_htk(c):
+	return "{:,.2f}".format(float(str(c).split()[0])) + " HTK"
