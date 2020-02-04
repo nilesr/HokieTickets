@@ -48,6 +48,10 @@ public:
     [[eosio::action]]
     void reset() {
         require_auth(get_self());
+        lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        for (auto iter = lottery_entries.begin(); iter != lottery_entries.end(); iter = lottery_entries.erase(iter));
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        for (auto iter = tickets.begin(); iter != tickets.end(); iter = tickets.erase(iter));
         games_index games(get_self(), get_first_receiver().value);
         for (auto iter = games.begin(); iter != games.end(); iter = games.erase(iter));
     }
