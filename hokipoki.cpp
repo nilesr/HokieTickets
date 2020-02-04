@@ -38,6 +38,7 @@ public:
             tickets.emplace(get_self(), [ticket_base_id, i, new_id, lotto, price](auto& row) {
                 row.id = ticket_base_id + i;
                 row.game_id = new_id;
+                row.owner = "hokipoki"_n;
                 row.face_value = lotto ? 0 : price;
                 row.for_lottery = lotto;
             });
@@ -63,6 +64,7 @@ private:
     struct [[eosio::table]] ticket {
         uint64_t id;
         uint64_t game_id;
+        name owner;
         uint64_t face_value; // in HTK
         bool for_lottery;
         uint64_t primary_key() const { return id; }
