@@ -9,6 +9,7 @@ cleos = ["cleos", "--no-auto-keosd", "-u", "http://127.0.0.1:8888", "--wallet-ur
 
 
 def _try_symbolize_names(l):
+	if isinstance(l, list): return [_try_symbolize_names(i) for i in l]
 	if not isinstance(l, dict): return l
 	l = {k: _try_symbolize_names(v) for k, v in l.items()} # recurse
 	cls = collections.namedtuple("t", l.keys())
