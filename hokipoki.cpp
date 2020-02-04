@@ -13,16 +13,31 @@ public:
         games_index games(get_self(), get_first_receiver().value);
         uint64_t new_id = 0;
         if (games.cbegin() != games.cend()) {
-            new_id = std::max_element(games.cbegin(), games.cend(), [](const auto& a, const auto& b) { return a.id < b.id; })->id + 1;
+            new_id = games.crbegin()->id + 1;
         }
-        games.emplace(get_self(), [new_id, day, tickets, tickets_for_lotto, price](auto& row) {
+        uint64_t new_number = 0;
+        auto dayindex = games.get_index<"bydate"_n>();
+        auto dayiter = dayindex.lower_bound(day);
+        while (dayiter != dayindex.end() && dayiter->date == day) {
+            new_number = std::max(new_number, dayiter->number);
+            dayiter++;
+        }
+        new_number += 1;
+
+        games.emplace(get_self(), [new_id, day, new_number](auto& row) {
             row.id = new_id;
             row.date = day;
-            row.number = 0; // TODO
+            row.number = new_number;
             row.lottery_open = true;
         });
     }
 
+    [[eosio::action]]
+    void reset() {
+        require_auth(get_self());
+        games_index games(get_self(), get_first_receiver().value);
+        for (auto iter = games.begin(); iter != games.end(); iter = games.erase(iter));
+    }
 private:
     struct [[eosio::table]] game {
         uint64_t id;
