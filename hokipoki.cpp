@@ -1,4 +1,5 @@
 #include <eosio/eosio.hpp>
+#include <algorithm>
 
 using namespace eosio;
 
@@ -7,8 +8,19 @@ public:
     using contract::contract;
 
     [[eosio::action]]
-    void hello(name user) {
-        print("Hello, ", user);
+    void creategame(uint64_t day, uint64_t tickets, uint64_t tickets_for_lotto, uint64_t price) {
+        require_auth(get_self());
+        games_index games(get_self(), get_first_receiver().value);
+        uint64_t new_id = 0;
+        if (games.cbegin() != games.cend()) {
+            new_id = std::max_element(games.cbegin(), games.cend(), [](const auto& a, const auto& b) { return a.id < b.id; })->id + 1;
+        }
+        games.emplace(get_self(), [new_id, day, tickets, tickets_for_lotto, price](auto& row) {
+            row.id = new_id;
+            row.date = day;
+            row.number = 0; // TODO
+            row.lottery_open = true;
+        });
     }
 
 private:
