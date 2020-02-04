@@ -1,4 +1,7 @@
-all: hokipoki.wasm deploy
+all: clean hokipoki.wasm deploy
+
+clean:
+	-rm *.wasm *.abi
 
 hokipoki.wasm:
 	eosio-cpp -abigen -o hokipoki.wasm hokipoki.cpp
@@ -6,4 +9,4 @@ hokipoki.wasm:
 deploy:
 	cleos set contract hokipoki . -p hokipoki@active
 
-.PHONY: deploy all
+.PHONY: clean deploy all
