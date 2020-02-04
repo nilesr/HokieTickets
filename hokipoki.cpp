@@ -8,7 +8,7 @@ public:
     using contract::contract;
 
     [[eosio::action]]
-    void creategame(uint64_t day, uint64_t tickets, uint64_t tickets_for_lotto, uint64_t price) {
+    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price) {
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         uint64_t new_id = 0;
@@ -30,6 +30,18 @@ public:
             row.number = new_number;
             row.lottery_open = true;
         });
+
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        uint64_t ticket_base_id = tickets.cbegin() == tickets.cend() ? 0 : tickets.crbegin()->id + 1;
+        for (uint64_t i = 0; i < num_tickets; i++) {
+            bool lotto = i < tickets_for_lotto;
+            tickets.emplace(get_self(), [ticket_base_id, i, new_id, lotto, price](auto& row) {
+                row.id = ticket_base_id + i;
+                row.game_id = new_id;
+                row.face_value = lotto ? 0 : price;
+                row.for_lottery = lotto;
+            });
+        }
     }
 
     [[eosio::action]]
