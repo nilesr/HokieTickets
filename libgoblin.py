@@ -64,3 +64,16 @@ def create_account(user):
 	_exec(["set", "account", "permission", user, "active",
 		'{"threshold":1, "keys":[{"key":"'+KEY+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
 		"owner", "-p", user], False)
+
+# For debugging only. Put the output of debug_format() in a <pre> tag, or on the console
+def _debug_is_complex(t):
+	return (isinstance(t, tuple) and type(t) != tuple) or isinstance(t, list) or "\n" in str(t)
+def debug_format(t, depth=0, dash=False):
+	pad = "    " * depth
+	firstpad = pad[:-2] + "- " if dash else pad
+	if isinstance(t, tuple) and type(t) != tuple:
+		l = [k + ":" + ("\n" + debug_format(v, depth+1, False) if _debug_is_complex(v) else " " + str(v)) for k, v in t.__dict__.items()]
+		return "\n".join([(firstpad if i == 0 else pad) + x for i, x in enumerate(l)])
+	if isinstance(t, list):
+		return "\n".join([debug_format(x, depth+1, True) for x in t])
+	return firstpad + str(t)
