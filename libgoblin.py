@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 import json, subprocess, collections
 cleos = ["cleos", "--no-auto-keosd", "-u", "http://127.0.0.1:8888", "--wallet-url", "unix:///home/ubuntu/eosio-wallet/keosd.sock"]
+KEY = "EOS7J1tYpCHkCCvi5DwYXkJMRKRzK9XAUVvMC7PnrcucNXS6ZuMC1"
 
 
 #########################################################
@@ -44,3 +45,15 @@ def get_currency_stats():
 
 def format_htk(c):
 	return "{:,.2f}".format(float(str(c).split()[0])) + " HTK"
+
+def get_raw_table(table):
+	return _exec(["get", "table", "hokipoki", "hokipoki", table, "-l", "-1"]).rows
+
+def get_declared_tables():
+	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
+
+def create_account(user):
+	_exec(["create", "account", "eosio", user, KEY], False)
+	_exec(["set", "account", "permission", user, "active",
+		'{"threshold":1, "keys":[{"key":"'+KEY+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
+		"owner", "-p", user], False)
