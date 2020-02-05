@@ -13,7 +13,10 @@ else:
 % if user:
 	you are logged in as ${user | h}<br />
 	you have ${libgoblin.format_htk(libgoblin.get_balance(user))} available. <br />
-	your session is ${session | h}<br />
+	% if user == "hokipoki":
+		You are the administrator.
+		<a href="/raw.pyhtml">View raw tables</a><br />
+	% endif
 	<a href="/logout.pyhtml">Logout</a><br />
 % else:
 	% if session:

@@ -1,0 +1,47 @@
+<%!
+	import libgoblin, goblin_auth
+%>
+<%
+	user, session = goblin_auth.get_user(c)
+	if user != "hokipoki":
+		return
+	tables = libgoblin.get_declared_tables();
+	table = d["table"] if "table" in d else tables[0]
+%>
+<style>
+td, th {
+	border: 1px solid black;
+	padding: 3px;
+}
+table {
+	border-collapse: collapse;
+}
+</style>
+<select onchange="window.location=window.location.pathname + '?table=' + this.selectedOptions[0].value;">
+% for tbl in tables:
+	<option value="${tbl}" ${"selected='selected'" if tbl == table else ""}>${tbl}</option>
+% endfor
+</select>
+<br /><br /><br /><br />
+% if table:
+	<% raw = libgoblin.get_raw_table(table) %>
+	% if len(raw) == 0:
+		Table is empty
+	% else:
+		<table><thead>
+		<tr>
+		% for k in raw[0].__dict__.keys():
+			<th>${k | h}</th>
+		% endfor
+		</thead><tbody>
+		% for r in raw:
+			<tr>
+			% for f in r:
+				<td>${f | h}</td>
+			% endfor
+			</tr>
+		% endfor
+		</tbody></table>
+	% endif
+% endif
+</select>
