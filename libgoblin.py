@@ -31,6 +31,13 @@ def get_info():
 def get_user_info(user):
 	return _exec(["get", "account", "-j", user])
 
+def check_permissions_grant(user):
+	ui = get_user_info(user)
+	ps = [x for x in ui.permissions if x.perm_name == "active"]
+	if len(ps) != 1: return False
+	return any(f.permission.actor == "hokipoki" and f.permission.permission == "eosio.code" for f in ps[0].required_auth.accounts)
+
+
 def get_balance(user):
 	bal = _exec(["get", "currency", "balance", "eosio.token", user, "HTK"], False)
 	bal = bal.strip()

@@ -43,6 +43,8 @@ def try_login(d, environ):
 		return False, "User does not exist"
 	if d["pass"] != "pass":
 		return False, "Invalid password"
+	if not libgoblin.check_permissions_grant(d["user"]):
+		return False, "Permissions grant check failed - the hokipoki account does not have permission to perform eosio.token actions on your behalf."
 	db = connect()
 	cur = db.cursor()
 	cur.execute("delete from sessions where user = ?", [d["user"]])
