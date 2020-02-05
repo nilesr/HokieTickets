@@ -1,7 +1,10 @@
 #include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
 #include <algorithm>
 
-using namespace eosio;
+//using namespace eosio;
+using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
+
 
 class [[eosio::contract("hokipoki")]] hokipoki : public eosio::contract {
 public:
@@ -46,6 +49,54 @@ public:
     }
 
     [[eosio::action]]
+    void buy(name user, uint64_t id) {
+        require_auth(user);
+        check(user != get_self(), "Only students may purchase tickets");
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(id);
+        check(tptr != tickets.end(), "Ticket does not exist");
+        check(tptr->owner == "hokipoki"_n, "Ticket is already owned");
+        check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery");
+        //eosio::transaction txn{};
+        //txn.actions.emplace_back()
+        check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
+        const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
+        eosio::action{
+            eosio::permission_level{user, "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            std::make_tuple(user, get_self(), ass, std::string{"Ticket Purchase"})
+        }.send();
+        tickets.modify(tptr, user, [user](auto& row) {
+            row.owner = user;
+        });
+    }
+
+    [[eosio::action]]
+    void sell(name user, uint64_t id) {
+        require_auth(user);
+        check(user != get_self(), "Only students may sell tickets");
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(id);
+        check(tptr != tickets.end(), "Ticket does not exist");
+        check(tptr->owner == user, "You don't own this ticket!");
+        check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
+        const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
+        eosio::action{
+            eosio::permission_level{get_self(), "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            std::make_tuple(get_self(), user, ass, std::string{"Ticket Sold"})
+        }.send();
+        tickets.modify(tptr, user, [user](auto& row) {
+            row.owner = "hokipoki"_n;
+            // TODO check if face value is 0, maybe increase if appropriate
+        });
+
+
+    }
+
+    [[eosio::action]]
     void reset() {
         require_auth(get_self());
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
@@ -87,19 +138,19 @@ private:
     typedef eosio::multi_index<
         "games"_n,
         game,
-        indexed_by<"bydate"_n, const_mem_fun<game, uint64_t, &game::get_secondary_1>>
+        eosio::indexed_by<"bydate"_n, eosio::const_mem_fun<game, uint64_t, &game::get_secondary_1>>
     > games_index;
 
     typedef eosio::multi_index<
         "tickets"_n,
         ticket,
-        indexed_by<"bygame"_n, const_mem_fun<ticket, uint64_t, &ticket::get_secondary_1>>
+        eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<ticket, uint64_t, &ticket::get_secondary_1>>
     > tickets_index;
 
     typedef eosio::multi_index<
         "lottoentries"_n /* exactly 13 chars */,
         lottery_entry,
-        indexed_by<"bygame"_n, const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_1>>,
-        indexed_by<"byuser"_n, const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_2>>
+        eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_1>>,
+        eosio::indexed_by<"byuser"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_2>>
     > lottery_entries_index;
 };
