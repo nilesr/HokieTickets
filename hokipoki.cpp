@@ -2,9 +2,7 @@
 #include <eosio/asset.hpp>
 #include <algorithm>
 
-//using namespace eosio;
 using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
-
 
 class [[eosio::contract("hokipoki")]] hokipoki : public eosio::contract {
 public:
@@ -92,8 +90,6 @@ public:
             row.owner = "hokipoki"_n;
             // TODO check if face value is 0, maybe increase if appropriate
         });
-
-
     }
 
     [[eosio::action]]
