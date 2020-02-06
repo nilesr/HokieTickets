@@ -25,11 +25,12 @@ public:
         }
         new_number += 1;
 
-        games.emplace(get_self(), [new_id, day, new_number](auto& row) {
+        games.emplace(get_self(), [new_id, day, new_number, price](auto& row) {
             row.id = new_id;
             row.date = day;
             row.number = new_number;
             row.lottery_open = true;
+            row.initial_face_value = price;
         });
 
         tickets_index tickets(get_self(), get_first_receiver().value);
@@ -79,16 +80,24 @@ public:
         check(tptr != tickets.end(), "Ticket does not exist");
         check(tptr->owner == user, "You don't own this ticket!");
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
-        const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
-        eosio::action{
-            eosio::permission_level{get_self(), "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            std::make_tuple(get_self(), user, ass, std::string{"Ticket Sold"})
-        }.send();
-        tickets.modify(tptr, user, [user](auto& row) {
+        int new_face_value = tptr->face_value;
+        if (new_face_value == 0) {
+            games_index games(get_self(), get_first_receiver().value);
+            auto gptr = games.find(tptr->game_id);
+            check(gptr != games.end(), "Ticket is for a game that does not exist.");
+            new_face_value = gptr->initial_face_value;
+        } else {
+            const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
+            eosio::action{
+                eosio::permission_level{get_self(), "active"_n},
+                "eosio.token"_n,
+                "transfer"_n,
+                std::make_tuple(get_self(), user, ass, std::string{"Ticket Sold"})
+            }.send();
+        }
+        tickets.modify(tptr, user, [new_face_value](auto& row) {
             row.owner = "hokipoki"_n;
-            // TODO check if face value is 0, maybe increase if appropriate
+            row.face_value = new_face_value;
         });
     }
 
@@ -108,6 +117,7 @@ private:
         uint64_t date;
         uint64_t number;
         bool lottery_open;
+        uint64_t initial_face_value;
         uint64_t primary_key() const { return id; }
         uint64_t get_secondary_1() const { return date; }
     };
