@@ -1,8 +1,37 @@
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
-#include <algorithm>
+#include <eosio/transaction.hpp>
+#include <eosio/crypto.hpp>
 
 using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
+
+struct random {
+    uint64_t state = 0x4017117fdf7c8ee9;
+    int n = 0;
+    random() {
+        auto mixedBlock = eosio::tapos_block_prefix() * eosio::tapos_block_num();
+        eosio::checksum256 result = eosio::sha256((char*) &mixedBlock, sizeof(mixedBlock));
+        static_assert(sizeof(result) / 8 >= 4, "pls");
+        uint64_t* uptr = (uint64_t*) &result;
+        update(uptr[0], uptr[1], uptr[2], uptr[3]);
+    }
+    void update(uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4) {
+        check(n == 0, "already called get()");
+        state ^= r1;
+        while (r2 == 0 || r3 == 0) { r2++; r3++; }
+        state ^= ((r2 % r3) * (r3 % r2) * r2 * r3);
+        state ^= (r4 % 11) * r4 * r1;
+    }
+    // LCG based on glibc implementation
+    uint32_t get() {
+        n++;
+        uint64_t s = state;
+        for (int i = 0; i < n; i++) {
+            s = (s * 1103515245 + 12345) % (1 << 31);
+        }
+        return s;
+    }
+};
 
 class [[eosio::contract("hokipoki")]] hokipoki : public eosio::contract {
 public:
@@ -102,7 +131,7 @@ public:
     }
 
     [[eosio::action]]
-    void enterlottery(name user, uint64_t game_id) {
+    void enterlottery(name user, uint64_t game_id, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4) {
         require_auth(user);
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
@@ -113,13 +142,64 @@ public:
         auto eptr = userindex.lower_bound(user.value);
         while (eptr != userindex.end() && eptr->user == user) {
             check(eptr->game_id != game_id, "You are already in the lottery for that game.");
+            eptr++;
         }
         // TODO later - check if they already have a ticket for that game?
         uint64_t id = lottery_entries.cbegin() == lottery_entries.cend() ? 0 : lottery_entries.crbegin()->id + 1;
-        lottery_entries.emplace(user, [id, user, game_id](auto& row) {
+        lottery_entries.emplace(user, [id, user, game_id, r1, r2, r3, r4](auto& row) {
             row.id = id;
             row.user = user;
             row.game_id = game_id;
+            row.random_1 = r1;
+            row.random_2 = r2;
+            row.random_3 = r3;
+            row.random_4 = r4;
+        });
+    }
+
+    [[eosio::action]]
+    void executelotto(uint64_t game_id) {
+        require_auth(get_self());
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "Game does not exist");
+        check(gptr->lottery_open, "Lottery has already been executed for that game");
+        random r{};
+        uint64_t price = gptr->initial_face_value;
+
+        // First, make a list of all of the students who entered the lottery, and remove all the entries for this game while we're at it
+        std::vector<uint64_t> students{};
+        lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        auto entries_by_game = lottery_entries.get_index<"bygame"_n>();
+        auto eptr = entries_by_game.lower_bound(game_id);
+        while (eptr != entries_by_game.end() && eptr->game_id == game_id) {
+            students.emplace_back(eptr->user.value);
+            r.update(eptr->random_1, eptr->random_2, eptr->random_3, eptr->random_4);
+            eptr = entries_by_game.erase(eptr);
+        }
+
+        // Now for each ticket, pick a random student, give the ticket to them, and remove them from the set
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto bygame = tickets.get_index<"bygame"_n>();
+        for (auto tptr = bygame.lower_bound(game_id); tptr != bygame.end() && tptr->game_id == game_id; tptr++) {
+            if (!tptr->for_lottery) continue;
+            bygame.modify(tptr, get_self(), [price](auto& row) {
+                row.face_value = price;
+                row.for_lottery = false;
+            });
+            if (students.size() > 0) {
+                uint64_t idx = r.get() % students.size();
+                auto owner = eosio::name{students.at(idx)};
+                bygame.modify(tptr, get_self(), [owner](auto& row) {
+                    row.owner = owner;
+                });
+                students.erase(students.begin() + idx);
+            }
+        }
+
+        // Mark lottery as no longer open
+        games.modify(gptr, get_self(), [](auto& row) {
+            row.lottery_open = false;
         });
     }
 
@@ -158,6 +238,10 @@ private:
         uint64_t id;
         name user;
         uint64_t game_id;
+        uint64_t random_1;
+        uint64_t random_2;
+        uint64_t random_3;
+        uint64_t random_4;
         uint64_t primary_key() const { return id; }
         uint64_t get_secondary_1() const { return user.value; }
         uint64_t get_secondary_2() const { return game_id; }
@@ -178,7 +262,7 @@ private:
     typedef eosio::multi_index<
         "lottoentries"_n /* exactly 13 chars */,
         lottery_entry,
-        eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_1>>,
-        eosio::indexed_by<"byuser"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_2>>
+        eosio::indexed_by<"byuser"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_1>>,
+        eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_2>>
     > lottery_entries_index;
 };
