@@ -102,6 +102,28 @@ public:
     }
 
     [[eosio::action]]
+    void enterlottery(name user, uint64_t game_id) {
+        require_auth(user);
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "That game does not exist.");
+        check(gptr->lottery_open, "The lottery for that game has already ended.");
+        lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        auto userindex = lottery_entries.get_index<"byuser"_n>();
+        auto eptr = userindex.lower_bound(user.value);
+        while (eptr != userindex.end() && eptr->user == user) {
+            check(eptr->game_id != game_id, "You are already in the lottery for that game.");
+        }
+        // TODO later - check if they already have a ticket for that game?
+        uint64_t id = lottery_entries.cbegin() == lottery_entries.cend() ? 0 : lottery_entries.crbegin()->id + 1;
+        lottery_entries.emplace(user, [id, user, game_id](auto& row) {
+            row.id = id;
+            row.user = user;
+            row.game_id = game_id;
+        });
+    }
+
+    [[eosio::action]]
     void reset() {
         require_auth(get_self());
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
@@ -134,10 +156,10 @@ private:
 
     struct [[eosio::table]] lottery_entry {
         uint64_t id;
-        uint64_t user_id;
+        name user;
         uint64_t game_id;
         uint64_t primary_key() const { return id; }
-        uint64_t get_secondary_1() const { return user_id; }
+        uint64_t get_secondary_1() const { return user.value; }
         uint64_t get_secondary_2() const { return game_id; }
     };
 
