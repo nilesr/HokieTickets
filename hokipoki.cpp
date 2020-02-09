@@ -158,6 +158,26 @@ public:
     }
 
     [[eosio::action]]
+    void leavelottery(name user, uint64_t game_id) {
+        require_auth(user);
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "That game does not exist.");
+        check(gptr->lottery_open, "The lottery for that game has already ended.");
+        lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        auto userindex = lottery_entries.get_index<"byuser"_n>();
+        auto eptr = userindex.lower_bound(user.value);
+        while (eptr != userindex.end() && eptr->user == user) {
+            if (eptr->game_id == game_id) {
+                userindex.erase(eptr);
+                return;
+            }
+            eptr++;
+        }
+        check(false, "You are not in the lottery for that game");
+    }
+
+    [[eosio::action]]
     void executelotto(uint64_t game_id) {
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);

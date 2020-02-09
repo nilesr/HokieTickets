@@ -17,6 +17,10 @@ function enterlottery
 	cleos push action hokipoki enterlottery "[\""$argv[1]"\", "$argv[2]", 0x"$r1", 0x"$r2", 0x"$r3", 0x"$r4"]" -p "$argv[1]"@active
 end
 
+function leavelottery
+	cleos push action hokipoki leavelottery "[\""$argv[1]"\", "$argv[2]"]" -p "$argv[1]"@active
+end
+
 function execute_lottery
 	cleos push action hokipoki executelotto "["$argv[1]"]" -p hokipoki@active
 end

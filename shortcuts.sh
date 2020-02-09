@@ -17,6 +17,10 @@ enterlottery() {
 	cleos push action hokipoki enterlottery "[\""$1"\", "$2", 0x"$r1", 0x"$r2", 0x"$r3", 0x"$r4"]" -p "$1"@active
 }
 
+leavelottery() {
+	cleos push action hokipoki leavelottery "[\""$1"\", "$2"]" -p "$1"@active
+}
+
 execute_lottery() {
 	cleos push action hokipoki executelotto "["$1"]" -p hokipoki@active
 }

@@ -26,6 +26,13 @@ title: Enter Lottery
 summary: This action takes a user and a game id. It must be invoked with the active permission of the passed user. If the game ID exists, the lottery is still open for that game, and the user has not already entered into the ticket lottery for that game, then the user is entered into the ticket lottery. The four passed random values MUST be randomly generated. 
 icon:
 
+<h1 class="contract">leavelottery</h1>
+---
+spec-version: 0.1.0
+title: Leave Lottery
+summary: This action takes a user and a game id. It must be invoked with the active permission of the passed user. If the game ID exists, and the user has entered into the ticket lottery for that game, then the user is removed from the ticket lottery.
+icon:
+
 <h1 class="contract">executelotto</h1>
 ---
 spec-version: 0.1.0
