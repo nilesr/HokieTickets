@@ -203,8 +203,7 @@ public:
         auto bygame = tickets.get_index<"bygame"_n>();
         for (auto tptr = bygame.lower_bound(game_id); tptr != bygame.end() && tptr->game_id == game_id; tptr++) {
             if (!tptr->for_lottery) continue;
-            bygame.modify(tptr, get_self(), [price](auto& row) {
-                row.face_value = price;
+            bygame.modify(tptr, get_self(), [](auto& row) {
                 row.for_lottery = false;
             });
             if (students.size() > 0) {
@@ -214,6 +213,10 @@ public:
                     row.owner = owner;
                 });
                 students.erase(students.begin() + idx);
+            } else {
+                bygame.modify(tptr, get_self(), [price](auto& row) {
+                    row.face_value = price;
+                });
             }
         }
 
