@@ -15,7 +15,7 @@ icon:
 <h1 class="contract">sell</h1>
 ---
 spec-version: 0.1.0
-title: Buy
+title: Sell
 summary: This action takes a user and a ticket id. It must be invoked with the active permission of the passed user. If the ticket ID exists, is owned by the calling user, and the user has allowed the `hokipoki` smart contract to execute inline actions on `eosio.token` with the user's active permission, then the face value of the ticket is transfered from hokipoki to the active user, and the owner of the ticket is set to `hokipoki`.
 icon:
 
