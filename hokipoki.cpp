@@ -145,11 +145,12 @@ public:
             eptr++;
         }
 
+
         tickets_index tickets{get_self(),get_first_receiver().value};
         auto gameindex = tickets.get_index<"bygame"_n>();
         auto tptr = gameindex.lower_bound(game_id);
         while(tptr != gameindex.end() && tptr->game_id == game_id){
-            check(tptr->game_id != game_id, "You already own a ticket for that game.");
+            check(tptr->owner != user, "You already own a ticket for that game.");
             tptr++;
         }
 
