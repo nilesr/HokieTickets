@@ -145,12 +145,12 @@ public:
             eptr++;
         }
 
-        tickets_index tickets(get_self(),get_first_reciever().value);
-        auto ownerindex = tickets_index.get_index<"byowner"_n>();
-        auto eptr = ownerindex.lower_bound(user.value);
-        while(eptr != userindex.end() && eptr->owner == user){
-            check(eptr->game_id != game_id, "You already own a ticket for that game.");
-            eptr++;
+        tickets_index tickets{get_self(),get_first_receiver().value};
+        auto gameindex = tickets.get_index<"bygame"_n>();
+        auto tptr = gameindex.lower_bound(game_id);
+        while(tptr != gameindex.end() && tptr->game_id == game_id){
+            check(tptr->game_id != game_id, "You already own a ticket for that game.");
+            tptr++;
         }
 
         uint64_t id = lottery_entries.cbegin() == lottery_entries.cend() ? 0 : lottery_entries.crbegin()->id + 1;
