@@ -144,7 +144,15 @@ public:
             check(eptr->game_id != game_id, "You are already in the lottery for that game.");
             eptr++;
         }
-        // TODO later - check if they already have a ticket for that game?
+
+        tickets_index tickets(get_self(),get_first_reciever().value);
+        auto ownerindex = tickets_index.get_index<"byowner"_n>();
+        auto eptr = ownerindex.lower_bound(user.value);
+        while(eptr != userindex.end() && eptr->owner == user){
+            check(eptr->game_id != game_id, "You already own a ticket for that game.");
+            eptr++;
+        }
+
         uint64_t id = lottery_entries.cbegin() == lottery_entries.cend() ? 0 : lottery_entries.crbegin()->id + 1;
         lottery_entries.emplace(user, [id, user, game_id, r1, r2, r3, r4](auto& row) {
             row.id = id;
