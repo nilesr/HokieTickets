@@ -82,9 +82,21 @@ public:
         check(user != get_self(), "Only students may purchase tickets");
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(id);
+
         check(tptr != tickets.end(), "Ticket does not exist");
         check(tptr->owner == "hokipoki"_n, "Ticket is already owned");
         check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery");
+        
+        //TODO: edit this so it works for this function 
+        uint64_t game_id = tptr->game_id;
+        lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        auto userindex = lottery_entries.get_index<"byuser"_n>();
+        auto eptr = userindex.lower_bound(user.value);
+        while (eptr != userindex.end() && eptr->user == user) {
+            check(eptr->game_id != game_id, "You are already in the lottery for that game.");
+            eptr++;
+        }    
+
         //eosio::transaction txn{};
         //txn.actions.emplace_back()
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
@@ -137,6 +149,7 @@ public:
         auto gptr = games.find(game_id);
         check(gptr != games.end(), "That game does not exist.");
         check(gptr->lottery_open, "The lottery for that game has already ended.");
+        
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
         auto userindex = lottery_entries.get_index<"byuser"_n>();
         auto eptr = userindex.lower_bound(user.value);

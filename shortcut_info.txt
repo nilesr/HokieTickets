@@ -1,0 +1,78 @@
+creategame uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uint64_t price
+    Creates a game
+    Preconditions:
+        num_tickets >= tickets_for_lottery
+    Params:
+        day: day that the game occurs in yyyymmdd format
+        num_tickets: number of tickets total for the game
+        tickets_for_lottery: number of tickets reserved for the lottery 
+        price: price of ticket x100 (ex 60.00 = 6000)
+
+buy name user, uint64_t ticket_id
+    Buys a ticket for a given user.
+    Preconditions:
+        user must not already own a ticket
+        user must not be in the lottery
+        user must have proper amount of HTK 
+    Params:
+        user: name of the user in EOSIO naming format
+        ticket_id: id of the ticket
+
+sell name user, uint64_t ticket_id
+    sells a ticket back to hokipoki
+    Preconditions:
+        user must own ticket with corresponding id
+    Params:
+        user: name of the user in EOSIO naming format
+        ticket_id: id of the ticket
+
+enterlottery name user, uint64_t game_id
+    enters user to lottery
+    Preconditions:
+        user does not already own a ticket
+        user is not already in the lottery
+        lottery has not already been executed
+    Params:
+        user: name of the user in EOSIO naming format
+        game_id: id for the game
+
+leavelottery name user, uint64_t game_id
+    leaves user from the lottery
+    Preconditions:
+        user is already in the lottery
+    Params:
+        user: name of user in EOSIO naming format
+        game_id: id for the game
+
+execute_lottery uint64_t game_id
+    executes the lottery
+    Preconditions:
+        the lottery has not been executed already
+    Params:
+        game_id: id for the game
+
+reset
+    clears all tables
+    On action, all games, lotteries, and tickets are removed
+
+games
+    view all active games
+
+lottery_entries
+    view all active lottery_entries for all games
+
+tickets
+    view all active tickets
+
+balance name user
+    view HTK balance of user
+    Params:
+        user: name of user in EOSIO naming format
+
+transfer name user_from, name user_to, double amount, string memo
+    transfers HTK between two users
+    Params:
+        user_from: user giving HTK in EOSIO format
+        user_to: user recieving HTK in EOSIO format
+        amount: number of HTK to transfer. MUST have two decimal point precision
+        memo: string containing a memo for a transfer
