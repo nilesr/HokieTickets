@@ -1,4 +1,4 @@
-function creategame 
+function create_game 
 	cleos push action hokipoki creategame "["$argv[1]", "$argv[2]", "$argv[3]", "$argv[4]", \""$argv[5]"\", \""$argv[6]"\", "$argv[7]", "$argv[8]"]" -p hokipoki@active
 end
 
@@ -9,7 +9,7 @@ function sell
 	cleos push action hokipoki sell "[\""$argv[1]"\", "$argv[2]"]" -p "$argv[1]"@active
 end
 
-function enterlottery
+function enter_lottery
 	set r1 (head -c 8 /dev/urandom | xxd -p)
 	set r2 (head -c 8 /dev/urandom | xxd -p)
 	set r3 (head -c 8 /dev/urandom | xxd -p)
@@ -17,7 +17,7 @@ function enterlottery
 	cleos push action hokipoki enterlottery "[\""$argv[1]"\", "$argv[2]", 0x"$r1", 0x"$r2", 0x"$r3", 0x"$r4"]" -p "$argv[1]"@active
 end
 
-function leavelottery
+function leave_lottery
 	cleos push action hokipoki leavelottery "[\""$argv[1]"\", "$argv[2]"]" -p "$argv[1]"@active
 end
 

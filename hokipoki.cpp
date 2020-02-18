@@ -98,7 +98,16 @@ public:
         while (eptr != userindex.end() && eptr->user == user) {
             check(eptr->game_id != game_id, "You are already in the lottery for that game.");
             eptr++;
-        }    
+        }  
+
+        auto gameindex = tickets.get_index<"bygame"_n>();
+        auto tptr_2 = gameindex.lower_bound(game_id);
+        while(tptr_2 != gameindex.end() && tptr_2->game_id == game_id){
+            check(tptr_2->owner != user, "You already own a ticket for that game.");
+            tptr++;
+        }
+
+
 
         //eosio::transaction txn{};
         //txn.actions.emplace_back()

@@ -1,4 +1,4 @@
-creategame() {
+create_game() {
 	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4", \""$5"\", \""$6"\", "$7", "$8"]" -p hokipoki@active
 }
 
@@ -9,7 +9,7 @@ sell() {
 	cleos push action hokipoki sell "[\""$1"\", "$2"]" -p "$1"@active
 }
 
-enterlottery() {
+enter_lottery() {
 	r1=$(head -c 8 /dev/urandom | xxd -p)
 	r2=$(head -c 8 /dev/urandom | xxd -p)
 	r3=$(head -c 8 /dev/urandom | xxd -p)
@@ -17,7 +17,7 @@ enterlottery() {
 	cleos push action hokipoki enterlottery "[\""$1"\", "$2", 0x"$r1", 0x"$r2", 0x"$r3", 0x"$r4"]" -p "$1"@active
 }
 
-leavelottery() {
+leave_lottery() {
 	cleos push action hokipoki leavelottery "[\""$1"\", "$2"]" -p "$1"@active
 }
 

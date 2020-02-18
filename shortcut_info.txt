@@ -1,4 +1,4 @@
-creategame uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uint64_t price
+create_game uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uint64_t price
     Creates a game
     Preconditions:
         num_tickets >= tickets_for_lottery
@@ -30,7 +30,7 @@ sell name user, uint64_t ticket_id
         user: name of the user in EOSIO naming format
         ticket_id: id of the ticket
 
-enterlottery name user, uint64_t game_id
+enter_lottery name user, uint64_t game_id
     enters user to lottery
     Preconditions:
         user does not already own a ticket
@@ -40,7 +40,7 @@ enterlottery name user, uint64_t game_id
         user: name of the user in EOSIO naming format
         game_id: id for the game
 
-leavelottery name user, uint64_t game_id
+leave_lottery name user, uint64_t game_id
     leaves user from the lottery
     Preconditions:
         user is already in the lottery
@@ -54,6 +54,14 @@ execute_lottery uint64_t game_id
         the lottery has not been executed already
     Params:
         game_id: id for the game
+
+open_lottery uint64_t game_id
+    opens the lottery
+    Preconditions:
+        a lottery exists for the given game
+    Params:
+        game_id: id for the game
+
 
 open_lottery uint64_t game_id
     opens the lottery (lotteries for games start as closed)
