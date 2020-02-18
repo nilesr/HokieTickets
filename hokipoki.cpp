@@ -87,7 +87,6 @@ public:
         check(tptr->owner == "hokipoki"_n, "Ticket is already owned");
         check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery");
         
-        //TODO: edit this so it works for this function 
         uint64_t game_id = tptr->game_id;
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
         auto userindex = lottery_entries.get_index<"byuser"_n>();
@@ -249,6 +248,15 @@ public:
     }
 
     [[eosio::action]]
+    void adduser(name user) {
+        require_auth(get_self());
+        users_index users(get_self(), get_first_receiver().value);
+        users.emplace(get_self(), [user](auto& row) {
+            row.user = user;
+        });
+    }
+
+    [[eosio::action]]
     void reset() {
         require_auth(get_self());
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
@@ -292,6 +300,11 @@ private:
         uint64_t get_secondary_2() const { return game_id; }
     };
 
+    struct [[eosio::table]] user {
+        name user;
+        uint64_t primary_key() const { return user.value; }
+    };
+
     typedef eosio::multi_index<
         "games"_n,
         game,
@@ -310,4 +323,9 @@ private:
         eosio::indexed_by<"byuser"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_1>>,
         eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<lottery_entry, uint64_t, &lottery_entry::get_secondary_2>>
     > lottery_entries_index;
+
+    typedef eosio::multi_index<
+        "users"_n,
+        user
+    > users_index;
 };
