@@ -55,6 +55,13 @@ execute_lottery uint64_t game_id
     Params:
         game_id: id for the game
 
+open_lottery uint64_t game_id
+    opens the lottery (lotteries for games start as closed)
+    Preconditions:
+        the lottery has not been opened already
+    Params:
+        game_id: id for the game
+
 reset
     clears all tables
     On action, all games, lotteries, and tickets are removed

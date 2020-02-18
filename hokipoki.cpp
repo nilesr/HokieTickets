@@ -151,7 +151,7 @@ public:
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
         check(gptr != games.end(), "That game does not exist.");
-        check(gptr->lottery_open, "The lottery for that game has already ended.");
+        check(gptr->lottery_open, "The lottery for that game is not open.");
         
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
         auto userindex = lottery_entries.get_index<"byuser"_n>();

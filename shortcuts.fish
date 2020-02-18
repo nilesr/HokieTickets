@@ -1,5 +1,5 @@
 function creategame 
-	cleos push action hokipoki creategame "["$argv[1]", "$argv[2]", "$argv[3]", "$argv[4]"]" -p hokipoki@active
+	cleos push action hokipoki creategame "["$argv[1]", "$argv[2]", "$argv[3]", "$argv[4]", \""$argv[5]"\", \""$argv[6]"\", "$argv[7]", "$argv[8]"]" -p hokipoki@active
 end
 
 function buy 
@@ -23,6 +23,10 @@ end
 
 function execute_lottery
 	cleos push action hokipoki executelotto "["$argv[1]"]" -p hokipoki@active
+end
+
+function open_lottery
+	cleos push action hokipoki openlottery "["$argv[1]"]" -p hokipoki@active
 end
 
 function reset

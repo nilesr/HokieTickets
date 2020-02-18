@@ -1,5 +1,5 @@
 creategame() {
-	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4"]" -p hokipoki@active
+	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4", \""$5"\", \""$6"\", "$7", "$8"]" -p hokipoki@active
 }
 
 buy() {
@@ -23,6 +23,10 @@ leavelottery() {
 
 execute_lottery() {
 	cleos push action hokipoki executelotto "["$1"]" -p hokipoki@active
+}
+
+open_lottery() {
+	cleos push action hokipoki openlottery "["$1"]" -p hokipoki@active
 }
 
 reset() {
