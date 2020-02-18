@@ -64,6 +64,7 @@ def create_account(user):
 	_exec(["set", "account", "permission", user, "active",
 		'{"threshold":1, "keys":[{"key":"'+KEY+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
 		"owner", "-p", user], False)
+	_exec(["push", "action", "hokipoki", "adduser", json.dumps([user]), "-p", "hokipoki@active"], False)
 
 # For debugging only. Put the output of debug_format() in a <pre> tag, or on the console
 def _debug_is_complex(t):
