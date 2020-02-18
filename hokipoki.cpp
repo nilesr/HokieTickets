@@ -38,7 +38,7 @@ public:
     using contract::contract;
 
     [[eosio::action]]
-    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price) {
+    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price, std::string name, std::string location, uint64_t lottery_opens, uint64_t lottery_closes) {
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         uint64_t new_id = 0;
@@ -54,12 +54,16 @@ public:
         }
         new_number += 1;
 
-        games.emplace(get_self(), [new_id, day, new_number, price](auto& row) {
+        games.emplace(get_self(), [new_id, day, new_number, price, name, location, lottery_opens, lottery_closes](auto& row) {
             row.id = new_id;
             row.date = day;
             row.number = new_number;
-            row.lottery_open = true;
+            row.lottery_open = false; // lottery is closed until the admin executes openlottery on the game
             row.initial_face_value = price;
+            row.name = name;
+            row.location = location;
+            row.lottery_opens = lottery_opens;
+            row.lottery_closes = lottery_closes;
         });
 
         tickets_index tickets(get_self(), get_first_receiver().value);
@@ -204,7 +208,7 @@ public:
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
         check(gptr != games.end(), "Game does not exist");
-        check(gptr->lottery_open, "Lottery has already been executed for that game");
+        check(gptr->lottery_open, "Lottery is not open for that game");
         random r{};
         uint64_t price = gptr->initial_face_value;
 
@@ -248,6 +252,18 @@ public:
     }
 
     [[eosio::action]]
+    void openlottery(uint64_t game_id) {
+        require_auth(get_self());
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "That game does not exist");
+        check(!gptr->lottery_open, "The lottery for that game is already open");
+        games.modify(gptr, get_self(), [](auto& row) {
+            row.lottery_open = true;
+        });
+    }
+
+    [[eosio::action]]
     void adduser(name user) {
         require_auth(get_self());
         users_index users(get_self(), get_first_receiver().value);
@@ -273,6 +289,10 @@ private:
         uint64_t number;
         bool lottery_open;
         uint64_t initial_face_value;
+        std::string name;
+        std::string location;
+        uint64_t lottery_opens;
+        uint64_t lottery_closes;
         uint64_t primary_key() const { return id; }
         uint64_t get_secondary_1() const { return date; }
     };

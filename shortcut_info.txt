@@ -7,6 +7,10 @@ creategame uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uin
         num_tickets: number of tickets total for the game
         tickets_for_lottery: number of tickets reserved for the lottery 
         price: price of ticket x100 (ex 60.00 = 6000)
+        name: String, name of game
+        location: String, location of game
+        lottery_opens: Time listed in frontend for when the lottery will open, format is yyyymmddHHMM
+        lottery_closes: Time listed in frontend for when the lottery will close, format is yyyymmddHHMM
 
 buy name user, uint64_t ticket_id
     Buys a ticket for a given user.
