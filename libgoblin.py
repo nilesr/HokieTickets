@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-import json, subprocess, collections, random, datetime
+import json, subprocess, collections, random, datetime, re
 cleos = ["cleos", "--no-auto-keosd", "-u", "http://127.0.0.1:8888", "--wallet-url", "unix:///home/ubuntu/eosio-wallet/keosd.sock"]
 KEY = "EOS7J1tYpCHkCCvi5DwYXkJMRKRzK9XAUVvMC7PnrcucNXS6ZuMC1"
 KEYWORDS = {"from", "except", "if", "else", "elif", "return"}
@@ -101,37 +101,70 @@ def buy(user, game_id):
 	#TODO: Error if ticket is not available
 	try:
 		_exec(["push", "action", "hokipoki", "buy", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
-		return get_balance(user)
+		return json.dumps({"balance":get_balance(user)})
 	except EosioError as e:
-		return e.output
-
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 def sell(user, ticket_id):
-	return _exec(["push", "action", "hokipoki", "sell", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
+	try:
+		_exec(["push", "action", "hokipoki", "sell", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
+		return json.dumps({"balance":get_balance(user)})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 def enter_lottery(user, game_id):
 	r1 = random.randint(0, 2 ** 64 - 1)
 	r2 = random.randint(0, 2 ** 64 - 1)
 	r3 = random.randint(0, 2 ** 64 - 1)
 	r4 = random.randint(0, 2 ** 64 - 1)
-	return _exec(["push", "action", "hokipoki", "enterlottery", json.dumps([user, game_id, r1, r2, r3, r4]), "-p", user + "@active", "-j"])
+	try:
+		_exec(["push", "action", "hokipoki", "enterlottery", json.dumps([user, game_id, r1, r2, r3, r4]), "-p", user + "@active", "-j"])
+		return json.dumps({"success":"Success!"})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 def leave_lottery(user, game_id):
-	return _exec(["push", "action", "hokipoki", "leavelottery", json.dumps([user, game_id]), "-p", user + "@active", "-j"])
+	try:
+		_exec(["push", "action", "hokipoki", "leavelottery", json.dumps([user, game_id]), "-p", user + "@active", "-j"])
+		return json.dumps({"success":"Success!"})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 
 # ADMIN ACTIONS
 def execute_lottery(game_id):
-	return _exec(["push", "action", "hokipoki", "executelotto", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
+	try:
+		_exec(["push", "action", "hokipoki", "executelotto", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
+		return json.dumps({"success": "Success!"})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 def open_lottery(game_id):
-	return _exec(["push", "action", "hokipoki", "openlottery", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
+	try:
+		_exec(["push", "action", "hokipoki", "openlottery", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
+		return json.dumps({"success": "Success!"})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 def create_game(day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes):
 	return _exec(["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes]), "-p", "hokipoki@active", "-j"])
 
 def reset():
 	return _exec(["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active"])
+
+def transfer(user, amount, message):
+	try:
+		amount_str = str(amount)
+		if "." not in amount_str:
+			amount_str = amount_str + ".00 HTK"
+		elif len(amount_str.split(".")[1]) != 2:
+			amount_str = amount_str + "0 HTK"
+		else:
+			amount_str = amount_str + " HTK"
+		_exec(["push", "action", "eosio.token", "transfer", json.dumps(["hokipoki", user, amount_str, message]), "-p", "hokipoki@active", "-j"])
+		return json.dumps({"balance": get_balance(user)})
+	except EosioError as e:
+		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
 
 
 # USER AND ADMIN ACTIONS

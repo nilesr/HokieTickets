@@ -68,9 +68,12 @@ import datetime
 # buy("bruh",0)
 # print(user_has_ticket("bruh",0))
 
-def user_in_lottery(user,game_id):
-    return len(filter(lambda a:a["user"]==user and a["game_id"]==game_id,get_raw_table("lottoentries")))>0
-print(user_in_lottery("bruh",0))
-print(user_in_lottery("bruh",1))
+# def user_in_lottery(user,game_id):
+#     return len(filter(lambda a:a["user"]==user and a["game_id"]==game_id,get_raw_table("lottoentries")))>0
+# print(user_in_lottery("bruh",0))
+# print(user_in_lottery("bruh",1))
+
+print(transfer("ankita", 999996219.32, "testing"))
 
 #print(json.dumps(parsed,indent=4,sort_keys=True))
+
