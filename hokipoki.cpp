@@ -2,6 +2,7 @@
 #include <eosio/asset.hpp>
 #include <eosio/transaction.hpp>
 #include <eosio/crypto.hpp>
+#include <stdio.h>
 
 using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
 
@@ -16,7 +17,7 @@ struct random {
         update(uptr[0], uptr[1], uptr[2], uptr[3]);
     }
     void update(uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4) {
-        check(n == 0, "already called get()");
+        check(n == 0, "already called get().");
         state ^= r1;
         while (r2 == 0 || r3 == 0) { r2++; r3++; }
         state ^= ((r2 % r3) * (r3 % r2) * r2 * r3);
@@ -83,13 +84,13 @@ public:
     [[eosio::action]]
     void buy(name user, uint64_t id) {
         require_auth(user);
-        check(user != get_self(), "Only students may purchase tickets");
+        check(user != get_self(), "Only students may purchase tickets.");
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(id);
 
-        check(tptr != tickets.end(), "Ticket does not exist");
-        check(tptr->owner == "hokipoki"_n, "Ticket is already owned");
-        check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery");
+        check(tptr != tickets.end(), "Ticket does not exist.");
+        check(tptr->owner == "hokipoki"_n, "Ticket is already owned.");
+        check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery.");
         
         uint64_t game_id = tptr->game_id;
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
@@ -97,21 +98,25 @@ public:
         auto eptr = userindex.lower_bound(user.value);
         while (eptr != userindex.end() && eptr->user == user) {
             check(eptr->game_id != game_id, "You are already in the lottery for that game.");
+            // if(eptr->game_id == game_id){
+            //     printf("YOU FUCKING ALREADY HAVE TICKET\n");
+            //     return;
+            // }
             eptr++;
         }  
 
-        auto gameindex = tickets.get_index<"bygame"_n>();
-        auto tptr_2 = gameindex.lower_bound(game_id);
-        while(tptr_2 != gameindex.end() && tptr_2->game_id == game_id){
-            check(tptr_2->owner != user, "You already own a ticket for that game.");
-            tptr++;
-        }
+        // auto gameindex = tickets.get_index<"bygame"_n>();
+        // auto tptr_2 = gameindex.lower_bound(game_id);
+        // while(tptr_2 != gameindex.end() && tptr_2->game_id == game_id){
+        //     check(tptr_2->owner != user, "You already own a ticket for that game.");
+        //     tptr++;
+        // }
 
 
 
         //eosio::transaction txn{};
         //txn.actions.emplace_back()
-        check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
+        check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t.");
         const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
         eosio::action{
             eosio::permission_level{user, "active"_n},
@@ -127,11 +132,11 @@ public:
     [[eosio::action]]
     void sell(name user, uint64_t id) {
         require_auth(user);
-        check(user != get_self(), "Only students may sell tickets");
+        check(user != get_self(), "Only students may sell tickets.");
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(id);
-        check(tptr != tickets.end(), "Ticket does not exist");
-        check(tptr->owner == user, "You don't own this ticket!");
+        check(tptr != tickets.end(), "Ticket does not exist.");
+        check(tptr->owner == user, "You don't own this ticket.");
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
         int new_face_value = tptr->face_value;
         if (new_face_value == 0) {
@@ -208,7 +213,7 @@ public:
             }
             eptr++;
         }
-        check(false, "You are not in the lottery for that game");
+        check(false, "You are not in the lottery for that game.");
     }
 
     [[eosio::action]]
@@ -216,8 +221,8 @@ public:
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
-        check(gptr != games.end(), "Game does not exist");
-        check(gptr->lottery_open, "Lottery is not open for that game");
+        check(gptr != games.end(), "Game does not exist.");
+        check(gptr->lottery_open, "Lottery is not open for that game.");
         random r{};
         uint64_t price = gptr->initial_face_value;
 
@@ -265,8 +270,8 @@ public:
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
-        check(gptr != games.end(), "That game does not exist");
-        check(!gptr->lottery_open, "The lottery for that game is already open");
+        check(gptr != games.end(), "That game does not exist.");
+        check(!gptr->lottery_open, "The lottery for that game is already open.");
         games.modify(gptr, get_self(), [](auto& row) {
             row.lottery_open = true;
         });

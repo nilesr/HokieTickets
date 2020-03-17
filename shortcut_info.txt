@@ -3,7 +3,7 @@ create_game uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, ui
     Preconditions:
         num_tickets >= tickets_for_lottery
     Params:
-        day: day that the game occurs in yyyymmdd format
+        day: day that the game occurs in yyyymmddhhmm format
         num_tickets: number of tickets total for the game
         tickets_for_lottery: number of tickets reserved for the lottery 
         price: price of ticket x100 (ex 60.00 = 6000)
@@ -55,7 +55,7 @@ execute_lottery uint64_t game_id
     Params:
         game_id: id for the game
 
-open_lottery uint64_t game_id
+lottery_info uint64_t game_id
     opens the lottery
     Preconditions:
         a lottery exists for the given game
