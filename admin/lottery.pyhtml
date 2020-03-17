@@ -1,0 +1,91 @@
+<%!
+import libgoblin, goblin_auth
+from datetime import datetime as dt
+
+def today_to_date():
+    dt.now().strftime("%Y%m%d%H%M")
+def format_date(date_time):
+    date = int(date_time) // 10000   # Take off HHMM
+    obj = dt(date // 10000, (date // 100) % 100, date % 100) #, hour=(time // 100), minute=(time % 100))
+    return obj.strftime("%a. %B %d, %Y")
+%>
+<%
+	user, session = goblin_auth.get_user(c)
+%>
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="UTF-8">
+        <title>Admin Lottery Page</title>
+        <link rel="stylesheet" href="/static/style.css" />
+        <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
+        <script src="/static/admin.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    </head>
+    <body>
+        <div class="banner">
+            <img src="/static/vt-logo-white.svg" alt="">
+            % if user == "hokipoki":
+                ADMIN
+			% endif
+        </div>
+		<nav>
+            <div class="nav-section" id="user-logout">
+                <p>You are logged in as <b>${user}</b></p>
+                <a href="/logout.pyhtml">Logout</a>
+            </div>
+            <div class="nav-section" id="pages">
+                <ul>
+					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
+					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
+					## <li><a href="/admin/tickets.pyhtml">TICKETS</a></li>
+                    <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
+					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>
+                </ul>
+            </div>
+		</nav>
+        <div class="content">
+            % if user == "hokipoki":
+                <h1>Manage Lottery</h1>
+                <p>Open or execute lotteries for available games.</p>
+                
+                <h2>AVAILABLE GAMES</h2>
+                <% raw = libgoblin.filtered_date_games(today_to_date()) %>
+                <table><thead>
+                <tr>
+                    <th>EVENT</th>
+                    <th>DATE</th>
+                    <th># LOTTERY TICKETS</th>
+                    <th># LOTTERY ENTRIES</th>
+                    <th></th>
+                </thead><tbody>
+                % if len(raw) == 0:
+                    <tr><td>Table is empty</td>
+                % else:
+                % for r in raw:
+                    <tr>
+                        <td>${r.name}</td>
+                        <td>${format_date(r.date)}
+                        <td></td>
+                        <td></td>
+                        % if libgoblin.is_lottery_available(r.id):
+                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'execute_lottery')">Execute Lottery</button></td>
+                        % else:
+                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'open_lottery')">Open Lottery</button></td>
+                        % endif
+                % endfor
+                </tbody></table>
+                % endif
+			% else:
+				You do not have permission to access this page.
+			% endif
+        </div>
+        <div id="window" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeWindow()">&times;</span>
+                <div class="modal-body"></div>
+                <div class="button-area"></div>
+            </div>
+        </div>
+    </body>
+</html>

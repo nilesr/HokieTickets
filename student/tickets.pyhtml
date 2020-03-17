@@ -1,0 +1,114 @@
+<%!
+	import libgoblin, goblin_auth
+%>
+<%
+	user, session = goblin_auth.get_user(c)
+%>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Tickets</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
+        <script src="/static/student.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	</head>
+    <body>
+    <div class="banner">
+		<img src="/static/vt-logo-white.svg" alt="">
+        % if user == "hokipoki":
+            ADMIN
+        % endif
+	</div>
+    % if user:
+
+        ## NAV SECTION - any changes must be changed for all navs
+        <nav>
+            <div class="nav-section" id="user-logout">
+                <p>You are logged in as <b>${user}</b></p>
+                <a href="/logout.pyhtml">Logout</a>
+            </div>
+            <div class="nav-section" id="pages">
+                <ul>
+                    <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
+                    <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
+                    <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
+                    <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        ## MAIN CONTENT SECTION
+        <div class='content'>
+
+            <h1>My Tickets</h1>
+            <p>View your currently owned tickets and all tickets owned in the past.</p>
+            <h2>ACTIVE TICKETS</h2>
+            <% raw = libgoblin.user_tickets(user)%>
+            <table>
+                <thead>
+                <tr>
+                    <th>EVENT</th>
+                    <th>TICKET TYPE</th>
+                    <th>TICKET PRICE</th>
+                    <th></th>
+                    <th></th>
+                </thead><tbody>
+                % if len(raw) == 0:
+                    <tr><td>No tickets currently owned</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                % else:
+                    % for r in raw: 
+                    <tr>
+                        <td>${libgoblin.get_game(r.game_id).name}</td>
+                        <td>
+                        % if r.face_value == 0:
+                            Lottery
+                        % else:
+                            Purchased
+                        %endif
+                        </td>
+                        <td>
+                        % if r.face_value == 0:
+                            0.00 HTK
+                        % else:
+                            <script>formatHTK(${r.face_value})</script>
+                        %endif
+                        </td>
+                        <td><button class="actionButton" onclick="openWindow('${user}', '${r.id}', 'view')">View Ticket</button></td>
+                        <td><button class="actionButton" onclick="openWindow('${user}', '${r.id}', 'sell')">Sell Ticket</button></td>
+                    %endfor
+                %endif
+                    </tbody>
+            </table>
+            <h2>PAST TICKETS (hardcoded!)</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>TICKET</th>
+                    <th>GAME INFO</th>
+                    <th>GAME ATTENDED</th>
+                </thead><tbody>
+                <tr>
+                    <td>0</td>
+                    <td>Virginia Tech vs. UNC, 3/12/2020 @ 12pm</td>
+                    <td>Yes</td>
+                </tbody>
+            </table>
+        </div>
+        <div id="window" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeWindow()">&times;</span>
+                <div class="modal-body"></div>
+                <div class="button-area"></div>
+            </div>
+        </div>
+    </body>
+    
+	% else:
+		You do not have permission to access this page.  Please <a href="/login.pyhtml">login</a>.
+	% endif
+</html>

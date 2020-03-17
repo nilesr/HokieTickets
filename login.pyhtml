@@ -10,23 +10,59 @@ else:
 	user, session = goblin_auth.get_user(c)
 
 %>
-% if user:
-	you are logged in as ${user | h}<br />
-	you have ${libgoblin.format_htk(libgoblin.get_balance(user))} available. <br />
-	% if user == "hokipoki":
-		You are the administrator.
-		<a href="/raw.pyhtml">View raw tables</a><br />
-	% endif
-	<a href="/logout.pyhtml">Logout</a><br />
-% else:
-	% if session:
-		Error logging you in: ${session | h}<br />
-	% endif
-	<form method="post">
-	<input type="text" name="user" placeholder="user" />
-	<input type="password" name="pass" placeholder="pass" />
-	<input type="submit" name="submit" value="submit" />
-	</form><br />
-% endif
-<a href="/">Home</a><br />
-
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login to VT Student Tickets</title>
+		<link rel="stylesheet" href="/static/button.css" />
+		<link rel="stylesheet" href="/static/style.css"/>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap"> 
+	</head>
+	<body style="background-color: #f9f9f9;">
+    <div class="banner">
+		<img src="/static/vt-logo-white.svg" alt="">
+		% if user == "hokipoki":
+			ADMIN
+		% endif
+	</div>
+	<div class="content">
+		## % if user:
+		## <img src="/static/18FB_LaneStadium_Corner_40k.png">
+		## % endif
+		<div id="login">
+			<p><a href="/">Home</a></p>
+			% if user:
+				<h1>Welcome to VT Student Tickets</h1>
+				You are logged in as ${user | h}<br />
+				## You have ${libgoblin.format_htk(libgoblin.get_balance(user))} available. <br />
+				% if user == "hokipoki":
+					You are the administrator.
+					<hr />
+					<a href="/admin/accounts.pyhtml">Manage Student Accounts</a><br />
+					<a href="/admin/transfer.pyhtml">Transfer HTK</a><br />
+					<a href="/admin/lottery.pyhtml">Manage Lottery</a><br />
+					<a href="/admin/raw.pyhtml">View Raw Tables</a><br />
+					<hr />
+				% else:
+					<meta http-equiv="Refresh" content="0; url=/student/account.pyhtml" />
+					Redirecting you to Student Account page...
+					<br />
+				% endif
+				<a href="/logout.pyhtml">Logout</a><br />
+			% else:
+				% if session:
+					Error logging you in: ${session | h}<br />
+				% endif
+				<h1>Login to VT Student Tickets</h1>
+				<form method="post">
+					<label for="user">Virginia Tech PID</label>
+					<input type="text" name="user" placeholder="user" />
+					<label for="pass">Password</label>
+					<input type="password" name="pass" placeholder="pass" />
+					<input type="submit" name="submit" value="Sign In" />
+				</form><br />
+			% endif
+			</div>
+		</div>
+	</body>
+</html>

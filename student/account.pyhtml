@@ -1,0 +1,80 @@
+<%!
+	import libgoblin, goblin_auth
+%>
+<%
+	user, session = goblin_auth.get_user(c)
+%>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Student Account Information</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
+	</head>
+    <body>
+    <div class="banner">
+		<img src="/static/vt-logo-white.svg" alt="">
+            % if user == "hokipoki":
+                ADMIN
+			% endif
+	</div>
+    % if user:
+
+        ## NAV SECTION - any changes must be changed for all navs
+        <nav>
+            <div class="nav-section" id="user-logout">
+                <p>You are logged in as <b>${user}</b></p>
+                <a href="/logout.pyhtml">Logout</a>
+            </div>
+            <div class="nav-section" id="pages">
+                <ul>
+                    <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
+                    <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
+                    <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
+                    <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        ## MAIN CONTENT SECTION
+        <div class='content'>
+
+			<h1>Account Information</h1>
+            <p>Here you can see your account balance and transaction history.</p>
+            <div id="account-info">
+                <div id="account-balance">
+                    <h2>ACCOUNT BALANCE</h2>
+                    <table>
+                        <thead><tr><th></th></thead>
+                        <tbody>
+                            <td><h3>${libgoblin.format_htk(libgoblin.get_balance(user))}</h3></td>
+                        </tbody>
+                    </table>
+                </div>
+                ## <div id="transaction-history">
+                ##     <h2>TRANSACTION HISTORY</h2>
+                ##     <table>
+                ##         <thead><tr>
+                ##             <th>DATE</th>
+                ##             <th>EVENT</th>
+                ##             <th>TRANSACTION TYPE</th>
+                ##             <th>BALANCE</th>
+                ##         </thead>
+                ##         <tbody><tr>
+                ##             <td></td>
+                ##             <td></td>
+                ##             <td></td>
+                ##             <td></td>
+                ##         </tbody>
+                ##     </table>
+                </div>
+            </div>
+		% else:
+			You do not have permission to access this page.  Please <a href="/login.pyhtml">login</a>.
+		% endif
+		</div>
+	</body>
+</html>
+
+

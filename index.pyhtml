@@ -16,6 +16,9 @@
 % endif
 
 % if block_info:
+    <nav>
+        <h2><a href="/login.pyhtml">${"Login" if not user else "User Page"}</a></h2>
+    </nav>
 	<h1>Connected to local EOSIO backend via <span style="font-family: monospace;">libgoblin</span> by Niles.</h1>
 	Server version: ${block_info.server_version | h} <br />
 	Server version string: ${block_info.server_version_string | h} <br />
@@ -24,8 +27,8 @@
 	Head block ID: ${block_info.head_block_id | h} <br />
 	Head block time: ${block_info.head_block_time | h} <br />
 
-	<h3><a href="/login.pyhtml">${"Login" if not user else "User Page"}</a></h3>
-
+##	<h3><a href="/login.pyhtml">${"Login" if not user else "User Page"}</a></h3>
+	<br />
 	<% stats = libgoblin.get_currency_stats() %>
 
 	Currency Max Supply: ${libgoblin.format_htk(stats.max_supply) | h} <br />
