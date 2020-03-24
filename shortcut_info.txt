@@ -1,4 +1,4 @@
-create_game uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uint64_t price
+create_game uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, uint64_t price, string name, string location, uint64_t lottery_opens, uint64_t lottery_closes, uint64_t reward, gametype game_type
     Creates a game
     Preconditions:
         num_tickets >= tickets_for_lottery
@@ -6,11 +6,31 @@ create_game uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lottery, ui
         day: day that the game occurs in yyyymmddhhmm format
         num_tickets: number of tickets total for the game
         tickets_for_lottery: number of tickets reserved for the lottery 
-        price: price of ticket x100 (ex 60.00 = 6000)
+        price: price of ticket in 100th of HTK (ex. 100.00 HTK = 10000)
         name: String, name of game
         location: String, location of game
         lottery_opens: Time listed in frontend for when the lottery will open, format is yyyymmddHHMM
         lottery_closes: Time listed in frontend for when the lottery will close, format is yyyymmddHHMM
+        uint64_t reward: Number of HTK you get for attending a game in 100th of a HTK (ex. 100.00 HTK = 10000)
+        uint64_t game_type: number specifying to game type
+
+        0  FOOTBALL
+        1  MENS_BASKETBALL
+        2  WOMANS_BASKETBALL
+        3  MENS_SOCCER
+        4  WOMENS_SOCCER
+        5  BASEBALL
+        6  CROSS_COUNTRY
+        7  MENS_GOLF
+        8  WOMENS_GOLF
+        9  LACROSSE
+        10 SOFTBALL
+        11 SWIMMING_AND_DIVING
+        12 MENS_TENNIS
+        13 WOMENS_TENNIS
+        14 TRACK_AND_FIELD
+        15 VOLLEYBALL
+        16 WRESTLING
 
 buy name user, uint64_t ticket_id
     Buys a ticket for a given user.

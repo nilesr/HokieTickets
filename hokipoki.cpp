@@ -39,7 +39,7 @@ public:
     using contract::contract;
 
     [[eosio::action]]
-    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price, std::string name, std::string location, uint64_t lottery_opens, uint64_t lottery_closes) {
+    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price, std::string name, std::string location, uint64_t lottery_opens, uint64_t lottery_closes,uint64_t reward,uint64_t game_type) {
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         uint64_t new_id = 0;
@@ -55,7 +55,7 @@ public:
         }
         new_number += 1;
 
-        games.emplace(get_self(), [new_id, day, new_number, price, name, location, lottery_opens, lottery_closes](auto& row) {
+        games.emplace(get_self(), [new_id, day, new_number, price, name, location, lottery_opens, lottery_closes,reward,game_type](auto& row) {
             row.id = new_id;
             row.date = day;
             row.number = new_number;
@@ -65,18 +65,22 @@ public:
             row.location = location;
             row.lottery_opens = lottery_opens;
             row.lottery_closes = lottery_closes;
+            row.reward = reward;
+            row.game_type = game_type;
         });
 
         tickets_index tickets(get_self(), get_first_receiver().value);
         uint64_t ticket_base_id = tickets.cbegin() == tickets.cend() ? 0 : tickets.crbegin()->id + 1;
         for (uint64_t i = 0; i < num_tickets; i++) {
             bool lotto = i < tickets_for_lotto;
-            tickets.emplace(get_self(), [ticket_base_id, i, new_id, lotto, price](auto& row) {
+            tickets.emplace(get_self(), [ticket_base_id, i, new_id, lotto, price,game_type](auto& row) {
                 row.id = ticket_base_id + i;
                 row.game_id = new_id;
                 row.owner = "hokipoki"_n;
                 row.face_value = lotto ? 0 : price;
                 row.for_lottery = lotto;
+                row.attended = false;
+                row.game_type = game_type;
             });
         }
     }
@@ -287,6 +291,28 @@ public:
     }
 
     [[eosio::action]]
+    void rewarduser(uint64_t ticket_id) {
+        require_auth(get_self());
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(ticket_id);
+        check(tptr != tickets.end(), "Ticket does not exist");
+        check(!tptr->attended, "Ticket is already used");
+        tickets.modify(tptr, tptr->owner, [](auto& row) {
+            row.attended = true;
+        });
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(tptr->game_id);
+        check(gptr != games.end(), "Game does not exist");
+        const eosio::asset ass{(int64_t) gptr->reward, eosio::symbol{"HTK", 2}};
+        eosio::action{
+            eosio::permission_level{tptr->owner, "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            std::make_tuple(get_self(), tptr->owner, ass, std::string{"Reward"})
+        }.send();
+    }
+
+    [[eosio::action]]
     void reset() {
         require_auth(get_self());
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
@@ -307,6 +333,8 @@ private:
         std::string location;
         uint64_t lottery_opens;
         uint64_t lottery_closes;
+        uint64_t reward;
+        uint64_t game_type;
         uint64_t primary_key() const { return id; }
         uint64_t get_secondary_1() const { return date; }
     };
@@ -317,6 +345,8 @@ private:
         name owner;
         uint64_t face_value; // in HTK
         bool for_lottery;
+        bool attended;
+        uint64_t game_type;
         uint64_t primary_key() const { return id; }
         uint64_t get_secondary_1() const { return game_id; }
     };

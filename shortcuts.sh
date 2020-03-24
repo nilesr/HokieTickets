@@ -1,5 +1,5 @@
 create_game() {
-	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4", \""$5"\", \""$6"\", "$7", "$8"]" -p hokipoki@active
+	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4", \""$5"\", \""$6"\", "$7", "$8", "$9","$10"]" -p hokipoki@active
 }
 
 buy() {
