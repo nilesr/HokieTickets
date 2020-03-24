@@ -44,8 +44,8 @@
             <div class="nav-section" id="pages">
 				<ul>
 					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
+					<li><a href="/admin/attendance.pyhtml">ATTENDANCE</a></li>
 					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
-					## <li><a href="/admin/tickets.pyhtml">TICKETS</a></li>
                     <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
 					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>
 				</ul>
@@ -84,20 +84,21 @@
 				% else:
 					% for r in raw:
 					<tr>
-					<td>${r.user}</td>
-					<td>${libgoblin.format_htk(libgoblin.get_balance(r.user))}</td>
+					<td><p>${r.user}</p></td>
+					<td><p>${libgoblin.format_htk(libgoblin.get_balance(r.user))}</p></td>
 					<td>
 					<% tickets = libgoblin.user_tickets(r.user) %>
 					% if len(tickets) == 0:
-						None
+						<p>None</p>
 					% else:
 						% for t in tickets:
-							${libgoblin.get_game(t.game_id).name} 
-							% if t.for_lottery:
+							<p>${libgoblin.get_game(t.game_id).name} 
+							% if t.face_value == 0:
 								(Lottery)
 							% else:
 								(Purchased)
 							% endif
+							</p>
 						% endfor
 					% endif
 					</td>

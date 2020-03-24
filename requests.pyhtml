@@ -9,6 +9,10 @@ if "admin" in data and "action" in data:
         resp = libgoblin.execute_lottery(data['game_id'])
     elif data['action'] == "open_lottery":
         resp = libgoblin.open_lottery(data['game_id'])
+    elif data['action'] == "user_balance" and "user" in data:
+        resp = libgoblin.format_htk(libgoblin.get_balance(data['user']))
+    elif data['action'] == "get_tickets" and "user" in data:
+        resp = libgoblin.user_tickets(data['user'])
 
 elif "user" in data and "action" in data:
     # USER ACTIONS

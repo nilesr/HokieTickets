@@ -1,5 +1,5 @@
 // Opens a modal window for confirming user actions before making request to server
-function openWindow(id, action) {
+function openWindow(id, action, info) {
     // Get modal
     var modal = document.getElementById("window");
     modal.style.display = "block";
@@ -26,10 +26,13 @@ function openWindow(id, action) {
     // Set the text inside
     if (action == "execute_lottery") {
         title.innerHTML = "Confirm Execute Lottery";
-        text.children[0].innerHTML = "You are executing the lottery for Game " + id;
+        text.children[0].innerHTML = "You are executing the lottery for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "There are currently <b>" + info['num_entries'] + "</b> users entered in this lottery.";
+        text.children[2].innerHTML = "Click <b>Confirm</b> to continue."
     } else if (action == "open_lottery") {
         title.innerHTML = "Confirm Open Lottery";
-        text.children[0].innerHTML = "You are opening the lottery for Game " + id;
+        text.children[0].innerHTML = "You are opening the lottery for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "Click <b>Confirm</b> to continue."
     }
 
     var buttonArea = modal.querySelector(".button-area");
@@ -84,27 +87,61 @@ function openWindow(id, action) {
             if (resp.hasOwnProperty("error")) { // Action failed
                 text.innerHTML = resp.error;
             } else { // Successful execution
-                text.innerHTML = "Success!";
+                if (action == "execute_lottery") {
+                    text.children[0].innerHTML = "Success! The lottery for <b>" + info['event_name'] + "</b> has been executed.";
+                    text.children[1].innerHTML = "";
+                    text.children[2].innerHTML = "";
+                } else if (action == "open_lottery") {
+                    text.children[0].innerHTML = "Success! The lottery for <b>" + info['event_name'] + "</b> is now open.";
+                    text.children[1].innerHTML = "";
+                    text.children[2].innerHTML = "";
+                } else {
+                    text.children[0].innerHTML = "Success!";
+                    text.children[1].innerHTML = "";
+                    text.children[2].innerHTML = "";
+                }
             }
         });
     };
 }
 
+// Close the modal
 function closeWindow() {
     var modal = document.getElementById('window');
     modal.style.display = "none";
     location.reload();
 }
 
+// If a modal is open and the user clicks outside of it, close the modal
 window.onclick = function(event) {
-    // If a modal is open and the user clicks outside of it, close the modal
     if (event.target.attributes.class && event.target.attributes.class.value == "modal") {
         event.target.style.display = "none";
         location.reload();
     }
 }
 
-function selectedUserBalance() {
-    var userSelect = document.getElementById("userSelect");
-    return userSelect.options[userSelect.selectedIndex].value;
+// Updates the displayed user balance to reflect the selected value
+function updateUserBalance() {
+    // Get the user currently selected
+    var selected = document.getElementById("userSelect").options[userSelect.selectedIndex].value;
+
+    var data = {
+        'admin': true,
+        'user': selected,
+        'action': 'user_balance',
+    };
+
+    // Request the user's balance from backend
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        url: "/requests.pyhtml",
+        error: (error) => {
+            console.log(error);
+        },
+    }).then((data) => {
+        // Show user balance on page
+        document.getElementById("userBalance").innerHTML = data;
+    });
 }

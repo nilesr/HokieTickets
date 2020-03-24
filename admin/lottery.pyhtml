@@ -3,8 +3,10 @@ import libgoblin, goblin_auth
 from datetime import datetime as dt
 
 def today_to_date():
-    dt.now().strftime("%Y%m%d%H%M")
+    return dt.now().strftime("%Y%m%d%H%M")
 def format_date(date_time):
+    if len(date_time) != 12:
+        return ""
     date = int(date_time) // 10000   # Take off HHMM
     obj = dt(date // 10000, (date // 100) % 100, date % 100) #, hour=(time // 100), minute=(time % 100))
     return obj.strftime("%a. %B %d, %Y")
@@ -37,8 +39,8 @@ def format_date(date_time):
             <div class="nav-section" id="pages">
                 <ul>
 					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
+					<li><a href="/admin/attendance.pyhtml">ATTENDANCE</a></li>
 					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
-					## <li><a href="/admin/tickets.pyhtml">TICKETS</a></li>
                     <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
 					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>
                 </ul>
@@ -56,7 +58,7 @@ def format_date(date_time):
                     <th>EVENT</th>
                     <th>DATE</th>
                     <th># LOTTERY TICKETS</th>
-                    <th># LOTTERY ENTRIES</th>
+                    <th>LOTTERY ENTRIES</th>
                     <th></th>
                 </thead><tbody>
                 % if len(raw) == 0:
@@ -64,14 +66,23 @@ def format_date(date_time):
                 % else:
                 % for r in raw:
                     <tr>
-                        <td>${r.name}</td>
-                        <td>${format_date(r.date)}
-                        <td></td>
-                        <td></td>
-                        % if libgoblin.is_lottery_available(r.id):
-                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'execute_lottery')">Execute Lottery</button></td>
+                        <td><p>${r.name}</td>
+                        <td><p>${format_date(r.date)}</p></td>
+                        <td><p>${libgoblin.get_num_of_lottery(r.id)}</p></td>
+                        <td>
+                        <% lotto_entries = libgoblin.lottery_entries_by_game(r.id) %>
+                        % if len(lotto_entries) == 0:
+                            <p>None</p>
                         % else:
-                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'open_lottery')">Open Lottery</button></td>
+                            % for u in lotto_entries:
+                                <p>${u}</p>
+                            % endfor
+                        % endif
+                        </td>
+                        % if libgoblin.is_lottery_available(r.id):
+                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'execute_lottery', {'event_name': '${r.name}', 'num_entries': ${len(lotto_entries)}})">Execute Lottery</button></td>
+                        % else:
+                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'open_lottery', {'event_name': '${r.name}'})">Open Lottery</button></td>
                         % endif
                 % endfor
                 </tbody></table>

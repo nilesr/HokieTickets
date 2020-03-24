@@ -32,8 +32,8 @@
             <div class="nav-section" id="pages">
 				<ul>
 					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
+					<li><a href="/admin/attendance.pyhtml">ATTENDANCE</a></li>
 					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
-					## <li><a href="/admin/tickets.pyhtml">TICKETS</a></li>
                     <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
 					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>
 				</ul>
@@ -42,7 +42,7 @@
 		<div class="content">
 			% if user == "hokipoki":
 				<h1>Raw Tables</h1>
-				<p>View the data tables. (Should we have this?)</p>
+				<p>View the data tables.</p>
 				<label for="tableselect">Select table:</label> <br />
 				<select name="tableselect" onchange="window.location=window.location.pathname + '?table=' + this.selectedOptions[0].value;">
 				% for tbl in tables:

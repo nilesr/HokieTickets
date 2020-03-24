@@ -33,25 +33,19 @@ else:
 			<p><a href="/">Home</a></p>
 			% if user:
 				<h1>Welcome to VT Student Tickets</h1>
-				You are logged in as ${user | h}<br />
-				## You have ${libgoblin.format_htk(libgoblin.get_balance(user))} available. <br />
+				<p>You are logged in as ${user | h}</p>
 				% if user == "hokipoki":
-					You are the administrator.
-					<hr />
-					<a href="/admin/accounts.pyhtml">Manage Student Accounts</a><br />
-					<a href="/admin/transfer.pyhtml">Transfer HTK</a><br />
-					<a href="/admin/lottery.pyhtml">Manage Lottery</a><br />
-					<a href="/admin/raw.pyhtml">View Raw Tables</a><br />
-					<hr />
+					<p>You are the administrator.</p>
+					<p>Redirecting you to the Admin Accounts page...</p>
+					<meta http-equiv="Refresh" content="0; url=/admin/accounts.pyhtml" />
 				% else:
 					<meta http-equiv="Refresh" content="0; url=/student/account.pyhtml" />
-					Redirecting you to Student Account page...
+					<p>Redirecting you to Student Account page...</p>
 					<br />
 				% endif
-				<a href="/logout.pyhtml">Logout</a><br />
 			% else:
 				% if session:
-					Error logging you in: ${session | h}<br />
+					<p>Error logging you in: ${session | h}</p><br />
 				% endif
 				<h1>Login to VT Student Tickets</h1>
 				<form method="post">

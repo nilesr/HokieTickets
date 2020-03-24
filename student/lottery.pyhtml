@@ -3,14 +3,18 @@ import libgoblin, goblin_auth
 from datetime import datetime as dt
 
 def today_to_date():
-    dt.now().strftime("%Y%m%d%H%M")
+    return dt.now().strftime("%Y%m%d%H%M")
 
 def format_date(date_time):
+    if len(date_time) != 12:
+        return ""
     date = int(date_time) // 10000   # Take off HHMM
     obj = dt(date // 10000, (date // 100) % 100, date % 100) #, hour=(time // 100), minute=(time % 100))
     return obj.strftime("%a. %B %d, %Y")
 
 def format_time(date_time):
+    if len(date_time) != 12:
+        return ""
     date = int(date_time) // 10000   # Take off HHMM
     time = int(date_time) % 10000    # Take off YYYYMMDD
     obj = dt(date // 10000, (date // 100) % 100, date % 100, hour=(time // 100), minute=(time % 100))
@@ -68,11 +72,15 @@ def format_time(date_time):
                     <th>EVENT</th>
                     <th>SIGN UP OPENS</th>
                     <th>LOTTERY CLOSES</th>
+                    <th>REWARD (HTK)</th>
                     <th>LOTTERY RESULTS</th>
                 </thead><tbody>
                 % for r in raw:
                     <tr>
-                        <td>${r.name}</td>
+                        <td>
+                            <h3>${r.name}</h3>
+                            <p>${libgoblin.get_game_type(r.id)}</p>
+                        </td>
                         <td>
                             <p>${format_date(r.lottery_opens)}</p>
                             <p>${format_time(r.lottery_opens)}</p>
@@ -81,14 +89,15 @@ def format_time(date_time):
                             <p>${format_date(r.lottery_closes)}</p>
                             <p>${format_time(r.lottery_closes)}</p>
                         </td>
+                        <td>${libgoblin.format_htk(str(r.reward)[:-2] + '.' + str(r.reward)[-2:])}</td>
                     % if libgoblin.is_lottery_available(r.id):
                         <td>
                         % if libgoblin.user_in_lottery(user, r.id):
-                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'leave_lottery')">Leave Lottery</button>
+                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'leave_lottery', {'event_name': '${r.name}'})">Leave Lottery</button>
                         % elif not libgoblin.user_has_ticket(user, r.id):
-                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'enter_lottery')">Enter Lottery</button>
+                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'enter_lottery', {'event_name': '${r.name}'})">Enter Lottery</button>
                         % else:
-                            You have already bought a ticket for this game.
+                            <p>You have already bought a ticket for this game.</p>
                         </td>
                         %endif
                     % elif libgoblin.user_has_ticket(user, r.id) and libgoblin.user_in_lottery(user, r.id):

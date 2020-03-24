@@ -115,6 +115,14 @@ td {
     text-align: center;
 }
 
+td h3 {
+    margin: 5px 0;
+}
+
+td p {
+    margin: 5px 0;
+}
+
 .calculation {
     text-indent: 10px;
     text-align: right;
@@ -187,6 +195,9 @@ form input[type="submit"] {
     padding: 10px;
     float: right;
     margin-top: 15px;
+    background-color: #13CE66;
+    border-color: #13C863;
+    color: white;
 }
 
 
@@ -383,7 +394,9 @@ nav li:not(:first-child) {
 
 #login form {
     margin: 1vh 1vw;
-    width: calc(100% - 2vw);
+    padding: 1vw;
+    /* Calculate based on margins and padding */
+    width: calc(100% - 4vw);
 }
 
 #login form label {
@@ -402,11 +415,12 @@ nav li:not(:first-child) {
     border-style: solid;
 }
 
-input[type=submit] {
+#login input[type=submit] {
     background-color: #13CE66;
     border-color: #13C863;
     color: white;
     font-size: 15px;
+    float: none;
 }
 
 

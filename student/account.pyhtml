@@ -52,22 +52,28 @@
                         </tbody>
                     </table>
                 </div>
-                ## <div id="transaction-history">
-                ##     <h2>TRANSACTION HISTORY</h2>
-                ##     <table>
-                ##         <thead><tr>
-                ##             <th>DATE</th>
-                ##             <th>EVENT</th>
-                ##             <th>TRANSACTION TYPE</th>
-                ##             <th>BALANCE</th>
-                ##         </thead>
-                ##         <tbody><tr>
-                ##             <td></td>
-                ##             <td></td>
-                ##             <td></td>
-                ##             <td></td>
-                ##         </tbody>
-                ##     </table>
+                <div id="transaction-history">
+                    <h2>TRANSACTION HISTORY</h2>
+                    <table>
+                        <thead><tr>
+                            <th>DATE</th>
+                            <th>EVENT</th>
+                            <th>TRANSACTION TYPE</th>
+                            <th>BALANCE</th>
+                        </thead>
+                        <tbody>
+                            % for i, l in enumerate(libgoblin.get_history(user)):
+                                % for r in l:
+                                    <tr style="background-color: ${"#ddd" if i % 2 == 1 else "white"};">
+                                        <td>${r.block_time}</td>
+                                        <td>TODO</td>
+                                        <td>${r.action_trace.act.name} -> ${r.action_trace.receiver}<br /><pre>${libgoblin.debug_format(r.action_trace.act.data)}</pre></td>
+                                        <td>????</td>
+                                    </tr>
+                                % endfor
+                            % endfor
+                        </tbody>
+                    </table>
                 </div>
             </div>
 		% else:

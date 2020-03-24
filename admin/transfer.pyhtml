@@ -3,22 +3,26 @@
 %>
 <%
 user, session = goblin_auth.get_user(c)
-transfer_user = ""
-if user != "hokipoki":
-    return
-status = False
-if "username" in d and "transfer_amount" in d and "message" in d:
-    # Don't allow one decimal
-    if "." in d['transfer_amount'] and len(d['transfer_amount'].split('.')[1]) == 1:
-        d['transfer_amount'] += "0"
-
-    resp = json.loads(libgoblin.transfer(d['username'], d['transfer_amount'], d['message']))
-    if "balance" in resp:
-        status = "<b>Success!</b> New balance for <b>" + d['username'] + "</b>: " + str(resp['balance']) + " HTK"
-    elif "error" in resp:
-        status = "<b>Error:</b> " + resp['error']
-    else:
-        status = "<b>Error:</b> Unknown error."
+if user == "hokipoki":
+    status = False
+    if "username" in d and "transfer_amount" in d and "message" in d:
+        # Don't allow one decimal
+        if "." in d['transfer_amount'] and len(d['transfer_amount'].split('.')[1]) == 1:
+            d['transfer_amount'] += "0"
+        resp = False
+        try:
+            resp = json.loads(libgoblin.transfer(d['username'], d['transfer_amount'], d['message']))
+        except:
+            pass
+        if resp:
+            if "balance" in resp:
+                status = "<b>Success!</b> New balance for <b>" + d['username'] + "</b>: " + str(resp['balance']) + " HTK"
+            elif "error" in resp:
+                status = "<b>Error:</b> " + resp['error']
+            else:
+                status = "<b>Error:</b> Unknown error in response."
+        else:
+            status = "<b>Error:</b> Server error (check that wallet is unlocked)."
 %>
 <!DOCTYPE html>
 <html>
@@ -28,6 +32,7 @@ if "username" in d and "transfer_amount" in d and "message" in d:
         <link rel="stylesheet" href="/static/style.css">
         <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
         <script src="/static/admin.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     </head>
     <body>
         <div class="banner">
@@ -44,8 +49,8 @@ if "username" in d and "transfer_amount" in d and "message" in d:
             <div class="nav-section" id="pages">
                 <ul>
 					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
+					<li><a href="/admin/attendance.pyhtml">ATTENDANCE</a></li>
 					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
-					## <li><a href="/admin/tickets.pyhtml">TICKETS</a></li>
                     <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
 					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>
                 </ul>
@@ -66,19 +71,18 @@ if "username" in d and "transfer_amount" in d and "message" in d:
                     <div class="form-section">
                         <div class="form-subsection">
                             <label for="username">User to transfer to:</label> <br />
-                            <select name="username">
+                            <select name="username" id="userSelect" onchange="updateUserBalance()">
                                 <option selected disabled value></option>
                                 <% raw = libgoblin.get_raw_table('users') %>
                                 % for r in raw:
                                 <option value="${r.user}">${r.user}</option>
-                                transfer_user = r.user
                                 % endfor
                             </select>
                         </div>
                         <div class="form-subsection">
                             <label>User's current balance:</label> <br />
                             <div class="form-value">
-                                <td>${libgoblin.format_htk(libgoblin.get_balance("ankita"))}</td>
+                                <td><span id="userBalance">0.00 HTK</span></td>
                             </div>
                         </div>
                     </div>

@@ -3,10 +3,12 @@ import libgoblin, goblin_auth
 from datetime import datetime as dt
 
 def today_to_date():
-    dt.now().strftime("%Y%m%d%H%M")
+    return dt.now().strftime("%Y%m%d%H%M")
 def format_date(date_time):
+    if len(date_time) != 12:
+        return ""
     date = int(date_time) // 10000   # Take off HHMM
-    obj = dt(date // 10000, (date // 100) % 100, date % 100) #, hour=(time // 100), minute=(time % 100))
+    obj = dt(date // 10000, (date // 100) % 100, date % 100) #YYYY,MM,DD
     return obj.strftime("%a. %B %d, %Y")
 %>
 <%
@@ -58,6 +60,7 @@ def format_date(date_time):
                 <th>EVENT</th>
                 <th>DATE</th>
                 <th>PRICE (HTK)</th>
+                <th>REWARD (HTK)</th>
                 <th></th>
             </thead><tbody>
             % if len(raw) == 0:
@@ -68,18 +71,22 @@ def format_date(date_time):
             % else:
                 % for r in raw:
                     <tr>
-                        <td>${r.name}</td>
-                        <td>${format_date(r.date)}</td>
-                        <td>${libgoblin.format_htk(str(r.initial_face_value)[:-2] + '.' + str(r.initial_face_value)[-2:])}</td>
+                        <td>
+                            <h3>${r.name}</h3>
+                            <p>${libgoblin.get_game_type(r.game_type)}</p>
+                        </td>
+                        <td><p>${format_date(r.date)}</p></td>
+                        <td><p>${libgoblin.format_htk(str(r.initial_face_value)[:-2] + '.' + str(r.initial_face_value)[-2:])}</p></td>
+                        <td><p>${libgoblin.format_htk(str(r.reward)[:-2] + '.' + str(r.reward)[-2:])}</p></td>
                         <td>
                         % if libgoblin.user_has_ticket(user, r.id) and not libgoblin.user_in_lottery(user, r.id):
                             <button class="actionButton" onclick="openWindow('${user}', 0, 'view')">View Ticket</button>
                         % elif not libgoblin.is_ticket_available(r.id):
-                            No more tickets available
+                            <p>No tickets available</p>
                         % elif libgoblin.user_in_lottery(user, r.id):
-                            You are already entered in the lottery.
+                            <p>You are already entered in the lottery.</p>
                         % else:
-                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'buy')">Buy Ticket for ${r.name}</button>
+                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'buy', {'event_name': '${r.name}', 'current_balance': '${libgoblin.get_balance(user)}'})">Buy Ticket for ${r.name}</button>
                         %endif
                         </td>
                     </tr>

@@ -35,7 +35,7 @@ function formatLongDate(date) {
 }
 
 // Opens a modal window for confirming user actions before making request to server
-function openWindow(user, id, action) {
+function openWindow(user, id, action, info) {
     // Get modal
     var modal = document.getElementById("window");
     modal.style.display = "block";
@@ -62,16 +62,22 @@ function openWindow(user, id, action) {
     // Set the text inside
     if (action == "buy") {
         title.innerHTML = "Confirm Ticket Purchase";
-        text.children[0].innerHTML = "You are purchasing a ticket for " + ".";
+        text.children[0].innerHTML = "You are purchasing a ticket for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "Your current balance is <b>" + info['current_balance'] + " HTK</b>.";
+        text.children[2].innerHTML = "Click <b>Confirm</b> to continue."
     } else if (action == "enter_lottery") {
         title.innerHTML = "Confirm Lottery Entry";
-        text.innerHTML = "You are entering the lottery, please confirm.";
+        text.children[0].innerHTML = "You are entering the lottery for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "Click <b>Confirm</b> to continue."
     } else if (action == "leave_lottery") {
         title.innerHTML = "Leaving Lottery";
-        text.innerHTML = "You are leaving the lottery, please confirm.";
+        text.children[0].innerHTML = "You are leaving the lottery for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "Click <b>Confirm</b> to continue."
     } else if (action == "sell") {
         title.innerHTML = "Confirm Ticket Sale";
-        text.innerHTML = "You are selling a ticket, please confirm."
+        text.children[0].innerHTML = "You are selling your ticket for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "Your current balance is <b>" + info['current_balance'] + " HTK</b>.";
+        text.children[2].innerHTML = "Click <b>Confirm</b> to continue.";
     }
 
     var buttonArea = modal.querySelector(".button-area");
@@ -130,21 +136,30 @@ function openWindow(user, id, action) {
             console.log(data);
             var resp = JSON.parse(data);
             if (resp.hasOwnProperty("error")) { // Action failed
-                text.innerHTML = resp.error;
-            } else { // Successful execution
-                text.innerHTML = "Success!";
+                text.children[0].innerHTML = resp.error;
+                text.children[1].innerHTML = "";
+                text.children[2].innerHTML = "";
+            } else if (resp.hasOwnProperty("balance")) { // Successful execution, returned balance
+                text.children[0].innerHTML = "Success! Your new balance is <b>" + resp['balance'] + " HTK</b>.";
+                text.children[1].innerHTML = "";
+                text.children[2].innerHTML = "";
+            } else { // Other kind of success
+                text.children[0].innerHTML = "Success!";
+                text.children[1].innerHTML = "";
+                text.children[2].innerHTML = "";
             }
         });
     };
 }
 
+// Close modal
 function closeWindow() {
     var modal = document.getElementById('window');
     modal.style.display = "none";
 }
 
+// If a modal is open and the user clicks outside of it, close the modal
 window.onclick = function(event) {
-    // If a modal is open and the user clicks outside of it, close the modal
     if (event.target.attributes.class && event.target.attributes.class.value == "modal") {
         event.target.style.display = "none";
     }
