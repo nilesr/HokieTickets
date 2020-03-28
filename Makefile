@@ -3,7 +3,7 @@ all: clean hokipoki.wasm deploy
 clean:
 	-rm *.wasm *.abi
 
-hokipoki.wasm:
+hokipoki.wasm: hokipoki.cpp
 	eosio-cpp -abigen -o hokipoki.wasm hokipoki.cpp
 
 deploy:

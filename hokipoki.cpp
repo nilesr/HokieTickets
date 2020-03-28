@@ -2,7 +2,13 @@
 #include <eosio/asset.hpp>
 #include <eosio/transaction.hpp>
 #include <eosio/crypto.hpp>
+#include <eosio/time.hpp>
+#include <eosio/system.hpp>
 #include <stdio.h>
+
+extern "C" {
+#include "gmtime_r.c"
+}
 
 using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
 
@@ -34,9 +40,19 @@ struct random {
     }
 };
 
+
+
 class [[eosio::contract("hokipoki")]] hokipoki : public eosio::contract {
 public:
     using contract::contract;
+
+    uint64_t current_datetime() {
+        time_t now = eosio::current_block_time().to_time_point().elapsed.to_seconds();
+        now -= 4 * 3600; // time zone offset
+        struct hokipoki_tm cal;
+        hokipoki_gmtime_r(&now, &cal);
+        return (((uint64_t) cal.tm_year + YEAR_BASE) * 100000000) + (((uint64_t) cal.tm_mon + 1) * 1000000) + ((uint64_t) cal.tm_mday * 10000) + ((uint64_t) cal.tm_hour * 100) + (uint64_t) cal.tm_min;
+    }
 
     [[eosio::action]]
     void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price, std::string name, std::string location, uint64_t lottery_opens, uint64_t lottery_closes,uint64_t reward,uint64_t game_type) {
@@ -255,6 +271,7 @@ public:
                 bygame.modify(tptr, get_self(), [owner](auto& row) {
                     row.owner = owner;
                 });
+                require_recipient(owner); // ensures that it appears in the action history for that user, so they will see that they got a ticket on their account page
                 students.erase(students.begin() + idx);
             } else {
                 bygame.modify(tptr, get_self(), [price](auto& row) {
@@ -305,11 +322,155 @@ public:
         check(gptr != games.end(), "Game does not exist");
         const eosio::asset ass{(int64_t) gptr->reward, eosio::symbol{"HTK", 2}};
         eosio::action{
-            eosio::permission_level{tptr->owner, "active"_n},
+            eosio::permission_level{get_self(), "active"_n},
             "eosio.token"_n,
             "transfer"_n,
             std::make_tuple(get_self(), tptr->owner, ass, std::string{"Reward"})
         }.send();
+    }
+
+    [[eosio::action]]
+    void creatauction(uint64_t ticket_id, uint64_t initial_bid, uint64_t end_date) {
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(ticket_id);
+        check(tptr != tickets.end(), "Ticket does not exist");
+        auto owner = tptr->owner;
+        require_auth(owner);
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        auto game_id = tptr->game_id;
+        auto aptr = auctions.find(ticket_id);
+        check(aptr == auctions.end(), "There is already an auction in progress for that ticket");
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "Game does not exist");
+        check(initial_bid >= tptr->face_value, "Initial bid must be greater than or equal to the face value of the ticket!");
+        check(initial_bid >= gptr->initial_face_value, "Initial bid must be greater than or equal to the face value of the ticket!");
+        uint64_t now = current_datetime();
+        check(now < end_date, "End date is in the past!");
+        check((end_date/10000) < (gptr->date/10000), "End date is on or after the day of the game! Auctions must end before the day of the game.");
+        auctions.emplace(get_self(), [ticket_id, game_id, initial_bid, end_date, owner](auto& row) {
+            row.ticket_id = ticket_id;
+            row.game_id = game_id;
+            row.highest_bid = initial_bid;
+            row.top_bidder = owner;
+            row.end_date = end_date;
+        });
+    }
+
+    [[eosio::action]]
+    void bid(uint64_t ticket_id, name user, uint64_t bid) {
+        require_auth(user);
+        // TODO check that the user is not the current top bidder on the ticket
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(ticket_id);
+        check(tptr != tickets.end(), "That ticket does not exist");
+        check(tptr->owner != user, "You cannot bid in your own auction!");
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        auto aptr = auctions.find(ticket_id);
+        check(aptr != auctions.end(), "There is no ongoing auction for that ticket");
+        check(aptr->end_date >= current_datetime(), "That auction has already ended");
+        check(aptr->highest_bid + 100 <= bid, "You must bid at least 1.00 HTK greater than the previous highest bid");
+        if (aptr->top_bidder != tptr->owner) {
+            const eosio::asset ass{(int64_t) aptr->highest_bid, eosio::symbol{"HTK", 2}};
+            eosio::action{
+                eosio::permission_level{get_self(), "active"_n},
+                "eosio.token"_n,
+                "transfer"_n,
+                std::make_tuple(get_self(), aptr->top_bidder, ass, std::string{"Outbid in an auction - bid money returned"})
+            }.send();
+        }
+        const eosio::asset ass{(int64_t) bid, eosio::symbol{"HTK", 2}};
+        eosio::action{
+            eosio::permission_level{user, "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            std::make_tuple(user, get_self(), ass, std::string{"Bid on an auction"})
+        }.send();
+        auctions.modify(aptr, get_self(), [user, bid](auto& row) {
+            row.top_bidder = user;
+            row.highest_bid = bid;
+        });
+    }
+
+    auto find_auction_for_exec(uint64_t auction_id) {
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(auction_id);
+        check(tptr != tickets.end(), "Ticket does not exist");
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        auto aptr = auctions.find(auction_id);
+        check(aptr != auctions.end(), "There is no auction in progress for that ticket.");
+        check(aptr->end_date < current_datetime(), "The auction cannot be executed, it is still active!");
+        return std::pair<decltype(aptr), decltype(tptr)>{aptr, tptr};
+    }
+
+    [[eosio::action]]
+    void execauction1(uint64_t ticket_id) {
+        auto aptr = find_auction_for_exec(ticket_id).first;
+        require_auth(aptr->top_bidder);
+        exec_auction(ticket_id);
+    }
+
+    [[eosio::action]]
+    void execauction2(uint64_t ticket_id) {
+        auto [aptr, tptr] = find_auction_for_exec(ticket_id);
+        require_auth(tptr->owner);
+        exec_auction(ticket_id);
+    }
+
+    void exec_auction(uint64_t ticket_id) {
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(ticket_id);
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        auto aptr = auctions.find(ticket_id);
+        check(tptr != tickets.end() && aptr != auctions.end(), "Should have been already verified before calling this function");
+        if (aptr->top_bidder == tptr->owner) {
+            auctions.erase(aptr);
+            return;
+        }
+        require_recipient(aptr->top_bidder); // not sure what I'm gonna do with this just yet
+        const eosio::asset ass{(int64_t) aptr->highest_bid, eosio::symbol{"HTK", 2}};
+        eosio::action{
+            eosio::permission_level{get_self(), "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            std::make_tuple(get_self(), tptr->owner, ass, std::string{"Auction finished"})
+        }.send();
+        auto new_owner = aptr->top_bidder;
+        tickets.modify(tptr, get_self(), [new_owner](auto& row) {
+            row.owner = new_owner;
+        });
+        auctions.erase(aptr);
+    }
+
+    [[eosio::action]]
+    void aucexecall(uint64_t game_id) {
+        require_auth(get_self());
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(game_id);
+        check(gptr != games.end(), "Game does not exist");
+        check((current_datetime()/10000) >= (gptr->date/10000), "It is not yet the day of the game");
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto bygame = tickets.get_index<"bygame"_n>();
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        for (auto tptr = bygame.lower_bound(game_id); tptr != bygame.end() && tptr->game_id == game_id; tptr++) {
+            auto aptr = auctions.find(tptr->id);
+            if (aptr != auctions.end()) {
+                exec_auction(tptr->id);
+            }
+        }
+    }
+
+    [[eosio::action]]
+    void cancelauctn(uint64_t auction_id) {
+        tickets_index tickets(get_self(), get_first_receiver().value);
+        auto tptr = tickets.find(auction_id);
+        check(tptr != tickets.end(), "That ticket does not exist");
+        require_auth(tptr->owner);
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        auto aptr = auctions.find(auction_id);
+        check(aptr != auctions.end(), "There is no active auction on that ticket");
+        check(aptr->top_bidder == tptr->owner, "The auction can't be cancelled, there are already active bids on it.");
+        auctions.erase(aptr);
     }
 
     [[eosio::action]]
@@ -369,6 +530,18 @@ private:
         uint64_t primary_key() const { return user.value; }
     };
 
+    struct [[eosio::table]] auction {
+        uint64_t ticket_id;
+        uint64_t game_id;
+        name auction_owner; // TODO: REMOVE
+        uint64_t highest_bid;
+        name top_bidder;
+        uint64_t end_date;
+        uint64_t primary_key() const { return ticket_id; }
+        uint64_t get_secondary_1() const { return game_id; }
+        uint64_t get_secondary_2() const { return top_bidder.value; }
+    };
+
     typedef eosio::multi_index<
         "games"_n,
         game,
@@ -392,4 +565,11 @@ private:
         "users"_n,
         user
     > users_index;
+
+    typedef eosio::multi_index<
+        "auctions"_n,
+        auction,
+        eosio::indexed_by<"bygame"_n, eosio::const_mem_fun<auction, uint64_t, &auction::get_secondary_1>>,
+        eosio::indexed_by<"bytop"_n, eosio::const_mem_fun<auction, uint64_t, &auction::get_secondary_2>>
+    > auctions_index;
 };

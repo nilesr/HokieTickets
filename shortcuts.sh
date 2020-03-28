@@ -29,18 +29,46 @@ open_lottery() {
 	cleos push action hokipoki openlottery "["$1"]" -p hokipoki@active
 }
 
+create_auction() {
+	cleos push action hokipoki creatauction "["$2", "$3", "$4"]" -p "$1"@active
+}
+
+bid() {
+	cleos push action hokipoki bid "["$1", \""$2"\", "$3"]" -p "$2"@active
+}
+
+execute_auction_winner() {
+	cleos push action hokipoki execauction1 "["$2"]" -p "$1"@active
+}
+
+execute_auction_owner() {
+	cleos push action hokipoki execauction2 "["$2"]" -p "$1"@active
+}
+
+execute_all_auctions() {
+	cleos push action hokipoki aucexecall "["$1"]" -p hokipoki@active
+}
+
+cancel_auction() {
+	cleos push action hokipoki cancelauctn "["$2"]" -p "$1"@active
+}
+
+
 reset() {
 	cleos push action hokipoki reset '[]' -p hokipoki@active
 }
 
 games() {
-	cleos get table hokipoki hokipoki games -l -1
+	cleos get table -l -1 hokipoki hokipoki games
 }
 lottery_entries() {
-	cleos get table hokipoki hokipoki lottoentries -l -1
+	cleos get table -l -1 hokipoki hokipoki lottoentries
 }
 tickets() {
-	cleos get table hokipoki hokipoki tickets -l -1
+	cleos get table -l -1 hokipoki hokipoki tickets
+}
+auctions() {
+	cleos get table -l -1 hokipoki hokipoki auctions
 }
 
 balance() {

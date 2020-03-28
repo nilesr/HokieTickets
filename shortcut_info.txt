@@ -90,6 +90,81 @@ open_lottery uint64_t game_id
     Params:
         game_id: id for the game
 
+create_auction name user, uint64_t ticket_id, uint64_t initial_bid, uint64_t end_date
+    creates an auction on a ticket
+    preconditions:
+        the ticket exists
+        user is the owner of the ticket
+        there is not already an active auction on that ticket
+        the starting bid is greater than or equal to the face value of the ticket, or the initial face value for the game if the ticket was from the llottery
+        the end date is not in the past
+        the end date is before midnight on the day of the game
+    Params:
+        user: the user who owns the ticket
+        ticket_id: the ticket to auction off
+        initial_bid: the starting value of the auction, in 100ths of a hokietoken (i.e. 500 = 5.00 HTK)
+            note: no money is actually transferred in this action
+        end_date: the datetime after which no more bids will be accepted, as YYYYMMDDhhmm
+
+bid uint64_t ticket_id, name user, uint64_t bid
+    bids on an existing auction
+    the amount being bid is transferred to hokipoki, and the previous highest bid (if there was one) is transferred back from hokipoki to the previous highest bidder
+    preconditions:
+        the ticket exists
+        there is an active auction on the ticket
+        the user is not the owner of the ticket
+        the user is not the current top bidder on the ticket - NOT ENFORCED TODO
+        the auction has not already ended
+        the amount being bid is at least 1.00 HTK greater than the current highest bid
+    params:
+        ticket_id: the id of the ticket to bid on
+        user: the user placing the bid
+        bid: the bid amount, in 100s of a hokietoken (i.e. 500 = 5.00 HTK)
+
+execute_auction_winner uint64_t ticket_id, name user
+    Executes an auction if it's already ended, callable by the winner (highest bidder) of the auction
+    If there were any bids on the ticket, it transfers ownership of the ticket to the higest bidder, and transfers the amount of the highest bid from hokipoki to the previous owner, then deletes the auction
+    if there were no bids on the ticket, it deletes the auction
+    preconditions: 
+        the ticket exists
+        there is an auction on the ticket
+        it is past the end date on the auction on the ticket
+        user is the highest bidder of the auction
+    params
+        ticket_id: the id of the ticket
+        user: the highest bidder on the auction
+
+execute_auction_owner uint64_t ticket_id, name user
+    Executes an auction if it's already ended, callable by the owner (creator) of the auction
+    If there were any bids on the ticket, it transfers ownership of the ticket to the higest bidder, and transfers the amount of the highest bid from hokipoki to the previous owner, then deletes the auction
+    if there were no bids on the ticket, it deletes the auction
+    preconditions: 
+        the ticket exists
+        there is an auction on the ticket
+        it is past the end date on the auction on the ticket
+        user is the owner of the ticket/creator of the auction
+    params
+        ticket_id: the id of the ticket
+        user: the owner of the ticket and creator of the auction
+
+execute_all_auctions uint64_t game_id
+    Finds all auctions in progress for a particular game, and executes them, if it is the day of the game
+    preconditions:
+        the game exists
+        it is on or after the day of the game
+    params:
+        game_id: the id of the game to execute all outstanding auctions on
+
+cancel_auction name user, uint64_t ticket_id
+    deletes an auction as long as nobody has bid on it yet
+    preconditions:
+        the ticket exists
+        there is an active auction on the ticket
+        nobody has bid on the auction yet
+    params:
+        user: the owner of the ticket/creator of the auction
+        ticket_id: the id of the ticket to delete the auction from
+
 reset
     clears all tables
     On action, all games, lotteries, and tickets are removed
