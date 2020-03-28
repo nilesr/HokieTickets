@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-import json, subprocess, collections, random, datetime, re
+import json, subprocess, collections, random, re, datetime, time
 cleos = ["cleos", "--no-auto-keosd", "-u", "http://127.0.0.1:8888", "--wallet-url", "unix:///home/ubuntu/eosio-wallet/keosd.sock"]
 KEY = "EOS7J1tYpCHkCCvi5DwYXkJMRKRzK9XAUVvMC7PnrcucNXS6ZuMC1"
 KEYWORDS = {"from", "except", "if", "else", "elif", "return"}
@@ -35,6 +35,18 @@ def _exec(l, json_decode = True):
 		return _try_symbolize_names(json.loads(stdout))
 	return stdout
 
+def wrap_exec(with_result, *args, **kwargs):
+    try:
+	if with_result:
+	    return with_result(_exec(*args, **kwargs))
+	else:
+	    return _exec(*args, **kwargs)
+    except EosioError as e:
+	try:
+	    return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+	except:
+	    return json.dumps({"error": e.output})
+
 def get_info():
 	return _exec(["get", "info"])
 
@@ -64,7 +76,7 @@ def format_htk(c):
 	return "{:,.2f}".format(float(str(c).split()[0])) + " HTK"
 
 def get_raw_table(table):
-	return _exec(["get", "table", "hokipoki", "hokipoki", table, "-l", "-1"]).rows
+	return _exec(["get", "table", "-l", "-1", "hokipoki", "hokipoki", table]).rows
 
 def get_declared_tables():
 	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
@@ -93,89 +105,63 @@ def debug_format(t, depth=0, dash=False):
 #TODO: make it return formatted output
 # USER ACTIONS
 def buy(user, game_id):
-	parsed = get_raw_table("tickets")
-	ticket_id = -1
-	filtered = filter(lambda a:a["game_id"]==game_id and a["for_lottery"]==0 and a["owner"]=="hokipoki",parsed)
-	if len(filtered) > 0:
-		ticket_id= filtered[0]["id"]
-	#TODO: Error if ticket is not available
-	try:
-		_exec(["push", "action", "hokipoki", "buy", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
-		return json.dumps({"balance":get_balance(user)})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    ticket_id = -1
+    filtered = filter(lambda a:a["for_lottery"]==0 and a["owner"]=="hokipoki",get_tickets_for_game(game_id))
+    if len(filtered) > 0:
+	ticket_id= filtered[0]["id"]
+    #TODO: Error if ticket is not available
+    def with_result(r):
+	return json.dumps({"balance":get_balance(user)})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "buy", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
 
 def sell(user, ticket_id):
-	try:
-		_exec(["push", "action", "hokipoki", "sell", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
-		return json.dumps({"balance":get_balance(user)})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    def with_result(r):
+	return json.dumps({"balance":get_balance(user)})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "sell", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
 
 def enter_lottery(user, game_id):
-	r1 = random.randint(0, 2 ** 64 - 1)
-	r2 = random.randint(0, 2 ** 64 - 1)
-	r3 = random.randint(0, 2 ** 64 - 1)
-	r4 = random.randint(0, 2 ** 64 - 1)
-	try:
-		_exec(["push", "action", "hokipoki", "enterlottery", json.dumps([user, game_id, r1, r2, r3, r4]), "-p", user + "@active", "-j"])
-		return json.dumps({"success":"Success!"})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    r1 = random.randint(0, 2 ** 64 - 1)
+    r2 = random.randint(0, 2 ** 64 - 1)
+    r3 = random.randint(0, 2 ** 64 - 1)
+    r4 = random.randint(0, 2 ** 64 - 1)
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "enterlottery", json.dumps([user, game_id, r1, r2, r3, r4]), "-p", user + "@active", "-j"])
 
 def leave_lottery(user, game_id):
-	try:
-		_exec(["push", "action", "hokipoki", "leavelottery", json.dumps([user, game_id]), "-p", user + "@active", "-j"])
-		return json.dumps({"success":"Success!"})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "leavelottery", json.dumps([user, game_id]), "-p", user + "@active", "-j"])
 
 
 # ADMIN ACTIONS
 def execute_lottery(game_id):
-	try:
-		_exec(["push", "action", "hokipoki", "executelotto", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
-		return json.dumps({"success": "Success!"})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "executelotto", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
 
 def open_lottery(game_id):
-	try:
-		_exec(["push", "action", "hokipoki", "openlottery", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
-		return json.dumps({"success": "Success!"})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "openlottery", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
 
 def create_game(day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes):
-	return _exec(["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes]), "-p", "hokipoki@active", "-j"])
+	return wrap_exec(False, ["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes]), "-p", "hokipoki@active", "-j"])
 
 def reset():
-	return _exec(["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active"])
+	return wrap_exec(False, ["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active"])
 
 def transfer(user, amount, message):
-	try:
-		amount_str = str(amount)
-		if "." not in amount_str:
-			amount_str = amount_str + ".00 HTK"
-		elif len(amount_str.split(".")[1]) != 2:
-			amount_str = amount_str + "0 HTK"
-		else:
-			amount_str = amount_str + " HTK"
-		_exec(["push", "action", "eosio.token", "transfer", json.dumps(["hokipoki", user, amount_str, message]), "-p", "hokipoki@active", "-j"])
-		return json.dumps({"balance": get_balance(user)})
-	except EosioError as e:
-		return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
-
-
-# USER AND ADMIN ACTIONS
-def tickets():
-	return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1"])
-
-def games():
-	return _exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "-1"])
-
-def lottery_entries():
-	return _exec(["get", "table", "hokipoki", "lottoentries", "-l", "-1"])
+    amount_str = str(amount)
+    if "." not in amount_str:
+	amount_str = amount_str + ".00 HTK"
+    elif len(amount_str.split(".")[1]) != 2:
+	amount_str = amount_str + "0 HTK"
+    else:
+	amount_str = amount_str + " HTK"
+    def with_result(r):
+	return json.dumps({"balance":get_balance(user)})
+    return wrap_exec(with_result, ["push", "action", "eosio.token", "transfer", json.dumps(["hokipoki", user, amount_str, message]), "-p", "hokipoki@active", "-j"])
 
 #REQUESTS RECIEVED FROM RACHEL
 
@@ -192,24 +178,140 @@ def filtered_date_games(date):
 # Returns game json object if game with id==game_id exists
 def get_game(game_id):
 	try:
-		return filter(lambda a:a['id']==game_id,get_raw_table("games"))[0]
+		return _exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows[0]
+	except:
+		return None
+
+def get_tickets_for_game(game_id):
+	try:
+		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows
 	except:
 		return None
 
 # Returns true if there is a ticket available to be bought for game with id == game_id or false if not
 def is_ticket_available(game_id):
-	today = datetime.datetime.now().strftime("%Y%m%d%H%M")
-	game_time = filter(lambda a:a["id"]==game_id,get_raw_table("games"))[0]["date"]
-	return len(filter(lambda a:a["game_id"]==game_id and a["for_lottery"]==0 and a["owner"]=="hokipoki" and game_time >= today ,get_raw_table("tickets"))) >0
+	today = int(datetime.datetime.now().strftime("%Y%m%d%H%M"))
+	game_time = get_game(game_id).date
+	return len(filter(lambda a:a["for_lottery"]==0 and a["owner"]=="hokipoki" and game_time >= today ,get_tickets_for_game(game_id))) >0
 
 # Returns true if the lottery is open for game with id == game_id or false if not
 def is_lottery_available(game_id):
-	return len(filter(lambda a:a["id"]==game_id and a["lottery_open"]==1,get_raw_table("games"))) > 0
+    return get_game(game_id).lottery_open == 1
 
 # Returns true if user owns a ticket for game with id == game_id or false if not
 def user_has_ticket(user,game_id):
-    return len(filter(lambda a:a["game_id"] == game_id and a["owner"] == user,get_raw_table("tickets")))>0
+    return len(filter(lambda a:a["owner"] == user,get_tickets_for_game(game_id)))>0
+
+def get_lottery_entries_by_user(user):
+    return _exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", user, "-U", user]).rows
+def get_lottery_entries_by_game(game_id):
+    return _exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "3", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows
 
 # Returns true if user is in lottery for game with id == game_id or false if not
 def user_in_lottery(user,game_id):
-    return len(filter(lambda a:a["user"]==user and a["game_id"]==game_id,get_raw_table("lottoentries")))>0
+    return len(filter(lambda a:a["game_id"]==game_id,get_lottery_entries_by_user(user)))>0
+
+
+def get_history(user):
+    results = _exec(["get", "actions", user, "-j", "-1", "-100000000000"]).actions
+    l = []
+    last = None
+    lastact = None
+    for r in results:
+	if r.action_trace.trx_id == last:
+	    if r.action_trace.receipt.act_digest == lastact:
+		continue
+	    l[-1].append(r)
+	else:
+	    l.append([r])
+	    last = r.action_trace.trx_id
+	lastact = r.action_trace.receipt.act_digest
+    return l
+
+# Returns the number of tickets reserved for the lottery
+def get_num_of_lottery(game_id):
+    	return len(filter(lambda a:a["for_lottery"],get_tickets_for_game(game_id)))
+
+#Returns a list of users in the lottery for the given game_id
+def lottery_entries_by_game(game_id):
+    return [b.user for b in get_lottery_entries_by_game(game_id)]
+    
+#Returns the past tickets from a given user
+def get_past_tickets(user):
+	today = datetime.datetime.now().strftime("%Y%m%d%H%M")
+	games = _exec(["get", "table", "hokipoki", "hokipoki", "games", "--index", "2", "--key-type", "i64", "-l", "-1", "-U", today]).rows
+	dates = {game.id: game.date for game in games}
+	return filter(lambda a:a.owner == user and today > dates[a.game_id], get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
+
+
+
+def transfer_from(from_user, to_user, amount, message):
+    amount_str = str(amount)
+    if "." not in amount_str:
+	amount_str = amount_str + ".00 HTK"
+    elif len(amount_str.split(".")[1]) != 2:
+	amount_str = amount_str + "0 HTK"
+    else:
+	amount_str = amount_str + " HTK"
+    def with_result(r):
+	return json.dumps({"balance": get_balance(to_user)})
+    return wrap_exec(with_result, ["push", "action", "eosio.token", "transfer", json.dumps([from_user,to_user, amount_str, message]), "-p", from_user+"@active", "-j"])
+
+
+# Penalizes users for not attending games
+def penalize_users(game_id):
+    penalty_amount = "5"
+    tickets = filter(lambda a:a["game_id"] == game_id,get_raw_table("tickets"))
+    r = []
+    for ticket in tickets:
+        if not ticket["attended"] and not ticket["owner"]=="hokipoki":
+            user = ticket["owner"]
+            user_balance = get_balance(user)
+            if (user_balance - float(penalty_amount)) < 0:
+                penalty_amount = str(user_balance)
+            transfer_from(user,"hokipoki",penalty_amount,"Penalty for not attending game")
+            r.append(user)
+    return r
+
+def reward_user(ticket_id):
+    def with_result(r):
+	return json.dumps({"success": "Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-j"])
+
+def active_tickets(user):
+	list_of_games = []
+	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
+	tickets = filter(lambda a: a["owner"] == user, get_raw_table("tickets"))
+	for ticket in tickets:
+		games = filter(lambda a: a["id"] == ticket["game_id"], get_raw_table("games"))
+		for game in games:
+			if int(game["date"]) >= int(dt_string):
+				list_of_games.append(ticket)
+	return list_of_games
+
+def get_game_type(game_id):
+	games = {
+		0: "Football",
+		1: "Men's Basketball",
+		2: "Women's Basketball",
+		3: "Men's Soccer",
+		4: "Women's Soccer", 
+		5: "Baseball",
+		6: "Cross Country",
+		7: "Men's Golf",
+		8: "Women's Golf",
+		9: "Lacrosse",
+		10: "Softball",
+		11: "Swim and Dive",
+		12: "Men's Tennis",
+		13: "Women's Tennis",
+		14: "Track and Field",
+		15: "Volleyball",
+		16: "Wrestling"
+	} 
+	return games.get(game_id, "Invalid Game ID")
+
+
+def format_date(date):
+    d = str(date)[:8]
+    return time.strftime("%A, %B %-d, %Y", time.strptime(d, "%Y%m%d"))
