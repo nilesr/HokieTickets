@@ -114,4 +114,4 @@ import subprocess, collections, random, re
 # print("nathanmk balance: " + str(get_balance("nathanmk")))
 
 #active_tickets("nathanmk")
-reward_user(2)
+get_auction_by_ticket_id(8)

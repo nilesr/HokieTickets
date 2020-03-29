@@ -133,6 +133,31 @@ def leave_lottery(user, game_id):
 	return json.dumps({"success":"Success!"})
     return wrap_exec(with_result, ["push", "action", "hokipoki", "leavelottery", json.dumps([user, game_id]), "-p", user + "@active", "-j"])
 
+def create_auction(user, ticket_id, initial_bid, end_date):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "creatauction", json.dumps([ticket_id, initial_bid, end_date]), "-p", user + "@active", "-j"])
+
+def bid(ticket_id, user, bid):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "bid", json.dumps([ticket_id, user, bid]), "-p", user + "@active", "-j"])
+
+def execute_auction_winner(ticket_id, user):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "execauction1", json.dumps([ticket_id]), "-p", user + "@active", "-j"])
+
+def execute_auction_owner(ticket_id, user):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "execauction2", json.dumps([ticket_id]), "-p", user + "@active", "-j"])
+
+def cancel_auction(ticket_id, user):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "cancelauctn", json.dumps([ticket_id]), "-p", user + "@active", "-j"])
+
 
 # ADMIN ACTIONS
 def execute_lottery(game_id):
@@ -147,6 +172,11 @@ def open_lottery(game_id):
 
 def create_game(day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes):
 	return wrap_exec(False, ["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes]), "-p", "hokipoki@active", "-j"])
+
+def execute_all_auctions(game_id):
+    def with_result(r):
+	return json.dumps({"success":"Success!"})
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "aucexecall", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
 
 def reset():
 	return wrap_exec(False, ["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active"])
@@ -315,3 +345,33 @@ def get_game_type(game_id):
 def format_date(date):
     d = str(date)[:8]
     return time.strftime("%A, %B %-d, %Y", time.strptime(d, "%Y%m%d"))
+
+
+# AUCTION HELPERS
+
+def auction_for_ticket_id(ticket_id):
+	auctions = filter(lambda a:a["ticket_id"] == ticket_id, get_raw_table("auctions"))
+	return len(auctions) > 0
+
+def get_ticket_by_id(ticket_id):
+	tickets = filter(lambda a:a["id"] == ticket_id, get_raw_table("tickets"))
+	return tickets
+
+def get_auction_by_ticket_id(ticket_id):
+	auctions = filter(lambda a:a["ticket_id"] == ticket_id, get_raw_table("auctions"))
+	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
+	print(dt_string)
+	if len(auctions) == 0:
+		return( {"error": "No auction exists"} )
+	elif int(auctions[-1]["end_date"]) < int(dt_string):
+		return( {"error": "Auction ended"} )
+	else:
+		return( auctions[-1] )
+
+def get_auctions_by_name(user):
+	auctions = filter(lambda a:a["auction_owner"] == user, get_raw_table("auctions"))
+	return auctions
+
+def get_auctions_by_game(game_id):
+	auctions = filter(lambda a:a["game_id"] == game_id, get_raw_table("auctions"))
+	return auctions
