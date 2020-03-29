@@ -359,10 +359,14 @@ nav li:not(:first-child) {
 .actionButton {
     padding: 10px 25px;
     background-color: #80003F;
-    border-color: #630031;
+    border: none;
     border-radius: 7px;
     font-size: 15px;
     color: white;
+}
+
+.secondary {
+    background-color: #E87722;
 }
 
 .actionButton:hover {
@@ -372,7 +376,7 @@ nav li:not(:first-child) {
 
 .confirmButton {
     background-color: #13CE66;
-    border: 2px #13C863 solid;
+    border: none;
     color: white;
     font-size: 15px;
 }

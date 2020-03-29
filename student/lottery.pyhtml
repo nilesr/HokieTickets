@@ -93,7 +93,7 @@ def format_time(date_time):
                     % if libgoblin.is_lottery_available(r.id):
                         <td>
                         % if libgoblin.user_in_lottery(user, r.id):
-                            <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'leave_lottery', {'event_name': '${r.name}'})">Leave Lottery</button>
+                            <button class="actionButton secondary" onclick="openWindow('${user}', ${r.id}, 'leave_lottery', {'event_name': '${r.name}'})">Leave Lottery</button>
                         % elif not libgoblin.user_has_ticket(user, r.id):
                             <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'enter_lottery', {'event_name': '${r.name}'})">Enter Lottery</button>
                         % else:

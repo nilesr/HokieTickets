@@ -80,7 +80,7 @@ def format_date(date_time):
                         <td><p>${libgoblin.format_htk(str(r.reward)[:-2] + '.' + str(r.reward)[-2:])}</p></td>
                         <td>
                         % if libgoblin.user_has_ticket(user, r.id) and not libgoblin.user_in_lottery(user, r.id):
-                            <button class="actionButton" onclick="openWindow('${user}', 0, 'view')">View Ticket</button>
+                            <button class="actionButton secondary" onclick="openWindow('${user}', 0, 'view')">View Ticket</button>
                         % elif not libgoblin.is_ticket_available(r.id):
                             <p>No tickets available</p>
                         % elif libgoblin.user_in_lottery(user, r.id):

@@ -57,13 +57,13 @@
 					% else:
 						<table><thead>
 						<tr>
-						% for k in raw[0].__dict__.keys():
+						% for k in raw[0].__dict__.keys()[::-1]:
 							<th>${k | h}</th>
 						% endfor
 						</thead><tbody>
 						% for r in raw:
 							<tr>
-							% for f in r:
+							% for f in r[::-1]:
 								<td>${f | h}</td>
 							% endfor
 							</tr>

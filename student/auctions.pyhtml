@@ -1,0 +1,100 @@
+<%!
+	import libgoblin, goblin_auth
+%>
+<%
+	user, session = goblin_auth.get_user(c)
+%>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Student Ticket Auctions</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
+        <script src="/static/student.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	</head>
+    <body>
+    <div class="banner">
+		<img src="/static/vt-logo-white.svg" alt="">
+        % if user == "hokipoki":
+            ADMIN
+        % endif
+	</div>
+    % if user:
+
+        ## NAV SECTION - any changes must be changed for all navs
+        <nav>
+            <div class="nav-section" id="user-logout">
+                <p>You are logged in as <b>${user}</b></p>
+                <a href="/logout.pyhtml">Logout</a>
+            </div>
+            <div class="nav-section" id="pages">
+                <ul>
+                    <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
+                    <li><a href="/student/auctions.pyhtml">AUCTIONS</a></li>
+                    <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
+                    <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
+                    <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        ## MAIN CONTENT SECTION
+        <div class='content'>
+
+            <h1>Student Ticket Auctions</h1>
+            <p>Find ticket auctions to enter and view your auctions.</p>
+            <h2>MY AUCTIONS</h2>
+            <table>
+                <thead><tr>
+                    <th>EVENT</th>
+                    <th>HIGHEST BID</th>
+                    <th></th>
+                </thead><tbody>
+                ## <% auctions = libgoblin.get_user_auctions(user) %>
+                ## % for a in auctions:
+                ##     <tr><td>${libgoblin.get_game(a.game_id).name}</td>
+                ##     <td>${a.highest_bid}</td>
+                ##     <td>
+                ##     % if a.highest_bid <= libgoblin.get_ticket(a.ticket_id).face_value:
+                ##         <button class="actionButton secondary" 
+                ##                 onclick="openWindow('${user}','${t.id}', 'cancel_auction', 
+                ##                                     {})"
+                ##         >Cancel Auction</button>
+                ##     % endif
+                ##     </td>
+                ## % endfor
+                </tbody>
+            </table>
+            <h2>FIND AUCTIONS BY GAME</h2>
+            <label for="game">Select Game:</label><br />
+            <select name="game" id="gameSelect">
+                <option selected disabled value></option>
+                <% games = libgoblin.get_raw_table('games') %>
+                % for g in games:
+                    <option value="${g.id}">${g.name}</option>
+                % endfor
+            </select>
+            <table>
+                <thead><tr>
+                    <th>USER</th>
+                    <th>HIGHEST BID</th>
+                    <th></th>
+                </thead>
+                <tbody id="auctionListings"></tbody>
+        </div>
+
+        <div id="window" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeWindow()">&times;</span>
+                <div class="modal-body"></div>
+                <div class="button-area"></div>
+            </div>
+        </div>
+    </body>
+    
+	% else:
+		You do not have permission to access this page.  Please <a href="/login.pyhtml">login</a>.
+	% endif
+</html>

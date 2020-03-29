@@ -7,12 +7,13 @@ if user == "hokipoki":
     reward_status = False
     penalty_status = False
     if "game" in d: # Penalties
+        penalty_status = "game in d"
         try:
-            penalty_status = json.loads(libgoblin.penalize_users(int(d['game'])))
+            penalty_status = libgoblin.penalize_users(int(d['game']))
         except:
             pass
         if penalty_status:
-            penalty_status = "Success! " + len(penalty_status) + " users have been penalized."
+            penalty_status = "Success! " + str(len(penalty_status)) + " users have been penalized."
     elif "ticket" in d: # Rewards
         try:
             reward_status = json.loads(libgoblin.reward_user(int(d['ticket'])))
@@ -103,7 +104,7 @@ if user == "hokipoki":
                             % endfor
                         </select>
                     </div>
-                    <input type="submit" value="Penalize"/>
+                    <input type="submit" value="Penalize Users"/>
 			% else:
 				You do not have permission to access this page.
 			% endif

@@ -80,7 +80,7 @@ def format_date(date_time):
                         % endif
                         </td>
                         % if libgoblin.is_lottery_available(r.id):
-                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'execute_lottery', {'event_name': '${r.name}', 'num_entries': ${len(lotto_entries)}})">Execute Lottery</button></td>
+                            <td><button class="actionButton secondary" onclick="openWindow('${r.id}', 'execute_lottery', {'event_name': '${r.name}', 'num_entries': ${len(lotto_entries)}})">Execute Lottery</button></td>
                         % else:
                             <td><button class="actionButton" onclick="openWindow('${r.id}', 'open_lottery', {'event_name': '${r.name}'})">Open Lottery</button></td>
                         % endif

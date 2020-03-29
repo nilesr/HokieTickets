@@ -1,5 +1,5 @@
 <%!
-	import libgoblin, goblin_auth
+	import libgoblin, goblin_auth, time
 %>
 <%
 	user, session = goblin_auth.get_user(c)
@@ -57,18 +57,62 @@
                     <table>
                         <thead><tr>
                             <th>DATE</th>
-                            <th>EVENT</th>
-                            <th>TRANSACTION TYPE</th>
+                            <th>TRANSACTION</th>
                             <th>BALANCE</th>
                         </thead>
                         <tbody>
-                            % for i, l in enumerate(libgoblin.get_history(user)):
+							<%
+                            bal = libgoblin.get_balance(user)
+                            def get_hr_text(r):
+                                if r.action_trace.act.name == "transfer":
+                                    if r.action_trace.act.data.to == user:
+                                        target = r.action_trace.act.data.from_
+                                        text = ["Recieved ", " from "]
+                                    else:
+                                        target = r.action_trace.act.data.to
+                                        text = ["Transferred ", " to "]
+                                    if target == "hokipoki": target = "Virginia Tech"
+                                    return text[0] + r.action_trace.act.data.quantity + text[1] + target + " for \"" + r.action_trace.act.data.memo + "\""
+                                if r.action_trace.act.name == "buy":
+                                    game = libgoblin.get_game(r.action_trace.act.data.id)
+                                    if not game: return "Bought a ticket to game id " + str(r.action_trace.act.data.id)
+                                    return "Bought a ticket to " + game.name + " for " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "sell":
+                                    game = libgoblin.get_game(r.action_trace.act.data.id)
+                                    if not game: return "Sold a ticket to game id " + str(r.action_trace.act.data.id)
+                                    return "Sold a ticket to " + game.name + " for " + libgoblin.format_date(game.date) + " back to the university"
+                                if r.action_trace.act.name == "enterlottery":
+                                    game = libgoblin.get_game(r.action_trace.act.data.game_id)
+                                    if not game: return "Entered lottery for game id " + str(r.action_trace.act.data.game_id)
+                                    return "Entered the ticket lottery for the game " + game.name + " for " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "leavelottery":
+                                    game = libgoblin.get_game(r.action_trace.act.data.game_id)
+                                    if not game: return "Left lottery for game id " + str(r.action_trace.act.data.game_id)
+                                    return "Left the ticket lottery for the game " + game.name + " for " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "updateauth":
+                                    return "Account created!" # HACK
+                                if r.action_trace.act.name == "executelotto":
+                                    game = libgoblin.get_game(r.action_trace.act.data.game_id)
+                                    if not game: return "Received ticket from the ticket lottery for game ID " + str(r.action_trace.act.data.game_id)
+                                    return "Received ticket from the ticket lottery for " + game.name + " on " + libgoblin.format_date(game.date)
+                                # TODO
+                                return r.action_trace.act.name + " -> " + r.action_trace.receiver + "<br /><pre>" + libgoblin.debug_format(r.action_trace.act.data) + "</pre>"
+                            def backcompute_bal(bal, r):
+                                if r.action_trace.act.name != "transfer": return bal
+                                q = float(r.action_trace.act.data.quantity.split(" ")[0])
+                                if r.action_trace.act.data.to == user:
+                                    bal -= q
+                                else:
+                                    bal += q;
+                                return bal
+                            %>
+                            % for i, l in list(enumerate(libgoblin.get_history(user)))[::-1]:
                                 % for r in l:
                                     <tr style="background-color: ${"#ddd" if i % 2 == 1 else "white"};">
-                                        <td>${r.block_time}</td>
-                                        <td>TODO</td>
-                                        <td>${r.action_trace.act.name} -> ${r.action_trace.receiver}<br /><pre>${libgoblin.debug_format(r.action_trace.act.data)}</pre></td>
-                                        <td>????</td>
+                                        <td>${time.strftime("%A, %B %-d %Y, %-l:%M:%S %p", time.strptime(r.block_time.split(".")[0], "%Y-%m-%dT%H:%M:%S"))}</td>
+                                        <td>${get_hr_text(r)}</td>
+                                        <td>${libgoblin.format_htk(bal)}</td>
+                                        <% bal = backcompute_bal(bal, r) %>
                                     </tr>
                                 % endfor
                             % endfor

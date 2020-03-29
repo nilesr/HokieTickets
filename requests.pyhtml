@@ -19,13 +19,18 @@ elif "user" in data and "action" in data:
     if data['action'] == "buy" and "game_id" in data:
         resp = libgoblin.buy(data['user'], data['game_id'])
 
+    elif data['action'] == "sell" and "ticket_id" in data:
+        resp = libgoblin.sell(data['user'], data['ticket_id'])
+
     elif data['action'] == "enter_lottery" and "game_id" in data:
         resp = libgoblin.enter_lottery(data['user'], data['game_id'])
     elif data['action'] == "leave_lottery" and "game_id" in data:
         resp = libgoblin.leave_lottery(data['user'], data['game_id'])
 
-    elif data['action'] == "sell" and "ticket_id" in data:
-        resp = libgoblin.sell(data['user'], data['ticket_id'])
+    elif data['action'] == "create_auction" and "ticket_id" in data and "initial_bid" in data and "end_date" in data:
+        resp = libgoblin.create_auction(data['user'], data['ticket_id'], data['initial_bid'], data['end_date'])
+    elif data['action'] == "cancel_auction" and "ticket_id" in data:
+        resp = libgoblin.cancel_auction(data['ticket_id'], data['user'])
 
 else:
     resp = "Error: invalid request"

@@ -79,11 +79,26 @@
                         % if t.face_value == 0:
                             <p>0.00 HTK</p>
                         % else:
-                            <p><script>formatHTK(${t.face_value})</script></p>
+                            <p><script>document.write(formatHTK(${t.face_value}))</script></p>
                         %endif
                         </td>
-                        <td><button class="actionButton" onclick="openWindow('${user}', '${t.id}', 'view')">View Ticket</button></td>
-                        <td><button class="actionButton" onclick="openWindow('${user}', '${t.id}', 'sell', {'event_name': '${libgoblin.get_game(t.game_id).name}', 'current_balance': '${libgoblin.get_balance(user)}'})">Sell Ticket</button></td>
+                        <td><button class="actionButton" 
+                                    onclick="openWindow('${user}', '${t.id}', 'sell', 
+                                                        {'event_name': '${libgoblin.get_game(t.game_id).name}', 'current_balance': '${libgoblin.get_balance(user)}'})"
+                            >Sell Ticket</button></td>
+                        <td>
+                        ## % if t.in_auction:
+                        ##     <button class="actionButton secondary" 
+                        ##             onclick="openWindow('${user}', '${t.id}', 'view_auction', 
+                        ##                                 {})"
+                        ##     >View Auction Details</button>
+                        % if t.face_value != 0: # Can't auction lottery tickets
+                            <button class="actionButton" 
+                                    onclick="openWindow('${user}','${t.id}', 'create_auction', 
+                                                        {'event_name': '${libgoblin.get_game(t.game_id).name}', 'ticket_value': '${t.face_value}', 'end_date': '${libgoblin.get_game(t.game_id).date}'})"
+                            >Auction Ticket</button>
+                        % endif
+                        </td>
                     %endfor
                 %endif
                     </tbody>
@@ -97,41 +112,41 @@
                     <th>GAME ATTENDED</th>
                     <th>REWARD/PENALTY</th>
                 </thead><tbody>
-                <% past_tickets = libgoblin.get_past_tickets(user) %>
-                % if len(past_tickets) == 0:
-                    <tr><td><p>No tickets owned in the past</p></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                % else:
-                    % for t in past_tickets:
-                        <tr><td>
-                            <h3>${libgoblin.get_game(t.game_id).name}</h3>
-                            <p>${libgoblin.get_game_type(t.game_id)}</p>
-                        </td>
-                        <td>
-                        % if t.face_value == 0:
-                            <p>Lottery</p>
-                        % else:
-                            <p>Purchased</p>
-                        %endif
-                        </td>
-                        <td>
-                        % if t.attended == 0:
-                            <p>No</p>
-                        % else:
-                            <p>Yes</p>
-                        % endif
-                        </td>
-                        <td>
-                        % if t.attended == 0:
-                            <p style="color: #BB0000;">-5.00 HTK</p>
-                        % else:
-                            <p style="color: #13CE66;">${libgoblin.format_htk(libgoblin.get_game(t.game_id).reward)}</p>
-                        % endif
-                        </td>
-                    % endfor
-                % endif
+                ## <% past_tickets = libgoblin.get_past_tickets(user) %>
+                ## % if len(past_tickets) == 0:
+                ##     <tr><td><p>No tickets owned in the past</p></td>
+                ##     <td></td>
+                ##     <td></td>
+                ##     <td></td>
+                ## % else:
+                ##     % for t in past_tickets:
+                ##         <tr><td>
+                ##             <h3>${libgoblin.get_game(t.game_id).name}</h3>
+                ##             <p>${libgoblin.get_game_type(t.game_id)}</p>
+                ##         </td>
+                ##         <td>
+                ##         % if t.face_value == 0:
+                ##             <p>Lottery</p>
+                ##         % else:
+                ##             <p>Purchased</p>
+                ##         %endif
+                ##         </td>
+                ##         <td>
+                ##         % if t.attended == 0:
+                ##             <p>No</p>
+                ##         % else:
+                ##             <p>Yes</p>
+                ##         % endif
+                ##         </td>
+                ##         <td>
+                ##         % if t.attended == 0:
+                ##             <p style="color: #BB0000;">-5.00 HTK</p>
+                ##         % else:
+                ##             <p style="color: #13CE66;">${libgoblin.format_htk(libgoblin.get_game(t.game_id).reward)}</p>
+                ##         % endif
+                ##         </td>
+                ##     % endfor
+                ## % endif
                 </tbody>
             </table>
         </div>
