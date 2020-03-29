@@ -353,6 +353,7 @@ public:
             row.game_id = game_id;
             row.highest_bid = initial_bid;
             row.top_bidder = owner;
+            row.auction_owner = owner;
             row.end_date = end_date;
         });
     }
@@ -533,7 +534,7 @@ private:
     struct [[eosio::table]] auction {
         uint64_t ticket_id;
         uint64_t game_id;
-        name auction_owner; // TODO: REMOVE
+        name auction_owner; // should always be equal to the owner of the ticket
         uint64_t highest_bid;
         name top_bidder;
         uint64_t end_date;
