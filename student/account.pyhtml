@@ -96,7 +96,27 @@
                                     game = libgoblin.get_game(r.action_trace.act.data.game_id)
                                     if not game: return "Received ticket from the ticket lottery for game ID " + str(r.action_trace.act.data.game_id)
                                     return "Received ticket from the ticket lottery for " + game.name + " on " + libgoblin.format_date(game.date)
-                                # TODO
+                                if r.action_trace.act.name == "creatauction":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.ticket_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    return "Started auctioning a ticket to " + game.name + " until " + libgoblin.format_datetime(r.action_trace.act.data.end_date) + " at a starting bid of " + libgoblin.format_htk(r.action_trace.act.data.initial_bid/100)
+                                if r.action_trace.act.name == "execauction1":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.ticket_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    return "Claimed a ticket from winning an auction to " + game.name + " on " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "execauction2":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.ticket_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    return "Finished auctioning a ticket to " + game.name + " on " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "cancelauctn":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.auction_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    return "Cancelled an auction for a ticket to " + game.name + " on " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "bid":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.ticket_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    amt = libgoblin.format_htk(r.action_trace.act.data.bid/100)
+                                    return "Bid " + amt + " on a ticket for " + game.name + " on " + libgoblin.format_date(game.date)
                                 return r.action_trace.act.name + " -> " + r.action_trace.receiver + "<br /><pre>" + libgoblin.debug_format(r.action_trace.act.data) + "</pre>"
                             def backcompute_bal(bal, r):
                                 if r.action_trace.act.name != "transfer": return bal
