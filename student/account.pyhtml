@@ -30,6 +30,7 @@
             <div class="nav-section" id="pages">
                 <ul>
                     <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
+                    <li><a href="/student/auctions.pyhtml">AUCTIONS</a></li>
                     <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
                     <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
                     <li><a href="/student/account.pyhtml">ACCOUNT</a></li>

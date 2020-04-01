@@ -33,6 +33,12 @@ function openWindow(id, action, info) {
         title.innerHTML = "Confirm Open Lottery";
         text.children[0].innerHTML = "You are opening the lottery for <b>" + info['event_name'] + "</b>.";
         text.children[1].innerHTML = "Click <b>Confirm</b> to continue."
+        text.children[2].innerHTML = "";
+    } else if (action == "exec_all_auctions") {
+        title.innerHTML = "Execute All Auctions";
+        text.children[0].innerHTML = "You are executing all auctions for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "There are currently <b>" + info['num_auctions'] + "</b> auctions for this game.";
+        text.children[2].innerHTML = "Click <b>Confirm</b> to continue."
     }
 
     var buttonArea = modal.querySelector(".button-area");
@@ -126,7 +132,6 @@ function updateUserBalance() {
     var selected = document.getElementById("userSelect").options[userSelect.selectedIndex].value;
 
     var data = {
-        'admin': true,
         'user': selected,
         'action': 'user_balance',
     };

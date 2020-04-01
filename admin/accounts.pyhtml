@@ -43,8 +43,8 @@
             </div>
             <div class="nav-section" id="pages">
 				<ul>
-					<li><a href="/admin/raw.pyhtml">TABLES</a></li>
 					<li><a href="/admin/attendance.pyhtml">ATTENDANCE</a></li>
+                    <li><a href="/admin/auctions.pyhtml">AUCTIONS</a></li>
 					<li><a href="/admin/lottery.pyhtml">LOTTERY</a></li>
                     <li><a href="/admin/transfer.pyhtml">TRANSFER</a></li>
 					<li><a href="/admin/accounts.pyhtml">ACCOUNTS</a></li>

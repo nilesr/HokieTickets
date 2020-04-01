@@ -10,6 +10,13 @@ def format_date(date_time):
     date = int(date_time) // 10000   # Take off HHMM
     obj = dt(date // 10000, (date // 100) % 100, date % 100) #YYYY,MM,DD
     return obj.strftime("%a. %B %d, %Y")
+def format_time(date_time):
+    if len(date_time) != 12:
+        return ""
+    date = int(date_time) // 10000  # Take off HHMM
+    time = int(date_time) % 10000   # Just HHMM
+    obj = dt(date // 10000, (date // 100) % 100, date % 100, hour=(time // 100), minute=(time % 100)) #YYYY,MM,DD
+    return obj.strftime("%-I:%M %p")
 %>
 <%
 	user, session = goblin_auth.get_user(c)
@@ -42,6 +49,7 @@ def format_date(date_time):
             <div class="nav-section" id="pages">
                 <ul>
                     <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
+                    <li><a href="/student/auctions.pyhtml">AUCTIONS</a></li>
                     <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
                     <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
                     <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
@@ -75,7 +83,10 @@ def format_date(date_time):
                             <h3>${r.name}</h3>
                             <p>${libgoblin.get_game_type(r.game_type)}</p>
                         </td>
-                        <td><p>${format_date(r.date)}</p></td>
+                        <td>
+                            <p>${format_date(r.date)}</p>
+                            <p>${format_time(r.date)}</p>
+                        </td>
                         <td><p>${libgoblin.format_htk(str(r.initial_face_value)[:-2] + '.' + str(r.initial_face_value)[-2:])}</p></td>
                         <td><p>${libgoblin.format_htk(str(r.reward)[:-2] + '.' + str(r.reward)[-2:])}</p></td>
                         <td>

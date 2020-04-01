@@ -1,8 +1,25 @@
 <%!
-	import libgoblin, goblin_auth
+import libgoblin, goblin_auth
+from datetime import datetime as dt
 %>
 <%
-	user, session = goblin_auth.get_user(c)
+user, session = goblin_auth.get_user(c)
+
+def today_to_date():
+    return dt.now().strftime("%Y%m%d%H%M")
+def format_date(date_time):
+    if len(date_time) != 12:
+        return ""
+    date = int(date_time) // 10000   # Take off HHMM
+    obj = dt(date // 10000, (date // 100) % 100, date % 100) #YYYY,MM,DD
+    return obj.strftime("%a. %B %d, %Y")
+def format_time(date_time):
+    if len(date_time) != 12:
+        return ""
+    date = int(date_time) // 10000  # Take off HHMM
+    time = int(date_time) % 10000   # Just HHMM
+    obj = dt(date // 10000, (date // 100) % 100, date % 100, hour=(time // 100), minute=(time % 100)) #YYYY,MM,DD
+    return obj.strftime("%-I:%M %p")
 %>
 
 <!DOCTYPE html>
@@ -49,29 +66,38 @@
             <table>
                 <thead><tr>
                     <th>EVENT</th>
+                    <th>END DATE</th>
                     <th>HIGHEST BID</th>
                     <th></th>
                 </thead><tbody>
-                ## <% auctions = libgoblin.get_user_auctions(user) %>
-                ## % for a in auctions:
-                ##     <tr><td>${libgoblin.get_game(a.game_id).name}</td>
-                ##     <td>${a.highest_bid}</td>
-                ##     <td>
-                ##     % if a.highest_bid <= libgoblin.get_ticket(a.ticket_id).face_value:
-                ##         <button class="actionButton secondary" 
-                ##                 onclick="openWindow('${user}','${t.id}', 'cancel_auction', 
-                ##                                     {})"
-                ##         >Cancel Auction</button>
-                ##     % endif
-                ##     </td>
-                ## % endfor
+                <% auctions = libgoblin.get_auctions_by_name(user) %>
+                % if len(auctions) == 0:
+                    <tr><p>You do not have any auctions open.</p></tr>
+                % else:
+                    % for a in auctions:
+                        <tr><td><p>${libgoblin.get_game(a.game_id).name}</p></td>
+                        <td>
+                            <p>${format_date(a.end_date)}</p>
+                            <p>${format_time(a.end_date)}</p>
+                        </td>
+                        <td><p>${libgoblin.format_htk(str(a.highest_bid)[:-2] + '.' + str(a.highest_bid)[-2:])}</p></td>
+                        <td>
+                        % if a.highest_bid <= libgoblin.get_ticket_by_id(a.ticket_id).face_value:
+                            <button class="actionButton secondary" 
+                                    onclick="openWindow('${user}','${a.ticket_id}', 'cancel_auction', 
+                                                        {})"
+                            >Cancel Auction</button>
+                        % endif
+                        </td>
+                    % endfor
+                % endif
                 </tbody>
             </table>
             <h2>FIND AUCTIONS BY GAME</h2>
             <label for="game">Select Game:</label><br />
-            <select name="game" id="gameSelect">
+            <select name="game" id="gameSelect" onchange="populateListings('${user}')">
                 <option selected disabled value></option>
-                <% games = libgoblin.get_raw_table('games') %>
+                <% games = libgoblin.filtered_date_games(today_to_date()) %>
                 % for g in games:
                     <option value="${g.id}">${g.name}</option>
                 % endfor
@@ -79,10 +105,15 @@
             <table>
                 <thead><tr>
                     <th>USER</th>
+                    <th>END DATE</th>
                     <th>HIGHEST BID</th>
                     <th></th>
                 </thead>
-                <tbody id="auctionListings"></tbody>
+                <tbody id="auctionListings">
+                    <tr><td><p>Select a game to see available auctions.</p></td>
+                    <td></td>
+                    <td></td>
+                </tbody>
         </div>
 
         <div id="window" class="modal">

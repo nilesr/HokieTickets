@@ -1,5 +1,5 @@
 <%!
-import libgoblin, goblin_auth
+import libgoblin, goblin_auth, json
 from datetime import datetime as dt
 
 def today_to_date():
@@ -18,7 +18,7 @@ def format_date(date_time):
 <html>
     <head>
 		<meta charset="UTF-8">
-        <title>Admin Lottery Page</title>
+        <title>Admin Auctions Page</title>
         <link rel="stylesheet" href="/static/style.css" />
         <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
         <script src="/static/admin.js"></script>
@@ -48,8 +48,8 @@ def format_date(date_time):
 		</nav>
         <div class="content">
             % if user == "hokipoki":
-                <h1>Manage Lottery</h1>
-                <p>Open or execute lotteries for available games.</p>
+                <h1>Manage Auctions</h1>
+                <p>Execute lotteries for available games.</p>
                 
                 <h2>AVAILABLE GAMES</h2>
                 <% raw = libgoblin.filtered_date_games(today_to_date()) %>
@@ -57,8 +57,7 @@ def format_date(date_time):
                 <tr>
                     <th>EVENT</th>
                     <th>DATE</th>
-                    <th># LOTTERY TICKETS</th>
-                    <th>LOTTERY ENTRIES</th>
+                    <th># AUCTIONS</th>
                     <th></th>
                 </thead><tbody>
                 % if len(raw) == 0:
@@ -68,21 +67,17 @@ def format_date(date_time):
                     <tr>
                         <td><p>${r.name}</td>
                         <td><p>${format_date(r.date)}</p></td>
-                        <td><p>${libgoblin.get_num_of_lottery(r.id)}</p></td>
-                        <td>
-                        <% lotto_entries = libgoblin.lottery_entries_by_game(r.id) %>
-                        % if len(lotto_entries) == 0:
-                            <p>None</p>
+                        <%  
+                        auctions = json.loads(libgoblin.get_auctions_by_game(r.id))
+                        num_auctions = "None"
+                        if 'Success' in auctions:
+                            num_auctions = len(auctions['Success'])
+                        %>
+                        <td><p>${num_auctions}</p></td>
+                        % if num_auctions == 0:
+                            <td><p>No Auctions</p></td>
                         % else:
-                            % for u in lotto_entries:
-                                <p>${u}</p>
-                            % endfor
-                        % endif
-                        </td>
-                        % if libgoblin.is_lottery_available(r.id):
-                            <td><button class="actionButton secondary" onclick="openWindow('${r.id}', 'execute_lottery', {'event_name': '${r.name}', 'num_entries': ${len(lotto_entries)}})">Execute Lottery</button></td>
-                        % else:
-                            <td><button class="actionButton" onclick="openWindow('${r.id}', 'open_lottery', {'event_name': '${r.name}'})">Open Lottery</button></td>
+                        <td><button class="actionButton" onclick="openWindow('${r.id}', 'exec_all_auctions', {'event_name': '${r.name}', 'num_auctions': '${num_auctions}'})">Execute All Auctions</button></td>
                         % endif
                 % endfor
                 </tbody></table>

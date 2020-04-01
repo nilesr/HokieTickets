@@ -9,14 +9,17 @@ if "admin" in data and "action" in data:
         resp = libgoblin.execute_lottery(data['game_id'])
     elif data['action'] == "open_lottery":
         resp = libgoblin.open_lottery(data['game_id'])
-    elif data['action'] == "user_balance" and "user" in data:
-        resp = libgoblin.format_htk(libgoblin.get_balance(data['user']))
     elif data['action'] == "get_tickets" and "user" in data:
         resp = libgoblin.user_tickets(data['user'])
+    elif data['action'] == "exec_all_auctions":
+        resp = libgoblin.execute_all_auctions(data['game_id'])
 
 elif "user" in data and "action" in data:
     # USER ACTIONS
-    if data['action'] == "buy" and "game_id" in data:
+    if data['action'] == "user_balance":
+        resp = libgoblin.format_htk(libgoblin.get_balance(data['user']))
+
+    elif data['action'] == "buy" and "game_id" in data:
         resp = libgoblin.buy(data['user'], data['game_id'])
 
     elif data['action'] == "sell" and "ticket_id" in data:
@@ -31,6 +34,13 @@ elif "user" in data and "action" in data:
         resp = libgoblin.create_auction(data['user'], data['ticket_id'], data['initial_bid'], data['end_date'])
     elif data['action'] == "cancel_auction" and "ticket_id" in data:
         resp = libgoblin.cancel_auction(data['ticket_id'], data['user'])
+    elif data['action'] == "auction_listings" and "game_id" in data:
+        ## auctions = libgoblin.get_auctions_by_game(data['game_id'])
+        ## balance = libgoblin.format_htk(libgoblin.get_balance(data['user']))
+        ## resp = json.dumps({"auctions": auctions, "user_balance": balance})
+        resp = libgoblin.get_auctions_by_game(data['game_id'])
+    elif data['action'] == "bid" and "ticket_id" in data and "bid_amount" in data:
+        resp = libgoblin.bid(data['ticket_id'], data['user'], data['bid_amount'])
 
 else:
     resp = "Error: invalid request"

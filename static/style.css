@@ -184,7 +184,7 @@ select {
     font-size: 15px;
 }
 
-form .input-area input {
+.input-area input {
     border: none;
     width: auto;
 }
@@ -379,6 +379,10 @@ nav li:not(:first-child) {
     border: none;
     color: white;
     font-size: 15px;
+}
+
+.confirmButton:disabled {
+    background-color: rgb(164, 187, 174);
 }
 
 
