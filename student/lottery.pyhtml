@@ -43,20 +43,7 @@ def format_time(date_time):
     % if user:
 
         ## NAV SECTION - any changes must be changed for all navs
-        <nav>
-            <div class="nav-section" id="user-logout">
-                <p>You are logged in as <b>${user}</b></p>
-                <a href="/logout.pyhtml">Logout</a>
-            </div>
-            <div class="nav-section" id="pages">
-                <ul>
-                    <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
-                    <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
-                    <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
-                    <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
-                </ul>
-            </div>
-        </nav>
+	<%include file="nav.pyhtml" args="user=user" />
 
         ## MAIN CONTENT SECTION
         <div class='content'>
@@ -89,7 +76,7 @@ def format_time(date_time):
                             <p>${format_date(r.lottery_closes)}</p>
                             <p>${format_time(r.lottery_closes)}</p>
                         </td>
-                        <td>${libgoblin.format_htk(str(r.reward)[:-2] + '.' + str(r.reward)[-2:])}</td>
+                        <td>${libgoblin.format_htk(r.reward / 100)}</td>
                     % if libgoblin.is_lottery_available(r.id):
                         <td>
                         % if libgoblin.user_in_lottery(user, r.id):

@@ -77,9 +77,8 @@ function openWindow(user, id, action, info) {
         back.onclick = function(event) {
             // Close the modal
             modal.style.display = "none";
-            if (action != "bid") {
-                location.reload();
-            }
+            if (action == "bid" || action == "view") return;
+            location.reload();
         }
     }
 
@@ -180,11 +179,21 @@ function openWindow(user, id, action, info) {
 
         // Show HTK at the end of input area
         inputArea.innerHTML += " HTK";
+    } else if (action == "view") {
+        title.innerHTML = "Viewing Ticket";
+        text.children[0].innerHTML = "You are viewing the ticket for <b>" + info['event_name'] + "</b> on <b>" + info['event_date'] + "</b>.";
+        text.children[1].innerHTML = "<img src='"+info['qr_code']+"' />"
+        text.children[2].innerHTML = "This ticket is currently owned by <b>" + info['owner'] + "</b>. If ownership is transfered before the start of the game, the ticket above will no longer be valid." +
+            "<br /><br />" + "Click <b>Confirm</b> to continue."
     }
 
 
     // On clicking confirm button, make request to execute action
     confirm.onclick = function(event) {
+        if (action == "view") {
+            closeWindow();
+            return;
+        }
         // Send necessary information to backend
         if (action == "view_auction") { // Can only click "confirm" button if they are cancelling auction
             action = "cancel_auction";

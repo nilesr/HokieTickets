@@ -33,21 +33,7 @@ def auction_date(game_date):
     % if user:
 
         ## NAV SECTION - any changes must be changed for all navs
-        <nav>
-            <div class="nav-section" id="user-logout">
-                <p>You are logged in as <b>${user}</b></p>
-                <a href="/logout.pyhtml">Logout</a>
-            </div>
-            <div class="nav-section" id="pages">
-                <ul>
-                    <li><a href="/student/tickets.pyhtml">MY TICKETS</a></li>
-                    <li><a href="/student/auctions.pyhtml">AUCTIONS</a></li>
-                    <li><a href="/student/buy.pyhtml">BUY TICKETS</a></li>
-                    <li><a href="/student/lottery.pyhtml">LOTTERY</a></li>
-                    <li><a href="/student/account.pyhtml">ACCOUNT</a></li>
-                </ul>
-            </div>
-        </nav>
+	<%include file="nav.pyhtml" args="user=user" />
 
         ## MAIN CONTENT SECTION
         <div class='content'>
@@ -89,13 +75,22 @@ def auction_date(game_date):
                         % if t.face_value == 0:
                             <p>0.00 HTK</p>
                         % else:
-                            <p><script>document.write(formatHTK(${t.face_value}))</script></p>
+                            <p>${libgoblin.format_htk(t.face_value / 100)}</p>
+                            ## <p><script>document.write(formatHTK(${t.face_value}))</script></p>
                         %endif
                         </td>
-                        <td><button class="actionButton" 
+                        <td>
+                        % if True: # todo
+                        <button class="actionButton" 
+                                    onclick="openWindow('${user}', '${t.id}', 'view', 
+                                                        {'event_name': '${libgoblin.get_game(t.game_id).name}', 'event_date': '${libgoblin.format_date(libgoblin.get_game(t.game_id).date)}', 'qr_code': '${libgoblin.get_qr_code(t.id)}', 'owner': '${libgoblin.get_ticket(t.id).owner}'})"
+                            >View Ticket</button>
+                        % endif
+                        <button class="actionButton" 
                                     onclick="openWindow('${user}', '${t.id}', 'sell', 
                                                         {'event_name': '${libgoblin.get_game(t.game_id).name}', 'current_balance': '${libgoblin.get_balance(user)}'})"
-                            >Sell Ticket</button></td>
+                            >Sell Ticket</button>
+                        </td>
                         <td>
                         % if libgoblin.auction_for_ticket_id(t.id):
                             <button class="actionButton secondary" 
