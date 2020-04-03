@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-import json, subprocess, collections, random, re, datetime, time
+import json, subprocess, collections, random, re, datetime, time, struct, qrcode, io, base64
 cleos = ["cleos", "--no-auto-keosd", "-u", "http://127.0.0.1:8888", "--wallet-url", "unix:///home/ubuntu/eosio-wallet/keosd.sock"]
 KEY = "EOS7J1tYpCHkCCvi5DwYXkJMRKRzK9XAUVvMC7PnrcucNXS6ZuMC1"
 KEYWORDS = {"from", "except", "if", "else", "elif", "return"}
@@ -212,6 +212,12 @@ def get_game(game_id):
 	except:
 		return None
 
+def get_ticket(ticket_id):
+	try:
+		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)]).rows[0]
+	except:
+		return None
+
 def get_tickets_for_game(game_id):
 	try:
 		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows
@@ -271,7 +277,7 @@ def get_past_tickets(user):
 	today = datetime.datetime.now().strftime("%Y%m%d%H%M")
 	games = _exec(["get", "table", "hokipoki", "hokipoki", "games", "--index", "2", "--key-type", "i64", "-l", "-1", "-U", today]).rows
 	dates = {game.id: game.date for game in games}
-	return filter(lambda a:a.owner == user and today > dates[a.game_id], get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
+	return filter(lambda a:a.owner == user and today > dates.get(a.game_id, today), get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
 
 
 
@@ -346,6 +352,10 @@ def format_date(date):
     d = str(date)[:8]
     return time.strftime("%A, %B %-d, %Y", time.strptime(d, "%Y%m%d"))
 
+def format_datetime(dt):
+    d = str(dt)
+    return time.strftime("%-l:%M %P on %A, %B %-d, %Y", time.strptime(d, "%Y%m%d%H%M%S"))
+
 
 # AUCTION HELPERS
 
@@ -355,16 +365,18 @@ def auction_for_ticket_id(ticket_id):
 
 def get_ticket_by_id(ticket_id):
 	tickets = filter(lambda a:a["id"] == ticket_id, get_raw_table("tickets"))
-	return tickets
+	if len(tickets) > 0:
+		return tickets[-1]
+	return None
 
 def get_auction_by_ticket_id(ticket_id):
 	auctions = filter(lambda a:a["ticket_id"] == ticket_id, get_raw_table("auctions"))
 	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
 	print(dt_string)
 	if len(auctions) == 0:
-		return( {"error": "No auction exists"} )
+		return( json.dumps({"error": "No auction exists"}) )
 	elif int(auctions[-1]["end_date"]) < int(dt_string):
-		return( {"error": "Auction ended"} )
+		return( json.dumps({"error": "Auction ended"}) )
 	else:
 		return( auctions[-1] )
 
@@ -374,4 +386,13 @@ def get_auctions_by_name(user):
 
 def get_auctions_by_game(game_id):
 	auctions = filter(lambda a:a["game_id"] == game_id, get_raw_table("auctions"))
-	return auctions
+	return json.dumps({"Success": auctions})
+
+def get_qr_code(ticket_id):
+    data = b"HOKIPOKI" + struct.pack("<Q", ticket_id) + get_ticket(ticket_id).owner.encode()
+    data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
+    i = io.BytesIO();
+    qrcode.make(data).get_image().save(i, format="PNG")
+    i.seek(0)
+    d = base64.b64encode(i.read())
+    return "data:image/png;base64," + d
