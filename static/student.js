@@ -127,7 +127,7 @@ function openWindow(user, id, action, info) {
         text.children[2].innerHTML = "Click <b>Confirm</b> to continue.";
     } else if (action == "view_auction") {
         title.innerHTML = "Auction Details";
-        text.children[0].innerHTML = "Highest bid: <b>" + formatHTK(info['highest_bid']) + "</b>.";;
+        text.children[0].innerHTML = "Highest bid: <b>" + formatHTK(info['highest_bid']) + "</b>.";
         text.children[1].innerHTML = "Auction end date: <b>" + formatLongDate(info['end_date']) + " " + formatTime(info['end_date']) + "</b>.";
         if (info['highest_bid'] == info['ticket_value']) { // Nobody has bid
             text.children[2].innerHTML = "Nobody has bid in this auction. Click <b>Cancel Auction</b> to reclaim your ticket.";
@@ -137,6 +137,13 @@ function openWindow(user, id, action, info) {
             confirm.style.display = "none";
             text.children[2].innerHTML = "";
         }
+    } else if (action == "cancel_auction") {
+        title.innerHTML = "Cancel Auction";
+        text.children[0].innerHTML = "You are cancelling the auction for your <b>" + info['event_name'] + "</b> ticket.";
+        text.children[1].innerHTML = "The ticket will be returned to you.";
+        text.children[2].innerHTML = "Click <b>Cancel Auction</b> to reclaim your ticket.";
+        confirm.innerHTML = "Cancel Auction";
+        confirm.setAttribute("style", "background-color: #BB0000;"); // Make button red for dangerous action
     } else if (action == "bid") {
         title.innerHTML = "Add Bid";
         text.children[0].innerHTML = "You are adding a bid on a ticket <b>" + info['event_name'] + "</b>.";
@@ -253,9 +260,7 @@ function openWindow(user, id, action, info) {
                     text.removeChild(text.children[3]);
                 }
             }
-            if (action != "bid") {
-                location.reload();
-            } else {
+            if (action == "bid") {
                 populateListings(user);
             }
         });

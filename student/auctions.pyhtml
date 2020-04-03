@@ -85,7 +85,7 @@ def format_time(date_time):
                         % if a.highest_bid <= libgoblin.get_ticket_by_id(a.ticket_id).face_value:
                             <button class="actionButton secondary" 
                                     onclick="openWindow('${user}','${a.ticket_id}', 'cancel_auction', 
-                                                        {})"
+                                                        {'event_name': '${libgoblin.get_game(a.game_id).name}'})"
                             >Cancel Auction</button>
                         % endif
                         </td>
