@@ -1,0 +1,37 @@
+[
+    {
+        "id": "4055D506-91C6-42F6-9AF3-715882650837",
+        "name": "Virginia Tech vs. UNC",
+        "opponent": "UNC",
+        "eventType": "Football",
+        "date": "October 24, 2020",
+    },
+    {
+        "id": "F0D005E8-46DC-40D6-922B-2CBD29FD547F",
+        "name": "Virginia Tech vs. Duke",
+        "opponent": "Duke",
+        "eventType": "Football",
+        "date": "October 31, 2020",
+    },
+    {
+        "id": "96CED975-A4A9-4CCA-B158-C9B29A063A92",
+        "name": "Virginia Tech vs. BC",
+        "opponent": "BC",
+        "eventType": "Football",
+        "date": "November 7, 2020",
+    },
+    {
+        "id": "60888E99-5388-41B9-9886-2935C06A4A90",
+        "name": "Virginia Tech vs. Zoom",
+        "opponent": "Zoom",
+        "eventType": "Basketball",
+        "date": "November 10, 2020",
+    },
+    {
+        "id": "126B9D26-6B21-4D51-84F7-C14ED00480F8",
+        "name": "Virginia Tech vs. Virginia",
+        "opponent": "Virginia",
+        "eventType": "Basketball",
+        "date": "November 17, 2020",
+    }    
+]
