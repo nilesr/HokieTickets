@@ -19,6 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // This function is given in ScanFocusRegion.swift
         createScanFocusRegionImage()
+        
+        // TESTING
+        obtainRequestData(user: "Sameer", action: "user_balance")
+        
         return true
     }
     

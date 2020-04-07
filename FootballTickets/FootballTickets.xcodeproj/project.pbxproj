@@ -14,6 +14,8 @@
 		424F9E082433A02100B60964 /* TicketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424F9E072433A02100B60964 /* TicketData.swift */; };
 		424F9E0A2433A0B500B60964 /* TicketsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424F9E092433A0B500B60964 /* TicketsList.swift */; };
 		424F9E0C2433A11200B60964 /* TicketsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424F9E0B2433A11200B60964 /* TicketsItem.swift */; };
+		426330ED243BD544009CF4AC /* WebRequestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426330EC243BD544009CF4AC /* WebRequestData.swift */; };
+		426330F0243BD5FC009CF4AC /* ScanQRBarcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426330EF243BD5FC009CF4AC /* ScanQRBarcode.swift */; };
 		4299AA292423D11200DD8058 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA282423D11200DD8058 /* AppDelegate.swift */; };
 		4299AA2B2423D11200DD8058 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA2A2423D11200DD8058 /* SceneDelegate.swift */; };
 		4299AA2E2423D11200DD8058 /* FootballTickets.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA2C2423D11200DD8058 /* FootballTickets.xcdatamodeld */; };
@@ -23,7 +25,6 @@
 		4299AA382423D11700DD8058 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4299AA362423D11700DD8058 /* LaunchScreen.storyboard */; };
 		4299AA432423D11700DD8058 /* FootballTicketsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA422423D11700DD8058 /* FootballTicketsTests.swift */; };
 		4299AA4E2423D11700DD8058 /* FootballTicketsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA4D2423D11700DD8058 /* FootballTicketsUITests.swift */; };
-		4299AA5E2423D23D00DD8058 /* ScanQRBarcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA5D2423D23D00DD8058 /* ScanQRBarcode.swift */; };
 		4299AA602423D2D700DD8058 /* ScanFocusRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA5F2423D2D700DD8058 /* ScanFocusRegion.swift */; };
 		4299AA622423D2F600DD8058 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA612423D2F600DD8058 /* WebView.swift */; };
 		4299AA642423D31300DD8058 /* ScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA632423D31300DD8058 /* ScannerViewController.swift */; };
@@ -64,6 +65,8 @@
 		424F9E072433A02100B60964 /* TicketData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketData.swift; sourceTree = "<group>"; };
 		424F9E092433A0B500B60964 /* TicketsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketsList.swift; sourceTree = "<group>"; };
 		424F9E0B2433A11200B60964 /* TicketsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketsItem.swift; sourceTree = "<group>"; };
+		426330EC243BD544009CF4AC /* WebRequestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRequestData.swift; sourceTree = "<group>"; };
+		426330EF243BD5FC009CF4AC /* ScanQRBarcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRBarcode.swift; sourceTree = "<group>"; };
 		4299AA252423D11200DD8058 /* Tickets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tickets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4299AA282423D11200DD8058 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4299AA2A2423D11200DD8058 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -79,7 +82,6 @@
 		4299AA492423D11700DD8058 /* FootballTicketsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FootballTicketsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4299AA4D2423D11700DD8058 /* FootballTicketsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootballTicketsUITests.swift; sourceTree = "<group>"; };
 		4299AA4F2423D11700DD8058 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4299AA5D2423D23D00DD8058 /* ScanQRBarcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScanQRBarcode.swift; path = "../../../mobile/BarcodeScanner/BarcodeScanner/QR Barcode/ScanQRBarcode.swift"; sourceTree = "<group>"; };
 		4299AA5F2423D2D700DD8058 /* ScanFocusRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanFocusRegion.swift; sourceTree = "<group>"; };
 		4299AA612423D2F600DD8058 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		4299AA632423D31300DD8058 /* ScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewController.swift; sourceTree = "<group>"; };
@@ -210,7 +212,7 @@
 		4299AA5C2423D1B600DD8058 /* QR Barcode */ = {
 			isa = PBXGroup;
 			children = (
-				4299AA5D2423D23D00DD8058 /* ScanQRBarcode.swift */,
+				426330EF243BD5FC009CF4AC /* ScanQRBarcode.swift */,
 			);
 			name = "QR Barcode";
 			sourceTree = "<group>";
@@ -234,6 +236,7 @@
 				4299AA722423EFD700DD8058 /* Account.swift */,
 				424F9E0524339FF800B60964 /* Ticket.swift */,
 				424F9E072433A02100B60964 /* TicketData.swift */,
+				426330EC243BD544009CF4AC /* WebRequestData.swift */,
 			);
 			path = "Data Model";
 			sourceTree = "<group>";
@@ -397,11 +400,12 @@
 				4299AA782423F35F00DD8058 /* MyFavoriteDetails.swift in Sources */,
 				4299AA7A2423F35F00DD8058 /* MyFavoritesList.swift in Sources */,
 				4299AA302423D11200DD8058 /* ContentView.swift in Sources */,
+				426330F0243BD5FC009CF4AC /* ScanQRBarcode.swift in Sources */,
 				424F9E0A2433A0B500B60964 /* TicketsList.swift in Sources */,
 				424F9DFD243302D300B60964 /* AddAccount.swift in Sources */,
 				4299AA6A2423D35C00DD8058 /* GetImageFromUrl.swift in Sources */,
 				4299AA2B2423D11200DD8058 /* SceneDelegate.swift in Sources */,
-				4299AA5E2423D23D00DD8058 /* ScanQRBarcode.swift in Sources */,
+				426330ED243BD544009CF4AC /* WebRequestData.swift in Sources */,
 				4299AA7E2423F8E300DD8058 /* UserData.swift in Sources */,
 				4299AA622423D2F600DD8058 /* WebView.swift in Sources */,
 				4299AA642423D31300DD8058 /* ScannerViewController.swift in Sources */,
