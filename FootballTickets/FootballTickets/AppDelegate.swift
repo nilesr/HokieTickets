@@ -21,7 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         createScanFocusRegionImage()
         
         // TESTING
-        obtainRequestData(user: "Sameer", action: "user_balance")
+        getRequestData()
+        postRequestData(user: "Sameer", action: "user_balance")
         
         return true
     }

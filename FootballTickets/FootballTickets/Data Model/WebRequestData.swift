@@ -1,6 +1,6 @@
 //
-//  BarcodeApiData.swift
-//  ProductSurveys
+//  WebRequestData.swift
+//  FootballTickets
 //
 //  Created by Sameer Dandekar on 1/24/20.
 //  Copyright © 2020 Sameer Dandekar. All rights reserved.
@@ -8,19 +8,15 @@
  
 import Foundation
 import SwiftUI
-
-// Declare productFound as a global mutable variable accessible in all Swift files
-//var productFound = Product(id: UUID(), barcode_number: "", product_name: "", manufacturer: "", description: "", images: [String](), stores: [Store]())
-
  
 // fileprivate var previousCategory = "", previousQuery = ""
  
 /*
 ====================================
-MARK: - Obtain Request Data from API
+MARK: - GET Request Data from API
 ====================================
 */
-public func obtainRequestData(user: String, action: String) {
+public func getRequestData() {
     
     // Create URL
     let url = URL(string: "http://goblins.info.tm/requests.pyhtml")
@@ -51,5 +47,38 @@ public func obtainRequestData(user: String, action: String) {
     }
     task.resume()
  
+}
+
+/*
+====================================
+MARK: - POST Request Data from API
+====================================
+*/
+public func postRequestData(user: String, action: String) {
+    // prepare json data
+    let json: [String: Any] = ["user": "sameer", "action": "user_balance"]
+    let jsonData = try? JSONSerialization.data(withJSONObject: json)
+
+    // create post request
+    let url = URL(string: "http://goblins.info.tm/requests.pyhtml")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+
+    // insert json data to the request
+    request.httpBody = jsonData
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        guard let data = data, error == nil else {
+            print(error?.localizedDescription ?? "No data")
+            return
+        }
+        let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+        // print if response is JSON object
+        if let responseJSON = responseJSON as? [String: Any] {
+            print(responseJSON)
+        }
+    }
+
+    task.resume()
 }
  
