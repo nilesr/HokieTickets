@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-// global variable to store session cookie(s)
+// global variable to store session cookie(s), type HTTPCookie
 // var cookies =
  
 /*
@@ -87,7 +87,7 @@ public func attemptLogin(user: String, pass: String) {
             return
         }
         
-        let cookies = HTTPCookie.cookies(withResponseHeaderFields: fields, for: url)
+//        cookies = HTTPCookie.cookies(withResponseHeaderFields: fields, for: url)
         
         print(String(data: data, encoding: .utf8)) // TESTING
         
