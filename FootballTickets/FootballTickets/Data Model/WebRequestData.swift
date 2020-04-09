@@ -8,8 +8,9 @@
  
 import Foundation
 import SwiftUI
- 
-// fileprivate var previousCategory = "", previousQuery = ""
+
+// global variable to store session cookie(s)
+// var cookies =
  
 /*
 ====================================
@@ -44,10 +45,62 @@ public func getRequestData() {
             print("Response data string:\n \(dataString)")
         }
         
+        
+        let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.mutableContainers)
+        // print if response is JSON object
+        if let responseJSON = responseJSON as? [String: Any] {
+            print(responseJSON)
+        }
+        
     }
     task.resume()
  
 }
+
+/*
+====================================
+MARK: - Login via POST Request from API
+====================================
+*/
+public func attemptLogin(user: String, pass: String) {
+    // prepare json data
+    let json: [String: Any] = ["user": "hokipoki", "pass": "pass"]
+    let jsonData = try? JSONSerialization.data(withJSONObject: json)
+
+    // create post request
+    let url = URL(string: "http://goblins.info.tm/requests.pyhtml")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+
+    // insert json data into the body
+    request.httpBody = jsonData
+    
+    request.addValue("application/json", forHTTPHeaderField: "content-type")
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        guard
+            let data = data,
+            let httpResponse = response as? HTTPURLResponse,
+            let fields = httpResponse.allHeaderFields as? [String: String],
+            error == nil else {
+            print(error?.localizedDescription ?? "No data")
+            return
+        }
+        
+        let cookies = HTTPCookie.cookies(withResponseHeaderFields: fields, for: url)
+        
+        print(String(data: data, encoding: .utf8)) // TESTING
+        
+        let responseJSON = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)
+        // print if response is JSON object
+        if let responseJSON = responseJSON as? [String: Any] {
+            print(responseJSON) // TESTING
+        }
+    }
+
+    task.resume()
+}
+
 
 /*
 ====================================
@@ -56,7 +109,7 @@ MARK: - POST Request Data from API
 */
 public func postRequestData(user: String, action: String) {
     // prepare json data
-    let json: [String: Any] = ["user": "sameer", "action": "user_balance"]
+    let json: [String: Any] = ["admin": "true", "user": "hokipoki", "action": "get_tickets"]
     let jsonData = try? JSONSerialization.data(withJSONObject: json)
 
     // create post request
@@ -66,16 +119,28 @@ public func postRequestData(user: String, action: String) {
 
     // insert json data to the request
     request.httpBody = jsonData
+    
+    request.addValue("application/json", forHTTPHeaderField: "content-type")
+    
+    // get header fields from cookies via HTTPCookie.requestHeaderFields(with: cookies!)
+    //    request.allHeaderFields(headers)
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
-        guard let data = data, error == nil else {
+        guard
+            let data = data,
+            let httpResponse = response as? HTTPURLResponse,
+            let fields = httpResponse.allHeaderFields as? [String: String],
+            error == nil else {
             print(error?.localizedDescription ?? "No data")
             return
         }
-        let responseJSON = try? JSONSerialization.jsonObject(with: data, options: [])
+        
+        print(String(data: data, encoding: .utf8)) // TESTING
+        
+        let responseJSON = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)
         // print if response is JSON object
         if let responseJSON = responseJSON as? [String: Any] {
-            print(responseJSON)
+            print(responseJSON) // TESTING
         }
     }
 
