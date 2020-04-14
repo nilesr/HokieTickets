@@ -60,7 +60,7 @@ def format_time(date_time):
                     <th>SIGN UP OPENS</th>
                     <th>LOTTERY CLOSES</th>
                     <th>REWARD (HTK)</th>
-                    <th>LOTTERY RESULTS</th>
+                    <th>TICKET STATUS</th>
                 </thead><tbody>
                 % for r in raw:
                     <tr>
@@ -86,9 +86,14 @@ def format_time(date_time):
                         % else:
                             <p>You have already bought a ticket for this game.</p>
                         </td>
-                        %endif
-                    % elif libgoblin.user_has_ticket(user, r.id) and libgoblin.user_in_lottery(user, r.id):
-                        <td><button class="actionButton" onclick="openWindow('${user}', 0, 'view')">View Ticket</button></td>
+                        % endif
+                    % elif libgoblin.user_has_ticket(user, r.id):
+                        <% ticket = libgoblin.user_has_ticket(user, r.id) %>
+                        <td>
+                        <button class="actionButton secondary" onclick="openWindow('${user}', 0, 'view',
+                                                                        {'event_name': '${r.name}', 'event_date': '${libgoblin.format_date(r.date)}', 'qr_code': '${libgoblin.get_qr_code_data_uri(ticket.id)}', 'owner': '${ticket.owner}'})")"
+                        >View Ticket</button>
+                        </td>
                     % else:
                         <td><p>Lottery is closed.</p></td>
                     %endif

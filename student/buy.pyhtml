@@ -77,12 +77,12 @@ def format_time(date_time):
                         <td><p>${libgoblin.format_htk(r.initial_face_value / 100)}</p></td>
                         <td><p>${libgoblin.format_htk(r.reward / 100)}</p></td>
                         <td>
-                        % if libgoblin.user_has_ticket(user, r.id) and not libgoblin.user_in_lottery(user, r.id):
+                        <% ticket = libgoblin.user_has_ticket(user, r.id) %>
+                        % if ticket and not libgoblin.user_in_lottery(user, r.id):
 
                             <button class="actionButton secondary" onclick="openWindow('${user}', 0, 'view',
-                                                                            {'event_name': '${r.name}', 'event_date': '${libgoblin.format_date(r.date)}', 'qr_code': '${libgoblin.get_qr_code(r.id)}', 'owner': '${user}'})")"
+                                                                            {'event_name': '${r.name}', 'event_date': '${libgoblin.format_date(r.date)}', 'qr_code': '${libgoblin.get_qr_code_data_uri(ticket.id)}', 'owner': '${ticket.owner}'})")"
                             >View Ticket</button>
-                            ## TODO: pass user's ticket id, right now it passes game id for QR code!!!
                         % elif not libgoblin.is_ticket_available(r.id):
                             <p>No tickets available</p>
                         % elif libgoblin.user_in_lottery(user, r.id):

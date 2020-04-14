@@ -16,7 +16,7 @@ if user == "hokipoki":
             penalty_status = "Success! " + str(len(penalty_status)) + " users have been penalized."
     elif "ticket" in d: # Rewards
         try:
-            reward_status = json.loads(libgoblin.reward_user(int(d['ticket'])))
+            reward_status = libgoblin.reward_user(int(d['ticket']))
         except:
             pass
         if reward_status:

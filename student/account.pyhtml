@@ -61,12 +61,16 @@
                                     if target == "hokipoki": target = "Virginia Tech"
                                     return text[0] + r.action_trace.act.data.quantity + text[1] + target + " for \"" + r.action_trace.act.data.memo + "\""
                                 if r.action_trace.act.name == "buy":
-                                    game = libgoblin.get_game(r.action_trace.act.data.id)
-                                    if not game: return "Bought a ticket to game id " + str(r.action_trace.act.data.id)
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.id)
+                                    if not ticket: return "Bought ticket id " + str(r.action_trace.act.data.id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    if not game: return "Bought a ticket to game id " + str(ticket.game_id)
                                     return "Bought a ticket to " + game.name + " for " + libgoblin.format_date(game.date)
                                 if r.action_trace.act.name == "sell":
-                                    game = libgoblin.get_game(r.action_trace.act.data.id)
-                                    if not game: return "Sold a ticket to game id " + str(r.action_trace.act.data.id)
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.id)
+                                    if not ticket: return "Sold ticket id " + str(r.action_trace.act.data.id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    if not game: return "Sold a ticket to game id " + str(ticket.game_id)
                                     return "Sold a ticket to " + game.name + " for " + libgoblin.format_date(game.date) + " back to the university"
                                 if r.action_trace.act.name == "enterlottery":
                                     game = libgoblin.get_game(r.action_trace.act.data.game_id)
@@ -114,14 +118,19 @@
                                 return bal
                             %>
                             % for i, l in list(enumerate(libgoblin.get_history(user)))[::-1]:
-                                % for r in l:
-                                    <tr style="background-color: ${"#ddd" if i % 2 == 1 else "white"};">
-                                        <td>${time.strftime("%A, %B %-d %Y, %-l:%M:%S %p", time.strptime(r.block_time.split(".")[0], "%Y-%m-%dT%H:%M:%S"))}</td>
-                                        <td>${get_hr_text(r)}</td>
-                                        <td>${libgoblin.format_htk(bal)}</td>
-                                        <% bal = backcompute_bal(bal, r) %>
-                                    </tr>
-                                % endfor
+                                <%
+                                    t = time.strftime("%A, %B %-d %Y, %-l:%M:%S %p", time.strptime(l[0].block_time.split(".")[0], "%Y-%m-%dT%H:%M:%S"))
+                                    bal_fmt = libgoblin.format_htk(bal)
+                                    hr = []
+                                    for r in l:
+                                        bal = backcompute_bal(bal, r)
+                                        hr.append(get_hr_text(r))
+                                %>
+                                <tr style="background-color: ${"#ddd" if i % 2 == 1 else "white"};">
+                                    <td>${t}</td>
+                                    <td class="hr">${"<br />".join(hr)}</td>
+                                    <td>${bal_fmt}</td>
+                                </tr>
                             % endfor
                         </tbody>
                     </table>

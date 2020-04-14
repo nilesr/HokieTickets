@@ -83,6 +83,7 @@ body p {
 table {
     border-collapse: collapse;
     width: 100%;
+    border: 2px #dedede solid;
 }
 
 thead {
@@ -104,7 +105,7 @@ tbody {
 }
 
 tbody tr {
-    border: 2px #dedede solid;
+    /*border: 2px #dedede solid;*/
     height: 100px;
 }
 
@@ -304,7 +305,7 @@ nav li:not(:first-child) {
 
 .modal-content {
     background-color: #fefefe;
-    margin: 20vh calc(25% - 2px);
+    margin: 10vh auto;
     padding: 45px;
     border: 1px solid #dedede;
     border-radius: 7px;
@@ -451,3 +452,7 @@ nav li:not(:first-child) {
     float: left;
     width: 70%;
 } */
+
+.hr {
+    line-height: 175%;
+}

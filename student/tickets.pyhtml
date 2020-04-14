@@ -104,7 +104,7 @@ def format_time(date_time):
                         % if True: # todo
                         <button class="actionButton" 
                                     onclick="openWindow('${user}', '${t.id}', 'view', 
-                                                        {'event_name': '${libgoblin.get_game(t.game_id).name}', 'event_date': '${libgoblin.format_date(libgoblin.get_game(t.game_id).date)}', 'qr_code': '${libgoblin.get_qr_code(t.id)}', 'owner': '${libgoblin.get_ticket(t.id).owner}'})"
+                                                        {'event_name': '${libgoblin.get_game(t.game_id).name}', 'event_date': '${libgoblin.format_date(libgoblin.get_game(t.game_id).date)}', 'qr_code': '${libgoblin.get_qr_code_data_uri(t.id)}', 'owner': '${libgoblin.get_ticket(t.id).owner}'})"
                             >View Ticket</button>
                         % endif
                         <button class="actionButton secondary" 
