@@ -39,7 +39,11 @@ def _exec(l, json_decode = True):
 	if proc.returncode != 0:
 		raise EosioError(stderr)
 	if json_decode:
-		return _try_symbolize_names(json.loads(stdout))
+		try:
+			return _try_symbolize_names(json.loads(stdout))
+		except Exception as e:
+			print(stdout)
+			raise e
 	return stdout
 
 def wrap_exec(with_result, *args, **kwargs):
@@ -177,8 +181,8 @@ def open_lottery(game_id):
 	return json.dumps({"success":"Success!"})
     return wrap_exec(with_result, ["push", "action", "hokipoki", "openlottery", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
 
-def create_game(day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes):
-	return wrap_exec(False, ["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes]), "-p", "hokipoki@active", "-j"])
+def create_game(day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes, reward, game_type):
+	return wrap_exec(False, ["push", "action", "hokipoki", "creategame", json.dumps([day, num_tickets, tickets_for_lotto, price, name, location, lottery_opens, lottery_closes, reward, game_type]), "-p", "hokipoki@active", "-j"])
 
 def execute_all_auctions(game_id):
     def with_result(r):
@@ -186,7 +190,7 @@ def execute_all_auctions(game_id):
     return wrap_exec(with_result, ["push", "action", "hokipoki", "aucexecall", json.dumps([game_id]), "-p", "hokipoki@active", "-j"])
 
 def reset():
-	return wrap_exec(False, ["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active"])
+	return wrap_exec(False, ["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active", "-j"])
 
 def transfer(user, amount, message):
     amount_str = str(amount)
@@ -249,7 +253,8 @@ def is_lottery_available(game_id):
 
 # Returns true if user owns a ticket for game with id == game_id or false if not
 def user_has_ticket(user,game_id):
-    return len(filter(lambda a:a["owner"] == user,get_tickets_for_game(game_id)))>0
+    stuff = filter(lambda a:a["owner"] == user,get_tickets_for_game(game_id))
+    return stuff[0] if len(stuff) > 0 else False
 
 def get_lottery_entries_by_user(user):
     return _exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", user, "-U", user]).rows
@@ -324,7 +329,7 @@ def penalize_users(game_id):
 
 def reward_user(ticket_id):
     def with_result(r):
-	return json.dumps({"success": "Success!"})
+	return {"success": "Success!"}
     return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-j"])
 
 def active_tickets(user):
@@ -406,28 +411,40 @@ def get_auctions_user_bid(user):
 	return auctions
 	# return json.dumps({"Success": auctions})
 
-def get_qr_code(ticket_id):
+def get_qr_code_data(ticket_id):
     data = b"HOKIPOKI" + struct.pack(">Q", ticket_id) + get_ticket(ticket_id).owner.encode()
     data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
+    return base64.b64encode(data)
+
+def get_qr_code(ticket_id):
+    data = get_qr_code_data(ticket_id)
     i = io.BytesIO();
     #qrcode.make(data).get_image().save(i, format="PNG")
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L)
     qr.add_data(data)
     qr.make()
     qr.make_image().save(i, format="PNG")
     i.seek(0)
-    d = base64.b64encode(i.read())
-    return "data:image/png;base64," + d
+    return i.read()
+
+def get_qr_code_data_uri(ticket_id):
+    return "data:image/png;base64," + base64.b64encode(get_qr_code(ticket_id))
 
 def scan_qr_code(data):
-    print([ord(c) for c in data])
-    data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
-    print(data[:len("HOKIPOKI")-1].decode())
-    if data[:len("HOKIPOKI")-1].decode() != "HOKIPOKI":
-	return False
-    ticket_id = struct.unpack(">Q", data[len("HOKIPOKI"):len("HOKIPOKI")+8])
+    data = b"".join([chr(ord(c) ^ 0xA6) for c in base64.b64decode(data)])
+    if data[:len("HOKIPOKI")].decode() != "HOKIPOKI":
+	return {"error": "The magic number is invalid"}
+    ticket_id = struct.unpack(">Q", data[len("HOKIPOKI"):len("HOKIPOKI")+8])[0]
     owner = data[len("HOKIPOKI")+8:]
-    return ticket_id, owner # TODO
+    t = get_ticket(ticket_id)
+    if not t:
+	return {"error": "That ticket does not exist"}
+    if t.owner != owner:
+	return {"error": "That ticket no longer belongs to the user who generated the QR code"}
+    if t.attended == 1:
+	return {"success": "That ticket has already been scanned!"}
+    return {"owner": owner, "ticket_id": ticket_id}
+    return reward_user(ticket_id)
 
 def to_json(data):
     return json.dumps(_try_desymbolize_names(data))
