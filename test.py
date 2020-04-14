@@ -114,4 +114,11 @@ import subprocess, collections, random, re
 # print("nathanmk balance: " + str(get_balance("nathanmk")))
 
 #active_tickets("nathanmk")
-get_past_tickets("ankita")
+
+#auction_ended(57)
+
+#print(get_auctions_by_game(6))
+
+qr = b"\x7e\xee\x9e\xde\xff\x6e\x9e\xde\xfa\x6a\x6a\x6a\x6a\x6a\x6a\x69\xcc\x5c\x7c\xbc\x3d\x4c\x9c\x80\xec"
+qr = b"".join(chr(((ord(c) & 0xF0) >> 4) | ((ord(c) & 0x0F) << 4)) for c in qr)
+print(scan_qr_code(qr))

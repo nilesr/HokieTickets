@@ -23,6 +23,13 @@ def _try_symbolize_names(l):
 	cls.__getitem__ = lambda self, k: l[k] if isinstance(k, str) else old_getitem(self, k)
 	return cls(**l)
 
+def _try_desymbolize_names(l):
+	if isinstance(l, list): return [_try_desymbolize_names(i) for i in l]
+	if isinstance(l, dict): return {k: _try_desymbolize_names(v) for k, v in l.items()}
+	if not (isinstance(l, tuple) and not type(l) == tuple): return l
+	return l.__dict__
+
+
 def _exec(l, json_decode = True):
 	if not isinstance(l, list): raise TypeError("Invalid object passed to libgoblin._exec(): {}".format(str))
 	proc = subprocess.Popen(cleos + l, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -199,7 +206,7 @@ def transfer(user, amount, message):
 def user_tickets(user):
 	return filter(lambda a:a["owner"]==user,get_raw_table("tickets"))
 
-#gives you everything, but you can easily index the list for what you want uwu
+#gives you everything, but you can easily index the list for what you want
 def filtered_date_games(date):
 	filtered = filter(lambda a:a["date"]>=date,get_raw_table("games"))
 	return sorted(filtered,key=lambda a:a["date"])
@@ -215,6 +222,12 @@ def get_game(game_id):
 def get_ticket(ticket_id):
 	try:
 		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)]).rows[0]
+	except:
+		return None
+
+def get_auction(ticket_id):
+	try:
+		return _exec(["get", "table", "hokipoki", "hokipoki", "auctions", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)]).rows[0]
 	except:
 		return None
 
@@ -360,25 +373,25 @@ def format_datetime(dt):
 # AUCTION HELPERS
 
 def auction_for_ticket_id(ticket_id):
-	auctions = filter(lambda a:a["ticket_id"] == ticket_id, get_raw_table("auctions"))
-	return len(auctions) > 0
+	return get_auction(ticket_id) != None
 
 def get_ticket_by_id(ticket_id):
-	tickets = filter(lambda a:a["id"] == ticket_id, get_raw_table("tickets"))
-	if len(tickets) > 0:
-		return tickets[-1]
-	return None
+	return get_ticket(ticket_id)
 
 def get_auction_by_ticket_id(ticket_id):
-	auctions = filter(lambda a:a["ticket_id"] == ticket_id, get_raw_table("auctions"))
-	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
-	print(dt_string)
-	if len(auctions) == 0:
+	auction = get_auction(ticket_id)
+	if not auction:
 		return( json.dumps({"error": "No auction exists"}) )
-	elif int(auctions[-1]["end_date"]) < int(dt_string):
+	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
+	if int(auction[0]) < int(dt_string):
 		return( json.dumps({"error": "Auction ended"}) )
 	else:
-		return( auctions[-1] )
+		return( auction )
+
+def auction_ended(ticket_id):
+	auction = get_auction(ticket_id)
+	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
+	return int(auction[0]) < int(dt_string)
 
 def get_auctions_by_name(user):
 	auctions = filter(lambda a:a["auction_owner"] == user, get_raw_table("auctions"))
@@ -386,13 +399,35 @@ def get_auctions_by_name(user):
 
 def get_auctions_by_game(game_id):
 	auctions = filter(lambda a:a["game_id"] == game_id, get_raw_table("auctions"))
-	return json.dumps({"Success": auctions})
+	return to_json({"Success": list(auctions)})
+
+def get_auctions_user_bid(user):
+	auctions = filter(lambda a:a["top_bidder"] == user, get_raw_table("auctions"))
+	return auctions
+	# return json.dumps({"Success": auctions})
 
 def get_qr_code(ticket_id):
-    data = b"HOKIPOKI" + struct.pack("<Q", ticket_id) + get_ticket(ticket_id).owner.encode()
+    data = b"HOKIPOKI" + struct.pack(">Q", ticket_id) + get_ticket(ticket_id).owner.encode()
     data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
     i = io.BytesIO();
-    qrcode.make(data).get_image().save(i, format="PNG")
+    #qrcode.make(data).get_image().save(i, format="PNG")
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
+    qr.add_data(data)
+    qr.make()
+    qr.make_image().save(i, format="PNG")
     i.seek(0)
     d = base64.b64encode(i.read())
     return "data:image/png;base64," + d
+
+def scan_qr_code(data):
+    print([ord(c) for c in data])
+    data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
+    print(data[:len("HOKIPOKI")-1].decode())
+    if data[:len("HOKIPOKI")-1].decode() != "HOKIPOKI":
+	return False
+    ticket_id = struct.unpack(">Q", data[len("HOKIPOKI"):len("HOKIPOKI")+8])
+    owner = data[len("HOKIPOKI")+8:]
+    return ticket_id, owner # TODO
+
+def to_json(data):
+    return json.dumps(_try_desymbolize_names(data))
