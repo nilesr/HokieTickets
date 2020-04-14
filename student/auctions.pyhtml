@@ -68,11 +68,51 @@ def format_time(date_time):
                         </td>
                         <td><p>${libgoblin.format_htk(str(a.highest_bid)[:-2] + '.' + str(a.highest_bid)[-2:])}</p></td>
                         <td>
-                        % if a.highest_bid <= libgoblin.get_ticket_by_id(a.ticket_id).face_value:
+                        % if libgoblin.auction_ended(a.ticket_id):
+                            <button class="actionButton secondary"
+                                    onclick="openWindow('${user}', '${a.ticket_id}', 'execute_auction_owner',
+                                                        {'event_name': 'Game'})"
+                                >Execute Auction</button>
+                        % elif a.highest_bid <= libgoblin.get_ticket_by_id(a.ticket_id).face_value:
                             <button class="actionButton secondary" 
                                     onclick="openWindow('${user}','${a.ticket_id}', 'cancel_auction', 
                                                         {'event_name': '${libgoblin.get_game(a.game_id).name}'})"
                             >Cancel Auction</button>
+                        % endif
+                        </td>
+                    % endfor
+                % endif
+                </tbody>
+            </table>
+            <h2>YOUR BIDS</h2>
+            <table>
+                <thead><tr>
+                    <th>EVENT</th>
+                    <th>END DATE</th>
+                    <th>YOUR BID</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                <% bids = libgoblin.get_auctions_user_bid(user) %>
+                % if len(bids) == 0:
+                    <tr><td><p>You haven't bet on any auctions.</p></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                % else:
+                    % for b in bids:
+                        <tr><td><p>${libgoblin.get_game(b.game_id).name}</p></td>
+                        <td>
+                            <p>${format_date(b.end_date)}</p>
+                            <p>${format_time(b.end_date)}</p>
+                        </td>
+                        <td><p>${libgoblin.format_htk(str(b.highest_bid)[:-2] + '.' + str(b.highest_bid)[-2:])}</p></td>
+                        <td>
+                        % if libgoblin.auction_ended(b.ticket_id):
+                            <button class="actionButton secondary"
+                                    onclick="openWindow('${user}', '${b.ticket_id}', 'execute_auction_winner',
+                                                        {'event_name': 'Game'})"
+                                >Execute Auction</button>
                         % endif
                         </td>
                     % endfor

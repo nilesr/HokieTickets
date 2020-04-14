@@ -5,7 +5,7 @@ function formatHTK(value) {
 }
 
 // Format date from YYYYMMDDHHMM to "Month" DD, YYYY
-function formatLongDate(date) {
+function formatDate(date) {
     var months = [
         "January",
         "February",
@@ -45,6 +45,14 @@ function formatTime(date) {
     var minute = time.slice(2);
 
     return hour + ":" + minute + " " + ampm;
+}
+
+function formatDateForInput(date) {
+    return date.slice(0, 4) + "-" + date.slice(4, 6) + "-" + date.slice(6, 8);
+}
+
+function formatTimeForInput(date) {
+    return date.slice(8, 10) + ":" + date.slice(10);
 }
 
 // Opens a modal window for confirming user actions before making request to server
@@ -121,13 +129,36 @@ function openWindow(user, id, action, info) {
         text.children[2].innerHTML = "Click <b>Confirm</b> to continue.";
     } else if (action == "create_auction") {
         title.innerHTML = "Confirm Ticket Auction";
-        text.children[0].innerHTML = "You are auctioning your ticket for <b>" + info['event_name'] + "</b>.";
+        text.children[0].innerHTML = "You are auctioning your ticket for <b>" + info['event_name'] + "</b> on <b>" + formatDate(info['event_date']) + " " + formatTime(info['event_date']) + "</b>.";
         text.children[1].innerHTML = "The ticket will start at a price of <b>" + formatHTK(info['ticket_value']) + "</b>.";
-        text.children[2].innerHTML = "Click <b>Confirm</b> to continue.";
+        text.children[2].innerHTML = "Input your desired end date for the auction, and press <b>Continue</b> to submit.";
+
+        var inputArea = body.querySelector("#inputArea");
+        if (inputArea == null) {
+            // Set up span to make it look nicer
+            inputArea = text.appendChild(document.createElement('span'));
+            inputArea.setAttribute("class", "input-area");
+            inputArea.setAttribute("id", "inputArea");
+        }
+        // Reset inside because we need to reset values for the input
+        inputArea.innerHTML = "";
+
+        // Date input
+        var dateInput = inputArea.appendChild(document.createElement('input'));
+        dateInput.setAttribute("id", "auctionDate");
+        dateInput.setAttribute("type", "date");
+        dateInput.setAttribute("min", formatDateForInput(info['today'])); // Minimum date: today
+        dateInput.setAttribute("max", formatDateForInput(info['auction_max_date'])); // Maximum date: 11:59 the night before
+
+        // Time input
+        var timeInput = inputArea.appendChild(document.createElement('input'));
+        timeInput.setAttribute("id", "auctionTime");
+        timeInput.setAttribute("type", "time");
+        timeInput.value = "23:59"; // Default to 11:59 PM
     } else if (action == "view_auction") {
         title.innerHTML = "Auction Details";
         text.children[0].innerHTML = "Highest bid: <b>" + formatHTK(info['highest_bid']) + "</b>.";
-        text.children[1].innerHTML = "Auction end date: <b>" + formatLongDate(info['end_date']) + " " + formatTime(info['end_date']) + "</b>.";
+        text.children[1].innerHTML = "Auction end date: <b>" + formatDate(info['end_date']) + " " + formatTime(info['end_date']) + "</b>.";
         if (info['highest_bid'] == info['ticket_value']) { // Nobody has bid
             text.children[2].innerHTML = "Nobody has bid in this auction. Click <b>Cancel Auction</b> to reclaim your ticket.";
             confirm.innerHTML = "Cancel Auction";
@@ -136,11 +167,21 @@ function openWindow(user, id, action, info) {
             confirm.style.display = "none";
             text.children[2].innerHTML = "";
         }
+    } else if (action == "execute_auction_owner") {
+        title.innerHTML = "Execute Auction";
+        text.children[0].innerHTML = "You are executing the auction for your <b>" + info['event_name'] + "</b> ticket.";
+        text.children[1].innerHTML = "The ticket will be sent to the highest bidder of the auction.";
+        text.children[2].innerHTML = "Click <b>Continue</b> to confirm.";
+    } else if (action == "execute_auction_winner") {
+        title.innerHTML = "Execute Auction";
+        text.children[0].innerHTML = "You are executing the auction for the <b>" + info['event_name'] + "</b> ticket.";
+        text.children[1].innerHTML = "The ticket will be sent to you.";
+        text.children[2].innerHTML = "Click <b>Continue</b> to confirm.";
     } else if (action == "cancel_auction") {
         title.innerHTML = "Cancel Auction";
-        text.children[0].innerHTML = "You are cancelling the auction for your <b>" + info['event_name'] + "</b> ticket.";
-        text.children[1].innerHTML = "The ticket will be returned to you.";
-        text.children[2].innerHTML = "Click <b>Cancel Auction</b> to reclaim your ticket.";
+        text.children[0].innerHTML = "You are cancelling the auction for your ticket for <b>" + info['event_name'] + "</b>.";
+        text.children[1].innerHTML = "The ticket will no longer be available for bids.";
+        text.children[2].innerHTML = "Click <b>Cancel Auction</b> to confirm.";
         confirm.innerHTML = "Cancel Auction";
         confirm.setAttribute("style", "background-color: #BB0000;"); // Make button red for dangerous action
     } else if (action == "bid") {
@@ -182,7 +223,7 @@ function openWindow(user, id, action, info) {
     } else if (action == "view") {
         title.innerHTML = "Viewing Ticket";
         text.children[0].innerHTML = "You are viewing the ticket for <b>" + info['event_name'] + "</b> on <b>" + info['event_date'] + "</b>.";
-        text.children[1].innerHTML = "<img src='"+info['qr_code']+"' />"
+        text.children[1].innerHTML = "<div style='text-align: center;'><img src='" + info['qr_code'] + "' /></div>"
         text.children[2].innerHTML = "This ticket is currently owned by <b>" + info['owner'] + "</b>. If ownership is transfered before the start of the game, the ticket above will no longer be valid." +
             "<br /><br />" + "Click <b>Confirm</b> to continue."
     }
@@ -205,12 +246,15 @@ function openWindow(user, id, action, info) {
         // Set up variable information
         if (action == "buy" || action == "enter_lottery" || action == "leave_lottery") {
             data['game_id'] = id;
-        } else if (action == "sell" || action == "cancel_auction") {
+        } else if (action == "sell" || action == "cancel_auction" || action == "execute_auction_winner" || action == "execute_auction_owner") {
             data['ticket_id'] = id;
         } else if (action == "create_auction") {
             data['ticket_id'] = id;
             data['initial_bid'] = parseInt(info['ticket_value']);
-            data['end_date'] = parseInt(info['auction_date']);
+            var endDate = document.getElementById("auctionDate").value;
+            var endTime = document.getElementById("auctionTime").value;
+            var auctionDate = endDate.split('-').join('') + endTime.split(':').join('');
+            data['end_date'] = auctionDate;
         } else if (action == "bid") {
             data['ticket_id'] = id;
             data['bid_amount'] = body.querySelector("#bidAmount").value + "00";
@@ -255,8 +299,16 @@ function openWindow(user, id, action, info) {
                     text.children[2].innerHTML = "Click <b>Go Back</b> to close this window.";
                 } else if (action == "create_auction") {
                     text.children[0].innerHTML += " Your ticket for <b>" + info['event_name'] + "</b> is now up for auction.";
-                    text.children[1].innerHTML = "The auction will end automatically at <b>" + formatLongDate(info['auction_date']) + " " + formatTime(info['auction_date'])
-                    "</b>.";
+                    text.children[1].innerHTML = "The auction will end at <b>" + formatDate(data['end_date']) + " " + formatTime(data['end_date']) + "</b>.";
+                    text.children[2].innerHTML = "Click <b>Go Back</b> to close this window.";
+                    text.removeChild(text.children[3]);
+                } else if (action == "execute_auction_owner") {
+                    text.children[0].innerHTML += " You have executed the ticket auction.";
+                    text.children[1].innerHTML = "The ticket has been sent to the highest bidder.";
+                    text.children[2].innerHTML = "Click <b>Go Back</b> to close this window.";
+                } else if (action == "execute_auction_winner") {
+                    text.children[0].innerHTML += " You have executed the ticket auction.";
+                    text.children[1].innerHTML = "You can now find the ticket in the My Tickets page.";
                     text.children[2].innerHTML = "Click <b>Go Back</b> to close this window.";
                 } else if (action == "cancel_auction") {
                     text.children[0].innerHTML += " Your ticket for <b>" + info['event_name'] + "</b> is no longer up for auction.";
@@ -274,6 +326,7 @@ function openWindow(user, id, action, info) {
             }
         });
     };
+    modal.scrollIntoView();
 }
 
 // Close modal
@@ -295,7 +348,7 @@ function populateListings(user) {
     var selectedName = document.getElementById("gameSelect").options[gameSelect.selectedIndex].innerHTML;
 
     var data = {
-        'user': true,
+        'user': user,
         'action': 'auction_listings',
         'game_id': parseInt(selected),
     };
@@ -328,26 +381,26 @@ function populateListings(user) {
 
             for (i in resp['Success']) {
                 var auction = resp['Success'][i];
-                if (auction[5] != user) { // Don't add a row for this user's auction
+                if (auction.auction_owner != user) { // Don't add a row for this user's auction
                     var row = table.appendChild(document.createElement('tr'));
 
                     var owner = row.appendChild(document.createElement('td')).appendChild(document.createElement('p'));
-                    owner.innerHTML = auction[5];
+                    owner.innerHTML = auction.auction_owner
 
                     var date = row.appendChild(document.createElement('td'));
-                    date.appendChild(document.createElement('p')).innerHTML = formatLongDate(auction[0]);
-                    date.appendChild(document.createElement('p')).innerHTML = formatTime(auction[0]);
+                    date.appendChild(document.createElement('p')).innerHTML = formatDate(auction.end_date);
+                    date.appendChild(document.createElement('p')).innerHTML = formatTime(auction.end_date);
 
                     var highestBid = row.appendChild(document.createElement('td')).appendChild(document.createElement('p'));
-                    highestBid.innerHTML = formatHTK(auction[1]);
-                    if (auction[4] == user) { // This user is the top bidder
+                    highestBid.innerHTML = formatHTK(auction.highest_bid);
+                    if (auction.top_bidder == user) { // This user is the top bidder
                         highestBid.style.color = "#13CE66";
                     }
                     var bidButton = row.appendChild(document.createElement('td')).appendChild(document.createElement('button'));
                     bidButton.setAttribute("class", "actionButton");
-                    bidButton.setAttribute("id", "bid" + auction[2]);
+                    bidButton.setAttribute("id", "bid" + auction.ticket_id);
                     bidButton.innerHTML = "Add Bid";
-                    bidButton.onclick = passArguments(user, auction[2], 'bid', { 'event_name': selectedName, 'highest_bid': auction[1], }); // 'user_balance': resp['user_balance'] });
+                    bidButton.onclick = passArguments(user, auction.ticket_id, 'bid', { 'event_name': selectedName, 'highest_bid': auction.highest_bid, }); // 'user_balance': resp['user_balance'] });
                 }
             }
         }
