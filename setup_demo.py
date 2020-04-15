@@ -59,6 +59,9 @@ buy("cameron", 2)
 open_lottery(3)
 enter_lottery("ankita", 3)
 enter_lottery("nathanmk", 3)
+enter_lottery("nilesr", 3)
+enter_lottery("cameron", 3)
+enter_lottery("sameer", 3)
 execute_lottery(3)
 
 open_lottery(4)
@@ -81,8 +84,16 @@ buy("rachelk4", 7)
 buy("nathanmk", 7)
 
 tid = filter(lambda t: t.game_id == 7, user_tickets("ankita"))[0].id
-create_auction("ankita", tid, 6500, 202005100000)
+create_auction("ankita", tid, 6500, 202005120000)
 bid(tid, "cameron", 6700)
+
+tid = filter(lambda t: t.game_id == 3, user_tickets("nathanmk"))[0].id
+create_auction("nathanmk", tid, 675, 202005151645)
+bid(tid, "nilesr", 800)
+
+tid = filter(lambda t: t.game_id == 3, user_tickets("ankita"))[0].id
+create_auction("ankita", tid, 700, 202005131200)
+bid(tid, "cameron", 850)
 
 print("Script finished.")
 print("\t{} games".format(len(get_raw_table("games"))))

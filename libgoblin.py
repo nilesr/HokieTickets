@@ -54,7 +54,7 @@ def wrap_exec(with_result, *args, **kwargs):
 	    return _exec(*args, **kwargs)
     except EosioError as e:
 	try:
-	    return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("\n",""))})
+	    return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("pending console output:", "").replace("\n",""))})
 	except:
 	    return json.dumps({"error": e.output})
 
@@ -411,6 +411,14 @@ def get_auctions_user_bid(user):
 	return auctions
 	# return json.dumps({"Success": auctions})
 
+def get_auction_groups():
+    now = int(time.strftime("%Y%m%d%H%M", time.localtime()))
+    games = get_raw_table("games")
+    games = list(filter(lambda g: g.date > now, games))
+    games.sort(key=lambda g: g.date)
+    auctions = get_raw_table("auctions")
+    return [[g, list(filter(lambda a: a.game_id == g.id and a.end_date > now, auctions))] for g in games]
+
 def get_qr_code_data(ticket_id):
     data = b"HOKIPOKI" + struct.pack(">Q", ticket_id) + get_ticket(ticket_id).owner.encode()
     data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
@@ -448,3 +456,6 @@ def scan_qr_code(data):
 
 def to_json(data):
     return json.dumps(_try_desymbolize_names(data))
+
+def s(thing):
+    return "" if len(thing) == 1 else "s"
