@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Logout of VT Student Tickets</title>
+		<title>Logout of HokieTickets</title>
 		<link rel="stylesheet" href="/static/style.css"/>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap"> 
 	</head>
@@ -16,7 +16,7 @@
 			<img src="/static/vt-logo-white.svg" alt="">
 		</div>
 		<div class="content">
-			<h1>Logout of VT Student Tickets</h1>
+			<h1>Logout of HokieTickets</h1>
 			% if success:
 				<h3>You have been logged out.</h3>
 			% else:

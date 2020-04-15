@@ -60,8 +60,9 @@ def format_time(date_time):
                 % if len(auctions) == 0:
                     <tr><p>You do not have any auctions open.</p></tr>
                 % else:
-                    % for a in auctions:
-                        <tr><td><p>${libgoblin.get_game(a.game_id).name}</p></td>
+                    % for i, a in list(enumerate(auctions)):
+                        <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
+                        <td><p>${libgoblin.get_game(a.game_id).name}</p></td>
                         <td>
                             <p>${format_date(a.end_date)}</p>
                             <p>${format_time(a.end_date)}</p>
@@ -100,8 +101,9 @@ def format_time(date_time):
                     <td></td>
                     <td></td>
                 % else:
-                    % for b in bids:
-                        <tr><td><p>${libgoblin.get_game(b.game_id).name}</p></td>
+                    % for i, b in list(enumerate(bids)):
+                        <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
+                        <td><p>${libgoblin.get_game(b.game_id).name}</p></td>
                         <td>
                             <p>${format_date(b.end_date)}</p>
                             <p>${format_time(b.end_date)}</p>

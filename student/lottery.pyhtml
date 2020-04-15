@@ -62,8 +62,8 @@ def format_time(date_time):
                     <th>REWARD (HTK)</th>
                     <th>TICKET STATUS</th>
                 </thead><tbody>
-                % for r in raw:
-                    <tr>
+                % for i, r in list(enumerate(raw)):
+                    <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
                         <td>
                             <h3>${r.name}</h3>
                             <p>${libgoblin.get_game_type(r.id)}</p>

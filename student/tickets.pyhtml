@@ -75,8 +75,8 @@ def format_time(date_time):
                     <td></td>
                     <td></td>
                 % else:
-                    % for t in active_tickets: 
-                    <tr>
+                    % for i, t in list(enumerate(active_tickets)): 
+                    <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
                         <td>
                             <h3>${libgoblin.get_game(t.game_id).name}</h3>
                             <p>${libgoblin.get_game_type(t.game_id)}</p>
@@ -152,8 +152,9 @@ def format_time(date_time):
                     <td></td>
                     <td></td>
                 % else:
-                    % for t in past_tickets:
-                        <tr><td>
+                    % for i, t in list(enumerate(past_tickets)):
+                        <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
+                        <td>
                             <h3>${libgoblin.get_game(t.game_id).name}</h3>
                             <p>${libgoblin.get_game_type(t.game_id)}</p>
                         </td>

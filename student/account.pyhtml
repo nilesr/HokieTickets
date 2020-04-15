@@ -132,7 +132,7 @@
                                         bal = backcompute_bal(bal, r)
                                         hr.append(get_hr_text(r))
                                 %>
-                                <tr style="background-color: ${"#ddd" if i % 2 == 1 else "white"};">
+                                <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
                                     <td>${t}</td>
                                     <td class="hr">${"<br />".join(hr)}</td>
                                     <td>${bal_fmt}</td>

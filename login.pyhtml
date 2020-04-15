@@ -13,7 +13,7 @@ else:
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Login to VT Student Tickets</title>
+		<title>Login to HokieTickets</title>
 		<link rel="stylesheet" href="/static/button.css" />
 		<link rel="stylesheet" href="/static/style.css"/>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap"> 
@@ -30,9 +30,9 @@ else:
 		## <img src="/static/18FB_LaneStadium_Corner_40k.png">
 		## % endif
 		<div id="login">
-			<p><a href="/">Home</a></p>
+			## <p><a href="/">Home</a></p>
 			% if user:
-				<h1>Welcome to VT Student Tickets</h1>
+				<h1>Welcome to <span id="hokietickets">HokieTickets</span></h1>
 				<p>You are logged in as ${user | h}</p>
 				% if user == "hokipoki":
 					<p>You are the administrator.</p>
@@ -47,7 +47,7 @@ else:
 				% if session:
 					<p>Error logging you in: ${session | h}</p><br />
 				% endif
-				<h1>Login to VT Student Tickets</h1>
+				<h1>Login to <span style="color: #E87722;">Hokie</span><span style="color:#8B1F41;">Tickets</span></h1>
 				<form method="post">
 					<label for="user">Virginia Tech PID</label>
 					<input type="text" name="user" placeholder="Username" />

@@ -394,10 +394,14 @@ nav li:not(:first-child) {
 #login {
     text-align: center;
     background-color: white;
-    border: 2px #dedede solid;
+    /* border: 1px #dedede solid; */
     border-radius: 7px;
     margin: 10vh 20vw;
     height: 50%;
+}
+
+#login h1 {
+    font-size: 45px;
 }
 
 #login form {
@@ -456,14 +460,16 @@ nav li:not(:first-child) {
 .hr {
     line-height: 175%;
 }
+
 .tableHeightOverride {
     height: 40px;
 }
-.tableHeightOverride > td {
+
+.tableHeightOverride>td {
     padding-left: 50px;
     padding-right: 50px;
 }
+
 tr.tableHeightOverride:nth-child(2n+1) {
     background-color: #ccc;
 }
-

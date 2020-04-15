@@ -82,8 +82,8 @@
 					<td></td>
 					<td></td>
 				% else:
-					% for r in raw:
-					<tr>
+					% for i, r in list(enumerate(raw)):
+					<tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
 					<td><p>${r.user}</p></td>
 					<td><p>${libgoblin.format_htk(libgoblin.get_balance(r.user))}</p></td>
 					<td>

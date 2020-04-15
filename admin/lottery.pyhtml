@@ -64,8 +64,8 @@ def format_date(date_time):
                 % if len(raw) == 0:
                     <tr><td>Table is empty</td>
                 % else:
-                % for r in raw:
-                    <tr>
+                % for i, r in list(enumerate(raw)):
+                    <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
                         <td><p>${r.name}</td>
                         <td><p>${format_date(r.date)}</p></td>
                         <td><p>${libgoblin.get_num_of_lottery(r.id)}</p></td>
