@@ -6,6 +6,9 @@ user, session = goblin_auth.get_user(c)
 if user == "hokipoki":
     status = False
     if "username" in d and "transfer_amount" in d and "message" in d:
+        # Placeholders
+        if len(d["transfer_amount"].strip()) == 0: d["transfer_amount"] = "60.00"
+        if len(d["message"].strip()) == 0: d["message"] = "Attending VT vs. UNC"
         # Don't allow one decimal
         if "." in d['transfer_amount'] and len(d['transfer_amount'].split('.')[1]) == 1:
             d['transfer_amount'] += "0"
@@ -75,7 +78,7 @@ if user == "hokipoki":
                                 <option selected disabled value></option>
                                 <% raw = libgoblin.get_raw_table('users') %>
                                 % for r in raw:
-                                <option value="${r.user}">${r.user}</option>
+                                <option value="${r.user}" data-balance="${libgoblin.format_htk(libgoblin.get_balance(r.user))}">${r.user}</option>
                                 % endfor
                             </select>
                         </div>
@@ -89,7 +92,7 @@ if user == "hokipoki":
                     <div class="form-section">
                         <label for="transfer_amount">Amount to transfer:</label> <br />
                         <span class="input-area">
-                            <input type="number" name="transfer_amount" min="1.00" step="0.01" placeholder="60.00" /> HTK
+                            <input type="number" name="transfer_amount" min="0.01" step="0.01" placeholder="60.00" /> HTK
                         </span>
                     </div>
                     <div class="form-section">

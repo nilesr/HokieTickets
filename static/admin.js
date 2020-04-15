@@ -129,24 +129,6 @@ window.onclick = function(event) {
 // Updates the displayed user balance to reflect the selected value
 function updateUserBalance() {
     // Get the user currently selected
-    var selected = document.getElementById("userSelect").options[userSelect.selectedIndex].value;
-
-    var data = {
-        'user': selected,
-        'action': 'user_balance',
-    };
-
-    // Request the user's balance from backend
-    $.ajax({
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(data),
-        url: "/requests.pyhtml",
-        error: (error) => {
-            console.log(error);
-        },
-    }).then((data) => {
-        // Show user balance on page
-        document.getElementById("userBalance").innerHTML = data;
-    });
+    var selected = document.getElementById("userSelect").options[userSelect.selectedIndex];
+    document.getElementById("userBalance").innerText = selected.getAttribute("data-balance");
 }

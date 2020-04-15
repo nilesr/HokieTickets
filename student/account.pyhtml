@@ -107,6 +107,12 @@
                                     game = libgoblin.get_game(ticket.game_id)
                                     amt = libgoblin.format_htk(r.action_trace.act.data.bid/100)
                                     return "Bid " + amt + " on a ticket for " + game.name + " on " + libgoblin.format_date(game.date)
+                                if r.action_trace.act.name == "rewarduser":
+                                    ticket = libgoblin.get_ticket(r.action_trace.act.data.ticket_id)
+                                    if not ticket: return "Rewarded for attending a game using ticket id " + str(r.action_trace.act.data.ticket_id)
+                                    game = libgoblin.get_game(ticket.game_id)
+                                    if not game: return "Rewarded for attending game id " + str(ticket.game_id)
+                                    return "Rewarded for attending " + game.name + " for " + libgoblin.format_date(game.date)
                                 return r.action_trace.act.name + " -> " + r.action_trace.receiver + "<br /><pre>" + libgoblin.debug_format(r.action_trace.act.data) + "</pre>"
                             def backcompute_bal(bal, r):
                                 if r.action_trace.act.name != "transfer": return bal

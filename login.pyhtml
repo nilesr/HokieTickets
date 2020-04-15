@@ -50,9 +50,9 @@ else:
 				<h1>Login to VT Student Tickets</h1>
 				<form method="post">
 					<label for="user">Virginia Tech PID</label>
-					<input type="text" name="user" placeholder="user" />
+					<input type="text" name="user" placeholder="Username" />
 					<label for="pass">Password</label>
-					<input type="password" name="pass" placeholder="pass" />
+					<input type="password" name="pass" placeholder="Password" />
 					<input type="submit" name="submit" value="Sign In" />
 				</form><br />
 			% endif
