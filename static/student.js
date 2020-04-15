@@ -207,7 +207,8 @@ function openWindow(user, id, action, info) {
         input.setAttribute("min", (parseInt(info['highest_bid']) / 100 + 1)); // Minimum is highest bid
         input.setAttribute("max", (parseInt(info['user_balance']))); // Maximum is user's balance
         input.setAttribute("step", 0.01);
-        input.setAttribute("placeholder", (parseInt(info['highest_bid']) / 100 + 1));
+        var default_bid = parseInt(info['highest_bid']) / 100 + 1;
+        input.setAttribute("placeholder", default_bid);
 
         // Disable confirm button until user inputs a value
         // confirm.setAttribute("disabled", true);
@@ -257,7 +258,9 @@ function openWindow(user, id, action, info) {
             data['end_date'] = auctionDate;
         } else if (action == "bid") {
             data['ticket_id'] = id;
-            data['bid_amount'] = body.querySelector("#bidAmount").value + "00";
+            var input = document.getElementById("bidAmount");
+            var entered = parseFloat(input.value) || parseFloat(input.placeholder);
+            data['bid_amount'] = Math.round(entered * 100);
         }
         console.log(data);
 
@@ -322,7 +325,8 @@ function openWindow(user, id, action, info) {
                 }
             }
             if (action == "bid") {
-                populateListings(user);
+                var gb = document.getElementById("auction_group_box");
+                populateListings(user, gb.getAttribute("data-selected"), gb.getAttribute("data-selected-name"));
             }
         });
     };
@@ -343,9 +347,12 @@ window.onclick = function(event) {
     }
 }
 
-function populateListings(user) {
-    var selected = document.getElementById("gameSelect").options[gameSelect.selectedIndex].value;
-    var selectedName = document.getElementById("gameSelect").options[gameSelect.selectedIndex].innerHTML;
+function populateListings(user, selected, selectedName) {
+    document.getElementById("auction_table_select").style.display = "none";
+    var gb = document.getElementById("auction_group_box");
+    gb.style.display = "block";
+    gb.setAttribute("data-selected", selected);
+    gb.setAttribute("data-selected-name", selectedName);
 
     var data = {
         'user': user,
@@ -413,4 +420,8 @@ function populateListings(user) {
             emptyRow.appendChild(document.createElement('td'));
         }
     });
+}
+function auctionGoBack() {
+    document.getElementById("auction_table_select").style.display = "table";
+    document.getElementById("auction_group_box").style.display = "none";
 }
