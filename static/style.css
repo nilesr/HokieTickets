@@ -473,3 +473,24 @@ nav li:not(:first-child) {
 tr.tableHeightOverride:nth-child(2n+1) {
     background-color: #ccc;
 }
+#tabs {
+    cursor: pointer;
+}
+.tabbutton {
+    display: inline-block;
+    padding: 20px 50px;
+    border: 1px solid grey;
+}
+.tabbutton:first-child {
+    border-radius: 7px 0 0 7px;
+}
+.tabbutton:last-child {
+    border-radius: 0 7px 7px 0;
+}
+.tabbutton:hover {
+    background-color: grey;
+}
+.tabbutton.tabbutton-active {
+    background-color: #7777dd;
+    border: 1px solid #7777dd;
+}

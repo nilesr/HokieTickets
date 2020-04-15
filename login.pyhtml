@@ -32,7 +32,7 @@ else:
 		<div id="login">
 			## <p><a href="/">Home</a></p>
 			% if user:
-				<h1>Welcome to <span id="hokietickets">HokieTickets</span></h1>
+				<h1>Welcome to <span style="color: #E87722;">Hokie</span><span style="color:#8B1F41;">Tickets</span></h1>
 				<p>You are logged in as ${user | h}</p>
 				% if user == "hokipoki":
 					<p>You are the administrator.</p>

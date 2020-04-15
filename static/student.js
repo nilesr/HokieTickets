@@ -425,3 +425,17 @@ function auctionGoBack() {
     document.getElementById("auction_table_select").style.display = "table";
     document.getElementById("auction_group_box").style.display = "none";
 }
+function setupAuctionTabs() {
+    var btns = document.getElementById("tabs").children;
+    for (var i = 0; i < btns.length; i++) {
+        var btn = btns[i];
+        (function(i) {
+            btn.addEventListener("click", function() {
+                for (var j = 0; j < btns.length; j++) {
+                    document.getElementById("tab" + (j + 1)).style.display = i == j ? "block" : "none";
+                    document.getElementById("tab" + (j + 1) + "-active").classList.toggle("tabbutton-active", i == j)
+                }
+            })
+        })(i);
+    }
+}
