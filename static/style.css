@@ -406,7 +406,7 @@ nav li:not(:first-child) {
 
 #login form {
     margin: 1vh 1vw;
-    padding: 1vw;
+    padding: 2vw;
     /* Calculate based on margins and padding */
     width: calc(100% - 4vw);
 }

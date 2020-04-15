@@ -54,8 +54,9 @@ else:
 					<label for="pass">Password</label>
 					<input type="password" name="pass" placeholder="Password" />
 					<input type="submit" name="submit" value="Sign In" />
-				</form><br />
+				</form>
 			% endif
+			<p style="font-size:15px;">Made with EOSIO</p>
 			</div>
 		</div>
 	</body>

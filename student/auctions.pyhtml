@@ -122,7 +122,7 @@ def format_time(date_time):
                 </tbody>
             </table>
             <h2>FIND AUCTIONS BY GAME</h2>
-            <table style="width: unset;" id="auction_table_select">
+            <table style="" id="auction_table_select">
                 <thead><tr>
                     <th>GAME</th>
                     <th>DATE</th>
