@@ -35,7 +35,7 @@ if user == "hokipoki":
         <link rel="stylesheet" href="/static/style.css">
         <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
         <script src="/static/admin.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
     </head>
     <body>
         <div class="banner">
