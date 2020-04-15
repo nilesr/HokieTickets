@@ -414,7 +414,7 @@ def get_auctions_user_bid(user):
 def get_auction_groups():
     now = int(time.strftime("%Y%m%d%H%M", time.localtime()))
     games = get_raw_table("games")
-    games = list(filter(lambda g: g.date > now, games))
+    games = list(filter(lambda g: int(g.date) > now, games))
     games.sort(key=lambda g: g.date)
     auctions = get_raw_table("auctions")
     return [[g, list(filter(lambda a: a.game_id == g.id and a.end_date > now, auctions))] for g in games]
