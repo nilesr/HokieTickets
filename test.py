@@ -119,4 +119,5 @@ import subprocess, collections, random, re
 
 #print(get_auctions_by_game(6))
 
-print(scan_qr_code(get_qr_code_data(25)))
+#print(scan_qr_code(get_qr_code_data(25)))
+print(scan_qr_code("e1gAfI2DeGJwEHDEP4xvzCW//SpaiSM="))

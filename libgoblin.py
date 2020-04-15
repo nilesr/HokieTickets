@@ -86,8 +86,17 @@ def get_currency_stats():
 def format_htk(c):
 	return "{:,.2f}".format(float(str(c).split()[0])) + " HTK"
 
+def repeat_exec(*args, **kwargs):
+    rows = []
+    r = _exec(*args, **kwargs)
+    rows += r.rows
+    while r.more:
+	r = _exec(*args, **kwargs)
+	rows += r.rows
+    return rows
+
 def get_raw_table(table):
-	return _exec(["get", "table", "-l", "-1", "hokipoki", "hokipoki", table]).rows
+	return repeat_exec(["get", "table", "-l", "-1", "hokipoki", "hokipoki", table])
 
 def get_declared_tables():
 	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
@@ -219,25 +228,25 @@ def filtered_date_games(date):
 # Returns game json object if game with id==game_id exists
 def get_game(game_id):
 	try:
-		return _exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])[0]
 	except:
 		return None
 
 def get_ticket(ticket_id):
 	try:
-		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)]).rows[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
 	except:
 		return None
 
 def get_auction(ticket_id):
 	try:
-		return _exec(["get", "table", "hokipoki", "hokipoki", "auctions", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)]).rows[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "auctions", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
 	except:
 		return None
 
 def get_tickets_for_game(game_id):
 	try:
-		return _exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])
 	except:
 		return None
 
@@ -257,9 +266,9 @@ def user_has_ticket(user,game_id):
     return stuff[0] if len(stuff) > 0 else False
 
 def get_lottery_entries_by_user(user):
-    return _exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", user, "-U", user]).rows
+    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", user, "-U", user])
 def get_lottery_entries_by_game(game_id):
-    return _exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "3", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)]).rows
+    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "3", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])
 
 # Returns true if user is in lottery for game with id == game_id or false if not
 def user_in_lottery(user,game_id):
@@ -293,9 +302,9 @@ def lottery_entries_by_game(game_id):
 #Returns the past tickets from a given user
 def get_past_tickets(user):
 	today = datetime.datetime.now().strftime("%Y%m%d%H%M")
-	games = _exec(["get", "table", "hokipoki", "hokipoki", "games", "--index", "2", "--key-type", "i64", "-l", "-1", "-U", today]).rows
+	games = get_raw_table("games")
 	dates = {game.id: game.date for game in games}
-	return filter(lambda a:a.owner == user and today > dates.get(a.game_id, today), get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
+	return filter(lambda a:a.owner == user and (today > dates.get(a.game_id, today) or a.attended == True), get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
 
 
 
@@ -330,18 +339,13 @@ def penalize_users(game_id):
 def reward_user(ticket_id):
     def with_result(r):
 	return {"success": "Success!"}
-    return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-j"])
+    owner = get_ticket(ticket_id).owner
+    return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-p", owner + "@active", "-j"])
 
 def active_tickets(user):
-	list_of_games = []
-	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
-	tickets = filter(lambda a: a["owner"] == user, get_raw_table("tickets"))
-	for ticket in tickets:
-		games = filter(lambda a: a["id"] == ticket["game_id"], get_raw_table("games"))
-		for game in games:
-			if int(game["date"]) >= int(dt_string):
-				list_of_games.append(ticket)
-	return list_of_games
+	r = []
+	now = int(datetime.datetime.now().strftime("%Y%m%d%H%M"))
+	return filter(lambda a: a["owner"] == user and not a.attended and int(get_game(a.game_id).date) >= now, get_raw_table("tickets"))
 
 def get_game_type(game_id):
 	games = {
@@ -419,16 +423,28 @@ def get_auction_groups():
     auctions = get_raw_table("auctions")
     return [[g, list(filter(lambda a: a.game_id == g.id and a.end_date > now, auctions))] for g in games]
 
+def get_qr_code_key_byte(s, i):
+    secret = [
+	0x6b, 0x34, 0x4c, 0xbf, 0xa8, 0x4c, 0x52, 0x42, 0x6b, 0x0b, 0xbf, 0x44,
+	0xf7, 0x14, 0xb7, 0x96, 0xaa, 0xef, 0x3d, 0x44, 0x81, 0x2a, 0x01, 0xea,
+	0x7c, 0xa9, 0x6c, 0x0c, 0xa3, 0x67, 0x92, 0x0b, 0x83, 0x4f, 0x87, 0xa7,
+	0xd5, 0xa5, 0xdf, 0x41, 0xb5, 0x2f, 0xdf, 0xe4, 0x84, 0xb3, 0x88, 0x5e,
+	0xbf, 0x0e, 0xac, 0x10, 0x26, 0xa4, 0x81, 0x8b, 0x63, 0x05, 0xc3, 0xe2,
+	0x63, 0xd9, 0xce, 0xe8
+    ]
+    return secret[i % len(secret)] ^ s
+
 def get_qr_code_data(ticket_id):
     data = b"HOKIPOKI" + struct.pack(">Q", ticket_id) + get_ticket(ticket_id).owner.encode()
-    data = b"".join([chr(ord(c) ^ 0xA6) for c in data])
+    s = random.randint(0, 255)
+    data = b"".join([chr(s)] + [chr(ord(c) ^ get_qr_code_key_byte(s, i)) for i, c in enumerate(data)])
     return base64.b64encode(data)
 
 def get_qr_code(ticket_id):
     data = get_qr_code_data(ticket_id)
     i = io.BytesIO();
     #qrcode.make(data).get_image().save(i, format="PNG")
-    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L)
+    qr = qrcode.QRCode(error_correction=random.choice([qrcode.constants.ERROR_CORRECT_H, qrcode.constants.ERROR_CORRECT_M, qrcode.constants.ERROR_CORRECT_L]))
     qr.add_data(data)
     qr.make()
     qr.make_image().save(i, format="PNG")
@@ -439,7 +455,8 @@ def get_qr_code_data_uri(ticket_id):
     return "data:image/png;base64," + base64.b64encode(get_qr_code(ticket_id))
 
 def scan_qr_code(data):
-    data = b"".join([chr(ord(c) ^ 0xA6) for c in base64.b64decode(data)])
+    data = base64.b64decode(data)
+    data = b"".join([chr(ord(c) ^ get_qr_code_key_byte(ord(data[0]), i)) for i, c in enumerate(data[1:])])
     if data[:len("HOKIPOKI")].decode() != "HOKIPOKI":
 	return {"error": "The magic number is invalid"}
     ticket_id = struct.unpack(">Q", data[len("HOKIPOKI"):len("HOKIPOKI")+8])[0]
@@ -451,7 +468,6 @@ def scan_qr_code(data):
 	return {"error": "That ticket no longer belongs to the user who generated the QR code"}
     if t.attended == 1:
 	return {"success": "That ticket has already been scanned!"}
-    return {"owner": owner, "ticket_id": ticket_id}
     return reward_user(ticket_id)
 
 def to_json(data):
