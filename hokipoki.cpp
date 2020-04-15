@@ -157,6 +157,7 @@ public:
         auto tptr = tickets.find(id);
         check(tptr != tickets.end(), "Ticket does not exist.");
         check(tptr->owner == user, "You don't own this ticket.");
+        check(!tptr->attended, "This ticket can't be sold, it's already been used to attend the game!");
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
         int new_face_value = tptr->face_value;
         if (new_face_value == 0) {
@@ -317,6 +318,7 @@ public:
         tickets.modify(tptr, tptr->owner, [](auto& row) {
             row.attended = true;
         });
+        require_recipient(tptr->owner);
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(tptr->game_id);
         check(gptr != games.end(), "Game does not exist");
@@ -336,6 +338,7 @@ public:
         check(tptr != tickets.end(), "Ticket does not exist");
         auto owner = tptr->owner;
         require_auth(owner);
+        check(!tptr->attended, "This ticket can't be sold, it's already been used to attend the game!");
         auctions_index auctions(get_self(), get_first_receiver().value);
         auto game_id = tptr->game_id;
         auto aptr = auctions.find(ticket_id);
@@ -483,6 +486,8 @@ public:
         for (auto iter = tickets.begin(); iter != tickets.end(); iter = tickets.erase(iter));
         games_index games(get_self(), get_first_receiver().value);
         for (auto iter = games.begin(); iter != games.end(); iter = games.erase(iter));
+        auctions_index auctions(get_self(), get_first_receiver().value);
+        for (auto iter = auctions.begin(); iter != auctions.end(); iter = auctions.erase(iter));
     }
 private:
     struct [[eosio::table]] game {
