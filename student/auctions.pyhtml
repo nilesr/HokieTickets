@@ -33,7 +33,7 @@ def format_time(date_time):
 	</head>
     <body onload='setupAuctionTabs();'>
     <div class="banner">
-		<img src="/static/vt-logo-white.svg" alt="">
+		<img src="/static/images/vt-logo-white.svg" alt="">
         % if user == "hokipoki":
             ADMIN
         % endif
@@ -66,7 +66,7 @@ def format_time(date_time):
 					</tr></thead><tbody>
 					    % for i, a in list(enumerate(auctions)):
 						<tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
-						<td><p>${libgoblin.get_game(a.game_id).name}</p></td>
+						<td><h3>${libgoblin.get_game(a.game_id).name}</h3></td>
 						<td>
 						    <p>${format_date(a.end_date)}</p>
 						    <p>${format_time(a.end_date)}</p>
@@ -104,7 +104,7 @@ def format_time(date_time):
 					<tbody>
 					    % for i, b in list(enumerate(bids)):
 						<tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
-						<td><p>${libgoblin.get_game(b.game_id).name}</p></td>
+						<td><h3>${libgoblin.get_game(b.game_id).name}</h3></td>
 						<td>
 						    <p>${format_date(b.end_date)}</p>
 						    <p>${format_time(b.end_date)}</p>
@@ -174,6 +174,7 @@ def format_time(date_time):
 				</div>
 			</div>
         </div>
+			<%include file="footer.pyhtml" args="user=user" />
 
         <div id="window" class="modal">
             <div class="modal-content">

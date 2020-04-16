@@ -17,10 +17,11 @@ else:
 		<link rel="stylesheet" href="/static/button.css" />
 		<link rel="stylesheet" href="/static/style.css"/>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap"> 
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 	</head>
 	<body style="background-color: #f9f9f9;">
     <div class="banner">
-		<img src="/static/vt-logo-white.svg" alt="">
+		<img src="/static/images/vt-logo-white.svg" alt="VT Logo">
 		% if user == "hokipoki":
 			ADMIN
 		% endif
@@ -56,7 +57,7 @@ else:
 					<input type="submit" name="submit" value="Sign In" />
 				</form>
 			% endif
-			<p style="font-size:15px;">Made with EOSIO</p>
+			<p style="font-size:15px;">Made with <a href="https://eos.io" target="_blank" class="stealth">EOSIO</a></p>
 			</div>
 		</div>
 	</body>

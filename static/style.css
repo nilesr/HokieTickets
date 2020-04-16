@@ -50,7 +50,7 @@ button:hover {
 }
 
 .content img {
-    width: 60%;
+    /* width: 60%; */
     float: center;
 }
 
@@ -110,7 +110,7 @@ tbody tr {
 }
 
 td {
-    font-size: 17px;
+    font-size: 16px;
     color: #47525E;
     text-align: center;
 }
@@ -120,7 +120,14 @@ td h3 {
 }
 
 td p {
+    font-size: 16px;
     margin: 5px 0;
+}
+
+td img {
+    height: 50px;
+    left: 30%;
+    position: relative;
 }
 
 .calculation {
@@ -473,24 +480,31 @@ nav li:not(:first-child) {
 tr.tableHeightOverride:nth-child(2n+1) {
     background-color: #ccc;
 }
+
 #tabs {
     cursor: pointer;
 }
+
 .tabbutton {
     display: inline-block;
     padding: 20px 50px;
     border: 1px solid grey;
 }
+
 .tabbutton:first-child {
     border-radius: 7px 0 0 7px;
 }
+
 .tabbutton:last-child {
     border-radius: 0 7px 7px 0;
 }
+
 .tabbutton:hover {
     background-color: grey;
 }
+
 .tabbutton.tabbutton-active {
-    background-color: #7777dd;
-    border: 1px solid #7777dd;
+    background-color: #E87722;
+    border: 1px solid #E87722;
+    color: #fff;
 }

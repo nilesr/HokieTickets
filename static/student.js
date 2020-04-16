@@ -225,8 +225,8 @@ function openWindow(user, id, action, info) {
         title.innerHTML = "Viewing Ticket";
         text.children[0].innerHTML = "You are viewing the ticket for <b>" + info['event_name'] + "</b> on <b>" + info['event_date'] + "</b>.";
         text.children[1].innerHTML = "<div style='text-align: center;'><img src='" + info['qr_code'] + "' /></div>"
-        text.children[2].innerHTML = "This ticket is currently owned by <b>" + info['owner'] + "</b>. If ownership is transfered before the start of the game, the ticket above will no longer be valid." +
-            "<br /><br />" + "Click <b>Confirm</b> to continue."
+        text.children[2].innerHTML = "This ticket is currently owned by <b>" + info['owner'] + "</b>. If ownership is transfered before the start of the game, the ticket above will no longer be valid.";
+        confirm.style.display = "none";
     }
 
 
@@ -421,10 +421,12 @@ function populateListings(user, selected, selectedName) {
         }
     });
 }
+
 function auctionGoBack() {
     document.getElementById("auction_table_select").style.display = "table";
     document.getElementById("auction_group_box").style.display = "none";
 }
+
 function setupAuctionTabs() {
     var btns = document.getElementById("tabs").children;
     for (var i = 0; i < btns.length; i++) {

@@ -36,7 +36,7 @@ if user == "hokipoki":
     </head>
     <body>
         <div class="banner">
-            <img src="/static/vt-logo-white.svg" alt="">
+		    <img src="/static/images/vt-logo-white.svg" alt="VT Logo">
             % if user == "hokipoki":
                 ADMIN
 			% endif

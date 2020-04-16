@@ -14,7 +14,7 @@
 	</head>
     <body>
     <div class="banner">
-		<img src="/static/vt-logo-white.svg" alt="">
+		<img src="/static/images/vt-logo-white.svg" alt="">
             % if user == "hokipoki":
                 ADMIN
 			% endif
@@ -142,6 +142,7 @@
                     </table>
                 </div>
             </div>
+			<%include file="footer.pyhtml" args="user=user" />
 		% else:
 			You do not have permission to access this page.  Please <a href="/login.pyhtml">login</a>.
 		% endif

@@ -19,6 +19,21 @@ def format_time(date_time):
     time = int(date_time) % 10000    # Take off YYYYMMDD
     obj = dt(date // 10000, (date // 100) % 100, date % 100, hour=(time // 100), minute=(time % 100))
     return obj.strftime("%I:%M %p")
+def get_logo(game_name):
+    if "duke" in game_name.lower():
+        return "/static/images/logo-duke.png"
+    elif "spring game" in game_name.lower():
+        return "/static/images/logo-vt.png"
+    elif "ranchers" in game_name.lower():
+        return "/static/images/logo-ranchers.png"
+    elif "block.one" in game_name.lower():
+        return "/static/images/logo-blockone.png"
+    elif "radford" in game_name.lower():
+        return "/static/images/logo-radford.png"
+    elif "zoom" in game_name.lower():
+        return "/static/images/logo-zoom.png"
+    else:
+        return "/static/images/logo-empty.png"
 %>
 <%
 	user, session = goblin_auth.get_user(c)
@@ -35,7 +50,7 @@ def format_time(date_time):
 	</head>
     <body>
     <div class="banner">
-		<img src="/static/vt-logo-white.svg" alt="">
+		<img src="/static/images/vt-logo-white.svg" alt="VT Logo">
         % if user == "hokipoki":
             ADMIN
         % endif
@@ -56,6 +71,7 @@ def format_time(date_time):
             % else:
                 <table><thead>
                 <tr>
+                    <th></th>
                     <th>EVENT</th>
                     <th>SIGN UP OPENS</th>
                     <th>LOTTERY CLOSES</th>
@@ -64,6 +80,7 @@ def format_time(date_time):
                 </thead><tbody>
                 % for i, r in list(enumerate(raw)):
                     <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
+                        <td><img src="${get_logo(r.name)}"></td>
                         <td>
                             <h3>${r.name}</h3>
                             <p>${libgoblin.get_game_type(r.id)}</p>
@@ -84,7 +101,7 @@ def format_time(date_time):
                         % elif not libgoblin.user_has_ticket(user, r.id):
                             <button class="actionButton" onclick="openWindow('${user}', ${r.id}, 'enter_lottery', {'event_name': '${r.name}'})">Enter Lottery</button>
                         % else:
-                            <p>You have already bought a ticket for this game.</p>
+                            <p>Ticket already owned.</p>
                         </td>
                         % endif
                     % elif libgoblin.user_has_ticket(user, r.id):
@@ -102,6 +119,7 @@ def format_time(date_time):
                 </tbody></table>
             % endif
         </div>
+			<%include file="footer.pyhtml" args="user=user" />
             
         <div id="window" class="modal">
             <div class="modal-content">

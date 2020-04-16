@@ -14,9 +14,11 @@
 		except:
 			pass
 		if not ui:
-			libgoblin.create_account(d["user"])
+			pub, priv = libgoblin.create_account(d["user"])
 			ui = libgoblin.get_user_info(d["user"])
 			status = "<b>Success:</b> User <b>" + d["user"] + "</b> successfully created!"
+			status += "<br />" + "Public Key: {}".format(pub)
+			status += "<br />" + "Private Key: {}".format(priv)
 %>
 
 <!DOCTYPE html>
@@ -31,7 +33,7 @@
 	</head>
 	<body>
 		<div class="banner">
-			<img src="/static/vt-logo-white.svg" alt="">
+		<img src="/static/images/vt-logo-white.svg" alt="VT Logo">
             % if user == "hokipoki":
                 ADMIN
 			% endif
