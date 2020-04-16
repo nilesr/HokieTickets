@@ -13,6 +13,8 @@ class EosioError(Exception):
     # TODO - more post-processing, parse out exact error message, etc...
     def __init__(self, output):
 	self.output = output
+    def __str__(self):
+	return "EosioError(output={})".format(self.output)
 
 def _try_symbolize_names(l):
 	if isinstance(l, list): return [_try_symbolize_names(i) for i in l]
@@ -102,11 +104,16 @@ def get_declared_tables():
 	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
 
 def create_account(user):
+	keymat = list(map(lambda x: x.split(),_exec(["create", "key", "--to-console"], False).split("\n")))
+	priv = keymat[0][2]
+	pub = keymat[1][2]
+	import_key(priv)
 	_exec(["create", "account", "eosio", user, KEY], False)
 	_exec(["set", "account", "permission", user, "active",
-		'{"threshold":1, "keys":[{"key":"'+KEY+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
-		"owner", "-p", user], False)
+		'{"threshold":1, "keys":[{"key":"'+pub+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
+		"owner", "-p", user + "@owner"], False)
 	_exec(["push", "action", "hokipoki", "adduser", json.dumps([user]), "-p", "hokipoki@active"], False)
+	return pub, priv
 
 # For debugging only. Put the output of debug_format() in a <pre> tag, or on the console
 def _debug_is_complex(t):
@@ -475,3 +482,15 @@ def to_json(data):
 
 def s(thing):
     return "" if len(thing) == 1 else "s"
+
+def get_active_public_keys(user):
+	ui = get_user_info(user)
+	ps = [x for x in ui.permissions if x.perm_name == "active"]
+	if len(ps) != 1: return False
+	return [o.key for o in ps[0].required_auth.keys]
+
+def import_key(priv):
+    proc = subprocess.Popen(cleos + ["wallet", "import"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = proc.communicate(input=priv.encode())
+    if proc.returncode != 0:
+	raise EosioError(out.decode() + "\n" + err.decode())
