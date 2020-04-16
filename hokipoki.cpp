@@ -51,7 +51,19 @@ public:
         now -= 4 * 3600; // time zone offset
         struct hokipoki_tm cal;
         hokipoki_gmtime_r(&now, &cal);
-        return (((uint64_t) cal.tm_year + YEAR_BASE) * 100000000) + (((uint64_t) cal.tm_mon + 1) * 1000000) + ((uint64_t) cal.tm_mday * 10000) + ((uint64_t) cal.tm_hour * 100) + (uint64_t) cal.tm_min;
+        return (((uint64_t) cal.tm_year + YEAR_BASE) * 100000000) + (((uint64_t) cal.tm_mon + 1) * 1000000) + ((uint64_t) (cal.tm_mday + 1) * 10000) + ((uint64_t) cal.tm_hour * 100) + (uint64_t) cal.tm_min;
+    }
+    uint64_t datetime_add_1min(uint64_t datetime) {
+        struct hokipoki_tm t{};
+        t.tm_year = (datetime / 100000000) - 1900;
+        t.tm_mon = ((datetime / 1000000) % 100) - 1;
+        t.tm_mday = ((datetime / 10000) % 100) - 1;
+        t.tm_hour = (datetime / 100) % 100;
+        t.tm_min = datetime % 100;
+        time_t m = mktime(&t);
+        m += 60;
+        hokipoki_gmtime_r(&m, &t);
+        return (((uint64_t) t.tm_year + 1900) * 100000000) + (((uint64_t) t.tm_mon + 1) * 1000000) + ((uint64_t) (t.tm_mday + 1) * 10000) + ((uint64_t) t.tm_hour * 100) + (uint64_t) t.tm_min;
     }
 
     [[eosio::action]]
@@ -394,6 +406,15 @@ public:
             row.top_bidder = user;
             row.highest_bid = bid;
         });
+        games_index games(get_self(), get_first_receiver().value);
+        auto gptr = games.find(aptr->game_id);
+        check(gptr != games.end(), "Game does not exist");
+        auto next_end_date = datetime_add_1min(aptr->end_date);
+        if (gptr->date / 10000 > next_end_date / 10000) {
+            auctions.modify(aptr, get_self(), [next_end_date](auto& row) {
+                row.end_date = next_end_date;
+            });
+        }
     }
 
     auto find_auction_for_exec(uint64_t auction_id) {
