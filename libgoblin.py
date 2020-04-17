@@ -344,9 +344,9 @@ def penalize_users(game_id):
     return r
 
 def reward_user(ticket_id):
-    def with_result(r):
-	return {"success": "Success!"}
     owner = get_ticket(ticket_id).owner
+    def with_result(r):
+	return {"success": "Success!", "user": owner}
     return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-p", owner + "@active", "-j"])
 
 def active_tickets(user):
@@ -474,7 +474,7 @@ def scan_qr_code(data):
     if t.owner != owner:
 	return {"error": "That ticket no longer belongs to the user who generated the QR code"}
     if t.attended == 1:
-	return {"success": "That ticket has already been scanned!"}
+	return {"error": "That ticket has already been scanned!"}
     return reward_user(ticket_id)
 
 def to_json(data):
