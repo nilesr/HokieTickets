@@ -1,3 +1,13 @@
+cleos() {
+	echo
+	tput bold
+	tput setaf 46
+	echo "                  " cleos $*
+	tput sgr0
+	echo
+	/usr/bin/env cleos "$@"
+}
+
 create_game() {
 	cleos push action hokipoki creategame "["$1", "$2", "$3", "$4", \""$5"\", \""$6"\", "$7", "$8", "$9","$10"]" -p hokipoki@active
 }
@@ -59,16 +69,25 @@ reset() {
 }
 
 games() {
-	cleos get table -l -1 hokipoki hokipoki games
+	if test -z "$1"; then
+		cleos get table -l 9999 hokipoki hokipoki games
+	else
+		cleos get table -l 9999 hokipoki hokipoki games -L $1 -U $1
+	fi
 }
 lottery_entries() {
-	cleos get table -l -1 hokipoki hokipoki lottoentries
+	cleos get table -l 9999 hokipoki hokipoki lottoentries
 }
 tickets() {
-	cleos get table -l -1 hokipoki hokipoki tickets
+	if test -z "$1"; then
+		cleos get table -l 9999 hokipoki hokipoki tickets
+	else
+		cleos get table -l 9999 hokipoki hokipoki tickets -L $1 -U $1
+	fi
+
 }
 auctions() {
-	cleos get table -l -1 hokipoki hokipoki auctions
+	cleos get table -l 9999 hokipoki hokipoki auctions
 }
 
 balance() {
