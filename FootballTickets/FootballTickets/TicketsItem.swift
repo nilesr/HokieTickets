@@ -24,8 +24,8 @@ struct TicketsItem: View {
                     .padding(.top, 10)
                     .padding(.bottom, 20)
                 HStack {
-                    Text("Event Type: ")
-                    Text(verbatim: ticket.eventType)
+                    Text("Location: ")
+                    Text(verbatim: ticket.location)
                 }
                 HStack {
                     Text("Date: ")

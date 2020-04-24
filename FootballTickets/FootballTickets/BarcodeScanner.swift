@@ -30,6 +30,7 @@ struct BarcodeScanner: UIViewControllerRepresentable {
    
     // Binding variable used to update the main SwiftUI view
     @Binding var code: String
+//    @Binding var showAlert: Bool
    
     // Coordinator class is created to coordinate with the UIViewController.
     class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {

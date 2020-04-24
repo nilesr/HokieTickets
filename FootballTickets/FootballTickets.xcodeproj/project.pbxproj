@@ -16,6 +16,12 @@
 		424F9E0C2433A11200B60964 /* TicketsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424F9E0B2433A11200B60964 /* TicketsItem.swift */; };
 		426330ED243BD544009CF4AC /* WebRequestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426330EC243BD544009CF4AC /* WebRequestData.swift */; };
 		426330F0243BD5FC009CF4AC /* ScanQRBarcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426330EF243BD5FC009CF4AC /* ScanQRBarcode.swift */; };
+		428585782446028500927984 /* MyAccountList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 428585772446028500927984 /* MyAccountList.swift */; };
+		4285857A2446095700927984 /* TransactionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 428585792446095700927984 /* TransactionHistory.swift */; };
+		4285857D2446098500927984 /* GetTicketsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4285857C2446098500927984 /* GetTicketsList.swift */; };
+		4285857F244609CB00927984 /* Auction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4285857E244609CB00927984 /* Auction.swift */; };
+		428585812446142B00927984 /* GetTicketsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 428585802446142B00927984 /* GetTicketsItem.swift */; };
+		428585832446173F00927984 /* GetTicketsDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 428585822446173F00927984 /* GetTicketsDetails.swift */; };
 		4299AA292423D11200DD8058 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA282423D11200DD8058 /* AppDelegate.swift */; };
 		4299AA2B2423D11200DD8058 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA2A2423D11200DD8058 /* SceneDelegate.swift */; };
 		4299AA2E2423D11200DD8058 /* FootballTickets.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA2C2423D11200DD8058 /* FootballTickets.xcdatamodeld */; };
@@ -38,6 +44,7 @@
 		4299AA7A2423F35F00DD8058 /* MyFavoritesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA772423F35F00DD8058 /* MyFavoritesList.swift */; };
 		4299AA7C2423F6AC00DD8058 /* AccountData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4299AA7B2423F6AC00DD8058 /* AccountData.json */; };
 		4299AA7E2423F8E300DD8058 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4299AA7D2423F8E300DD8058 /* UserData.swift */; };
+		42E8127C244F785B00B54F68 /* MyTicketDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E8127B244F785B00B54F68 /* MyTicketDetails.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +74,12 @@
 		424F9E0B2433A11200B60964 /* TicketsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketsItem.swift; sourceTree = "<group>"; };
 		426330EC243BD544009CF4AC /* WebRequestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebRequestData.swift; sourceTree = "<group>"; };
 		426330EF243BD5FC009CF4AC /* ScanQRBarcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRBarcode.swift; sourceTree = "<group>"; };
+		428585772446028500927984 /* MyAccountList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAccountList.swift; sourceTree = "<group>"; };
+		428585792446095700927984 /* TransactionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistory.swift; sourceTree = "<group>"; };
+		4285857C2446098500927984 /* GetTicketsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTicketsList.swift; sourceTree = "<group>"; };
+		4285857E244609CB00927984 /* Auction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auction.swift; sourceTree = "<group>"; };
+		428585802446142B00927984 /* GetTicketsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTicketsItem.swift; sourceTree = "<group>"; };
+		428585822446173F00927984 /* GetTicketsDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTicketsDetails.swift; sourceTree = "<group>"; };
 		4299AA252423D11200DD8058 /* Tickets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tickets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4299AA282423D11200DD8058 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4299AA2A2423D11200DD8058 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -95,6 +108,7 @@
 		4299AA772423F35F00DD8058 /* MyFavoritesList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyFavoritesList.swift; sourceTree = "<group>"; };
 		4299AA7B2423F6AC00DD8058 /* AccountData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AccountData.json; sourceTree = "<group>"; };
 		4299AA7D2423F8E300DD8058 /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
+		42E8127B244F785B00B54F68 /* MyTicketDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTicketDetails.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +143,34 @@
 				424F9E0B2433A11200B60964 /* TicketsItem.swift */,
 			);
 			name = "Manage Tickets";
+			sourceTree = "<group>";
+		};
+		42858576244570A400927984 /* My Account */ = {
+			isa = PBXGroup;
+			children = (
+				428585772446028500927984 /* MyAccountList.swift */,
+				428585792446095700927984 /* TransactionHistory.swift */,
+				42E8127B244F785B00B54F68 /* MyTicketDetails.swift */,
+			);
+			name = "My Account";
+			sourceTree = "<group>";
+		};
+		4285857B2446096900927984 /* Get Tickets */ = {
+			isa = PBXGroup;
+			children = (
+				4285857C2446098500927984 /* GetTicketsList.swift */,
+				4285857E244609CB00927984 /* Auction.swift */,
+				428585802446142B00927984 /* GetTicketsItem.swift */,
+				428585822446173F00927984 /* GetTicketsDetails.swift */,
+			);
+			name = "Get Tickets";
+			sourceTree = "<group>";
+		};
+		4285858424461F5200927984 /* My Tickets */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "My Tickets";
 			sourceTree = "<group>";
 		};
 		4299AA1C2423D11200DD8058 = {
@@ -202,6 +244,9 @@
 		4299AA5B2423D19400DD8058 /* Tab Bar Views */ = {
 			isa = PBXGroup;
 			children = (
+				4285858424461F5200927984 /* My Tickets */,
+				4285857B2446096900927984 /* Get Tickets */,
+				42858576244570A400927984 /* My Account */,
 				424F9E0224339E3B00B60964 /* Manage Tickets */,
 				4299AA742423F34700DD8058 /* Manage Accounts */,
 				4299AA5C2423D1B600DD8058 /* QR Barcode */,
@@ -389,13 +434,20 @@
 				4299AA662423D33600DD8058 /* BarcodeScanner.swift in Sources */,
 				4299AA682423D34900DD8058 /* FlashlightButton.swift in Sources */,
 				424F9E0C2433A11200B60964 /* TicketsItem.swift in Sources */,
+				42E8127C244F785B00B54F68 /* MyTicketDetails.swift in Sources */,
 				4299AA292423D11200DD8058 /* AppDelegate.swift in Sources */,
 				4299AA602423D2D700DD8058 /* ScanFocusRegion.swift in Sources */,
+				4285857A2446095700927984 /* TransactionHistory.swift in Sources */,
 				4299AA792423F35F00DD8058 /* MyFavoriteItem.swift in Sources */,
 				424F9DFB2432DF4A00B60964 /* SearchBar.swift in Sources */,
+				428585782446028500927984 /* MyAccountList.swift in Sources */,
 				4299AA2E2423D11200DD8058 /* FootballTickets.xcdatamodeld in Sources */,
 				424F9E0624339FF800B60964 /* Ticket.swift in Sources */,
+				4285857F244609CB00927984 /* Auction.swift in Sources */,
+				4285857D2446098500927984 /* GetTicketsList.swift in Sources */,
+				428585812446142B00927984 /* GetTicketsItem.swift in Sources */,
 				4299AA712423EFC200DD8058 /* AccountData.swift in Sources */,
+				428585832446173F00927984 /* GetTicketsDetails.swift in Sources */,
 				424F9E082433A02100B60964 /* TicketData.swift in Sources */,
 				4299AA782423F35F00DD8058 /* MyFavoriteDetails.swift in Sources */,
 				4299AA7A2423F35F00DD8058 /* MyFavoritesList.swift in Sources */,

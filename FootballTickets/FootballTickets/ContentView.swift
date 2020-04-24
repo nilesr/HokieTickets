@@ -32,15 +32,35 @@ struct ContentView: View {
             }
             .tag(1)
 
-                ScanQRBarcode()
-                .tabItem {
-                    VStack {
-                        Image(systemName: "qrcode.viewfinder")
-                        .foregroundColor(.blue)
-                        Text("Scan")
-                    }
+            ScanQRBarcode()
+            .tabItem {
+                VStack {
+                    Image(systemName: "qrcode.viewfinder")
+                    .foregroundColor(.blue)
+                    Text("Scan")
                 }
-                .tag(2)
+            }
+            .tag(2)
+            
+            GetTicketsList()
+            .tabItem {
+                VStack {
+                    Image(systemName: "film")
+                    .foregroundColor(.blue)
+                    Text("Get Tickets")
+                }
+            }
+            .tag(3)
+            
+            MyAccountList()
+            .tabItem {
+                VStack {
+                    Image(systemName: "person")
+                    .foregroundColor(.blue)
+                    Text("My Account")
+                }
+            }
+            .tag(4)
         }
     }
 }

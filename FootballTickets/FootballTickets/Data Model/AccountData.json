@@ -1,19 +1,5 @@
 [
     {
-        "id": "4983B2BE-0D24-4C94-8E32-315A8C36D8FC",
-        "fullname": "bruh",
-        "username": "bruh",
-        "accountBalance": "780.00",
-        "tickets": "None",
-    },
-    {
-        "id": "055DE052-6037-42D6-AA2B-0BF14DD4AA74",
-        "fullname": "elm",
-        "username": "elm",
-        "accountBalance": "120.00",
-        "tickets": "VT vs. UNC (Purchased)",
-    },
-    {
         "id": "B178759E-638F-4C05-A32D-140912385756",
         "fullname": "Sameer Dandekar",
         "username": "sameer",
@@ -23,7 +9,7 @@
     {
         "id": "B17C956D-5DC2-47F5-BC4A-5CED4CCC3A1F",
         "fullname": "Niles Rogoff",
-        "username": "nilesr",
+        "username": "nathanmk",
         "accountBalance": "140.00",
         "tickets": "None",
     },

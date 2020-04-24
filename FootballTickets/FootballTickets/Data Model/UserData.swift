@@ -15,6 +15,10 @@ final class UserData: ObservableObject {
     @Published var accountsList = accountStructList
     
     @Published var ticketsList = ticketStructList
+    
+    @Published var userBalance = user_balance
+    
+    @Published var myTickets = my_tickets
      
 }
  

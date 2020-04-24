@@ -8,9 +8,12 @@
  
 import SwiftUI
 import AVFoundation
- 
+import UIKit
+
 struct ScanQRBarcode: View {
  
+    @State private var showingAlert = false
+    @State private var showingErrorAlert = false
     @State var barcode: String = ""
     @State var lightOn: Bool = false
    
@@ -44,14 +47,25 @@ struct ScanQRBarcode: View {
                     scanFocusRegionImage
                 }
             } else {
-                // Show QR barcode processing results
+                
                 qrBarcodeProcessingResults
-            }
-        }   // End of VStack
+                
+                }
+                
+            } // End of VStack
+            
+        .onAppear {
+            self.showingAlert = qrSuccess
+            print("ContentView appeared!")
+        }
+//        .alert(isPresented: $showingAlert) {
+//            Alert(title: Text("Important message"), message: Text("Wear sunscreen"), dismissButton: .default(Text("Got it!")))
+//        }
         .onDisappear() {
             self.lightOn = false
         }
     }
+
    
     var flashlightButtonView: some View {
         return VStack {
@@ -66,11 +80,51 @@ struct ScanQRBarcode: View {
     }
    
     var qrBarcodeProcessingResults: some View {
-       
-        if barcode.hasPrefix("http") {
+        
+//        self.showingAlert = true
+        postQRData(user: "hokipoki", barcode: self.barcode)
+                
+        
+/*        if barcode.hasPrefix("http") {
             return AnyView(WebView(url: self.barcode))
         }
-        return AnyView(Text("Scanned QR Barcode Value: \(self.barcode)"))
+ */
+        return AnyView(
+            ZStack {
+            
+            BarcodeScanner(code: self.$barcode)
+           
+            // Display the flashlight button created in FlashlightButton.swift
+            flashlightButtonView
+           
+            /*
+             Display the scan focus region image to guide the user during scanning.
+             The image is constructed in ScanFocusRegion.swift upon app launch.
+             */
+            scanFocusRegionImage
+        } // End of ZStack
+            .onAppear {
+                if qrSuccess {
+                    self.showingAlert = true
+                    print(scannedUser)
+                }
+                else {
+                    self.showingErrorAlert = true
+                    print("ContentView appeared!")
+                }
+
+            }
+                .alert(isPresented: $showingAlert) {
+                    
+                    Alert(title: Text(scannedUser + " scanned").bold(), message: Text("The student has been rewarded."), dismissButton: .default(Text("OK")))
+                
+                }
+        /*        .alert(isPresented: $showingErrorAlert) {
+                
+                Alert(title: Text("Ticket Not Scanned").bold(), message: Text("The ticket was not valid."), dismissButton: .default(Text("OK")))
+                }
+       */ )
+
     }
 }
  

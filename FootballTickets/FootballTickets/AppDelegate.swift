@@ -15,14 +15,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        
         readAccountDataFile()
         
-        readTicketDataFile()
+        //readTicketDataFile()
         
         // This function is given in ScanFocusRegion.swift
         createScanFocusRegionImage()
         
         // TESTING
-        getRequestData()
-        postRequestData(user: "Sameer", action: "user_balance")
+//        getRequestData()
+//        attemptLogin(user: "hokipoki", pass: "pass")
+        
+        postRequestData2(user: "nathanmk", action: "available_tickets")
+//        postRequestData(user: "nathanmk", action: "available_tickets")
+        postRequestData3(user: "nathanmk", action: "get_tickets")
+//        postRequestData(user: "nathanmk", action: "get_tickets")
+        postRequestData(user: "nathanmk", action: "user_balance")
+
+        
         
         return true
     }

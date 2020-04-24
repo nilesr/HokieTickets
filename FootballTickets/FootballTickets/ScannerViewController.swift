@@ -82,7 +82,16 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         present(alertController, animated: true)
         captureSession = nil
     }
- 
+    
+    // Inform user about the failure
+/*    func successAlert() {
+        let alertController = UIAlertController(title: "You just scanned!",
+                                                message: "Ticket has been scanned!",
+                                                preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alertController, animated: true)
+    }
+*/
     // Start the capture session if it is not running before the view appears
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

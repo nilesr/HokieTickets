@@ -21,7 +21,7 @@ struct MyFavoriteItem: View {
                     .padding(.bottom, 20)
                 HStack {
                     Text("Account Balance: ")
-                    Text(verbatim: account.accountBalance + " HK")
+                    Text(verbatim: account.accountBalance + " HTK")
                 }
             }
             // Set font and size for the whole VStack content
