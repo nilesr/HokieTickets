@@ -149,13 +149,15 @@ public:
         //eosio::transaction txn{};
         //txn.actions.emplace_back()
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t.");
-        const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
-        eosio::action{
-            eosio::permission_level{user, "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            std::make_tuple(user, get_self(), ass, std::string{"Ticket Purchase"})
-        }.send();
+        if (tptr->face_value != 0) {
+            const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
+            eosio::action{
+                eosio::permission_level{user, "active"_n},
+                "eosio.token"_n,
+                "transfer"_n,
+                std::make_tuple(user, get_self(), ass, std::string{"Ticket Purchase"})
+            }.send();
+        }
         tickets.modify(tptr, user, [user](auto& row) {
             row.owner = user;
         });

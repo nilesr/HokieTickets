@@ -87,7 +87,11 @@ tickets() {
 
 }
 auctions() {
-	cleos get table -l 9999 hokipoki hokipoki auctions
+	if test -z "$1"; then
+		cleos get table -l 9999 hokipoki hokipoki auctions
+	else
+		cleos get table -l 9999 hokipoki hokipoki auctions -L $1 -U $1
+	fi
 }
 
 balance() {
