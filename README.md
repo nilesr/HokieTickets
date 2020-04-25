@@ -97,7 +97,7 @@ Users is a supplimentary table not used by any actions (except `adduser`) - it e
 
 `hokipoki` defines 16 actions, which are documented in `hokipoki.contracts.md`
 
-Most actions have better documentation given in their wrapper shortcut, listed in the [Shortcuts](#shortcuts) section
+Actions parameters and their types are documented in their wrapper shortcut's documentation, listed in the [Shortcuts](#shortcuts) section
 
 ### Student Actions
 #### - Ticket Management
