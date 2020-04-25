@@ -65,7 +65,28 @@ icon:
 ---
 spec-version: 0.1.0
 title: Create Auction
-summary: This action takes a ticket id, a starting bid amount, and an end date in the form YYYYMMDDHHmm. The ticket must exist, the starting bid amount must be greater than or equal to the face value of the ticket, and the end date must be after the current time but before 11:59 PM on the night before the game. There must not be an open auction on the ticket already, and the action requires the active permissions of the ticket owner. The action creates an auction with the current owner set as the highest bidder and the highest bid set as the opening bid.
+summary: This action takes a ticket id, a starting bid amount, and an end date in the form YYYYMMDDHHmm. The ticket must exist, the starting bid amount must be greater than or equal to the face value of the ticket, and the end date must be after the current time but before 11:59 PM on the night before the game. There must not be an open auction on the ticket already, the ticket must not have already been used to attend a game, and the action requires the active permissions of the ticket owner. The action creates an auction with the current owner set as the highest bidder and the highest bid set as the opening bid.
+icon:
+
+<h1 class="contract">bid</h1>
+---
+spec-version: 0.1.0
+title: Bid
+summary: This action takes an auction id, a user, and a bid amount. The action requires the active permission of the passed user. The auction must exist, the auction end date must still be in the future, and the passed bid amount must be at least 1.00 HTK greater than the current highest bid. The user must not be the creator of the auction. If the auction has had at least one bid on it, the former top bidder is refunded their bid, and the passed user has their bid amount transferred to `hokipoki`. If they don't have enough money to make the bid, the action fails with an error. The top bidder and highest bid on the auction are updated to be the passed user and bid amount. Finally, the end date of the auction is extended by 1 minute, to a maximum end date of 11:59 on the night before the game.
+icon:
+
+<h1 class="contract">execauction1</h1>
+---
+spec-version: 0.1.0
+title: Execute Auction (Recipient)
+summary: This action takes an auction id, and checks that the auction exists, and that the end date has passed. If so, it transfers ownership of the ticket being auctioned to the highest bidder, and gives the top bid's value from `hokipoki` to the former owner. Then, it deletes the auction. Requires the active permission of the top bidder. If nobody bid on the auction before the end date, the auction is just deleted.
+icon:
+
+<h1 class="contract">execauction2</h1>
+---
+spec-version: 0.1.0
+title: Execute Auction (Owner)
+summary: This action takes an auction id, and checks that the auction exists, and that the end date has passed. If so, it transfers ownership of the ticket being auctioned to the highest bidder, and gives the top bid's value from `hokipoki` to the former owner. Then, it deletes the auction. Requires the active permission of the creator of the auction. If nobody bid on the auction before the end date, the auction is just deleted.
 icon:
 
 <h1 class="contract">reset</h1>

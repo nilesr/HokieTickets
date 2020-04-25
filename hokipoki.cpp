@@ -436,9 +436,10 @@ public:
     // This action takes a ticket id, a starting bid amount, and an end date in the form YYYYMMDDHHmm.
     // The ticket must exist, the starting bid amount must be greater than or equal to the face value
     // of the ticket, and the end date must be after the current time but before 11:59 PM on the night
-    // before the game. There must not be an open auction on the ticket already, and the action requires
-    // the active permissions of the ticket owner. The action creates an auction with the current owner
-    // set as the highest bidder and the highest bid set as the opening bid.
+    // before the game. There must not be an open auction on the ticket already, the ticket must not
+    // have already been used to attend a game, and the action requires the active permissions of the
+    // ticket owner. The action creates an auction with the current owner set as the highest bidder
+    // and the highest bid set as the opening bid.
     [[eosio::action]]
     void creatauction(uint64_t ticket_id, uint64_t initial_bid, uint64_t end_date) {
         // Like a billion preliminary checks
@@ -471,10 +472,20 @@ public:
         });
     }
 
+    // This action takes an auction id, a user, and a bid amount. The action requires the active
+    // permission of the passed user. The auction must exist, the auction end date must still be
+    // in the future, and the passed bid amount must be at least 1.00 HTK greater than the current
+    // highest bid. The user must not be the creator of the auction. If the auction has had at least
+    // one bid on it, the former top bidder is refunded their bid, and the passed user has their bid
+    // amount transferred to `hokipoki`. If they don't have enough money to make the bid, the action
+    // fails with an error. The top bidder and highest bid on the auction are updated to be the passed
+    // user and bid amount. Finally, the end date of the auction is extended by 1 minute, to a maximum
+    // end date of 11:59 on the night before the game.
     [[eosio::action]]
     void bid(uint64_t ticket_id, name user, uint64_t bid) {
+        // Checks
         require_auth(user);
-        // TODO check that the user is not the current top bidder on the ticket
+        // TODO check that the user is not the current top bidder on the ticket. Doesn't do any harm though.
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(ticket_id);
         check(tptr != tickets.end(), "That ticket does not exist");
@@ -484,6 +495,7 @@ public:
         check(aptr != auctions.end(), "There is no ongoing auction for that ticket");
         check(aptr->end_date >= current_datetime(), "That auction has already ended");
         check(aptr->highest_bid + 100 <= bid, "You must bid at least 1.00 HTK greater than the previous highest bid");
+        // If there was a previous bid on the auction, refund their money
         if (aptr->top_bidder != tptr->owner) {
             const eosio::asset ass{(int64_t) aptr->highest_bid, eosio::symbol{"HTK", 2}};
             eosio::action{
@@ -493,6 +505,7 @@ public:
                 std::make_tuple(get_self(), aptr->top_bidder, ass, std::string{"Outbid in an auction - bid money returned"})
             }.send();
         }
+        // Transfer out the bid
         const eosio::asset ass{(int64_t) bid, eosio::symbol{"HTK", 2}};
         eosio::action{
             eosio::permission_level{user, "active"_n},
@@ -500,10 +513,12 @@ public:
             "transfer"_n,
             std::make_tuple(user, get_self(), ass, std::string{"Bid on an auction"})
         }.send();
+        // Set the top bidder, etc.. on the auction
         auctions.modify(aptr, get_self(), [user, bid](auto& row) {
             row.top_bidder = user;
             row.highest_bid = bid;
         });
+        // Advance the end time by 1 minute if it wouldn't push it over to the next day
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(aptr->game_id);
         check(gptr != games.end(), "Game does not exist");
@@ -515,6 +530,8 @@ public:
         }
     }
 
+    // Finds an auction and its associated ticket by auction ID
+    // Assuming it's being used to execute the auction, it checks that the auction's end date has passed
     auto find_auction_for_exec(uint64_t auction_id) {
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(auction_id);
@@ -526,31 +543,47 @@ public:
         return std::pair<decltype(aptr), decltype(tptr)>{aptr, tptr};
     }
 
+    // This action takes an auction id, and checks that the auction exists, and that the end date has passed.
+    // If so, it transfers ownership of the ticket being auctioned to the highest bidder, and gives the
+    // top bid's value from `hokipoki` to the former owner. Then, it deletes the auction. Requires the
+    // active permission of the top bidder. If nobody bid on the auction before the end date, the auction
+    // is just deleted.
     [[eosio::action]]
     void execauction1(uint64_t ticket_id) {
         auto aptr = find_auction_for_exec(ticket_id).first;
+        // BIDDER
         require_auth(aptr->top_bidder);
         exec_auction(ticket_id);
     }
 
+    // This action takes an auction id, and checks that the auction exists, and that the end date has passed.
+    // If so, it transfers ownership of the ticket being auctioned to the highest bidder, and gives the
+    // top bid's value from `hokipoki` to the former owner. Then, it deletes the auction. Requires the
+    // active permission of the creator of the auction. If nobody bid on the auction before the end date,
+    // the auction is just deleted.
     [[eosio::action]]
     void execauction2(uint64_t ticket_id) {
         auto [aptr, tptr] = find_auction_for_exec(ticket_id);
+        // OWNER
         require_auth(tptr->owner);
         exec_auction(ticket_id);
     }
 
+    // Helper function for execauction1 and execauction2. Transfers the ticket ownership and highest bid to
+    // the top bidder and previous owner, respectively. If nobody had bid on the ticket, just deletes it
     void exec_auction(uint64_t ticket_id) {
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(ticket_id);
         auctions_index auctions(get_self(), get_first_receiver().value);
         auto aptr = auctions.find(ticket_id);
         check(tptr != tickets.end() && aptr != auctions.end(), "Should have been already verified before calling this function");
+        // If nobody bid on the auction, just delete it
         if (aptr->top_bidder == tptr->owner) {
             auctions.erase(aptr);
             return;
         }
         require_recipient(aptr->top_bidder); // not sure what I'm gonna do with this just yet
+        // Transfer the money to the previous owner from `hokipoki`
         const eosio::asset ass{(int64_t) aptr->highest_bid, eosio::symbol{"HTK", 2}};
         eosio::action{
             eosio::permission_level{get_self(), "active"_n},
@@ -558,6 +591,7 @@ public:
             "transfer"_n,
             std::make_tuple(get_self(), tptr->owner, ass, std::string{"Auction finished"})
         }.send();
+        // Transfer ownership of the ticket
         auto new_owner = aptr->top_bidder;
         tickets.modify(tptr, get_self(), [new_owner](auto& row) {
             row.owner = new_owner;
