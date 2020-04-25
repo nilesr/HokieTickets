@@ -35,14 +35,15 @@ for ux in get_raw_table("users"):
 	if diff > 0:
 		transfer(ux.user, diff, "Reset for demo")
 
-create_game("202004051500", 50, 25, 500, "VT vs. Clemson", "The Pool", "202003221200", "202003232359", 3000, 11) # 0
-create_game("202005011200", 50, 25, 500, "VT vs. Zoom University", "Lane Stadium", "202003241530", "202003312359", 3000, 12) # 1
+create_game("202004051500", 50, 25, 0, "VT vs. Clemson", "The Pool", "202003221200", "202003232359", 1500, 11) # 0
+create_game("202005011200", 50, 25, 0, "VT vs. Liberty", "Lane Stadium", "202003241530", "202003312359", 1500, 12) # 1
 create_game("202005181500", 50, 25, 6000, "VT Spring Game", "Lane Stadium", "202004101200", "202004172359", 500, 0) # 2
-create_game("202005221400", 50, 25, 500, "VT vs. Radford", "Baseball Field", "202004141200", "202004212359", 3000, 5) # 3
+create_game("202005221400", 50, 25, 2000, "VT vs. Radford", "Baseball Field", "202004141200", "202004212359", 1000, 5) # 3
 create_game("202005282000", 50, 25, 6000, "VT vs. Duke", "Cassell Colliseum", "202004201200", "202004272359", 500, 1) # 4
-create_game("202005141600", 50, 25, 6000, "Hokies vs Ranchers", "Lane Stadium", "201902140800", "201902141600", 600, 5) # 5
-create_game("202005141600", 50, 25, 6000, "Hokies vs Block.One", "Lane Stadium", "201902140800", "201902141600", 600, 7) # 6
-create_game("202005141600", 50, 25, 6000, "Hokies vs Block.Two", "Lane Stadium", "201902140800", "201902141600", 600, 7) # 7
+create_game("202005141600", 50, 25, 2000, "VT vs. Virginia", "Lane Stadium", "202004220800", "202005101600", 1000, 5) # 5
+create_game("202005141600", 50, 25, 0, "VT vs. Block.One", "Lane Stadium", "202004220800", "202004241600", 1500, 7) # 6
+create_game("202005141600", 50, 25, 0, "VT vs. Block.Two", "Lane Stadium", "202004220800", "202004241600", 1500, 7) # 7
+create_game("202005081500", 50, 25, 0, "VT vs. UNC", "Lane Stadium", "202003221200", "202003232359", 1500, 0) # 8
 
 
 buy("nilesr", 0)
@@ -83,17 +84,28 @@ buy("ankita", 7)
 buy("rachelk4", 7)
 buy("nathanmk", 7)
 
+buy("rachelk4", 8)
+
 tid = filter(lambda t: t.game_id == 7, user_tickets("ankita"))[0].id
 create_auction("ankita", tid, 6500, 202005120000)
 bid(tid, "cameron", 6700)
 
 tid = filter(lambda t: t.game_id == 3, user_tickets("nathanmk"))[0].id
-create_auction("nathanmk", tid, 675, 202005151645)
-bid(tid, "nilesr", 800)
+create_auction("nathanmk", tid, 6550, 202005151645)
+bid(tid, "nilesr", 6950)
 
 tid = filter(lambda t: t.game_id == 3, user_tickets("ankita"))[0].id
-create_auction("ankita", tid, 700, 202005131200)
-bid(tid, "cameron", 850)
+create_auction("ankita", tid, 7000, 202005131200)
+bid(tid, "cameron", 7200)
+bid(tid, "rachelk4", 7600)
+
+tid = filter(lambda t: t.game_id == 5, user_tickets("rachelk4"))[0].id
+create_auction("rachelk4", tid, 7000, 202005130930)
+bid(tid, "sameer", 7250)
+
+
+tid = filter(lambda t: t.game_id == 8, user_tickets("rachelk4"))[0].id
+reward_user(tid)
 
 print("Script finished.")
 print("\t{} games".format(len(get_raw_table("games"))))

@@ -98,7 +98,7 @@ def repeat_exec(*args, **kwargs):
     return rows
 
 def get_raw_table(table):
-	return repeat_exec(["get", "table", "-l", "-1", "hokipoki", "hokipoki", table])
+	return repeat_exec(["get", "table", "-l", "9999", "hokipoki", "hokipoki", table])
 
 def get_declared_tables():
 	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
@@ -235,25 +235,25 @@ def filtered_date_games(date):
 # Returns game json object if game with id==game_id exists
 def get_game(game_id):
 	try:
-		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "games", "-l", "9999", "-L", str(game_id), "-U", str(game_id)])[0]
 	except:
 		return None
 
 def get_ticket(ticket_id):
 	try:
-		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "-l", "9999", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
 	except:
 		return None
 
 def get_auction(ticket_id):
 	try:
-		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "auctions", "-l", "-1", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "auctions", "-l", "9999", "-L", str(ticket_id), "-U", str(ticket_id)])[0]
 	except:
 		return None
 
 def get_tickets_for_game(game_id):
 	try:
-		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])
+		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "9999", "-L", str(game_id), "-U", str(game_id)])
 	except:
 		return None
 
@@ -273,9 +273,9 @@ def user_has_ticket(user,game_id):
     return stuff[0] if len(stuff) > 0 else False
 
 def get_lottery_entries_by_user(user):
-    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "-1", "-L", user, "-U", user])
+    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "2", "--key-type", "i64", "-l", "9999", "-L", user, "-U", user])
 def get_lottery_entries_by_game(game_id):
-    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "3", "--key-type", "i64", "-l", "-1", "-L", str(game_id), "-U", str(game_id)])
+    return repeat_exec(["get", "table", "hokipoki", "hokipoki", "lottoentries", "--index", "3", "--key-type", "i64", "-l", "9999", "-L", str(game_id), "-U", str(game_id)])
 
 # Returns true if user is in lottery for game with id == game_id or false if not
 def user_in_lottery(user,game_id):
@@ -283,7 +283,7 @@ def user_in_lottery(user,game_id):
 
 
 def get_history(user):
-    results = _exec(["get", "actions", user, "-j", "-1", "-100000000000"]).actions
+    results = _exec(["get", "actions", user, "-j", "-1", "-100"]).actions
     l = []
     last = None
     lastact = None
@@ -494,3 +494,28 @@ def import_key(priv):
     out, err = proc.communicate(input=priv.encode())
     if proc.returncode != 0:
 	raise EosioError(out.decode() + "\n" + err.decode())
+
+def get_logo(game_name):
+    if "duke" in game_name.lower():
+        return "/static/images/logo-duke.png"
+    elif "spring game" in game_name.lower():
+        return "/static/images/logo-vt.png"
+    elif "ranchers" in game_name.lower():
+        return "/static/images/logo-ranchers.png"
+    elif "block.one" in game_name.lower():
+        return "/static/images/logo-blockone.png"
+    elif "block.two" in game_name.lower():
+        return "/static/images/logo-blocktwo.png"
+    elif "radford" in game_name.lower():
+        return "/static/images/logo-radford.png"
+    elif "zoom" in game_name.lower():
+        return "/static/images/logo-zoom.png"
+    elif "vs. virginia" in game_name.lower():
+        return "/static/images/logo-uva.png"
+    elif "liberty" in game_name.lower():
+        return "/static/images/logo-liberty.png"
+    elif "north carolina" in game_name.lower():
+        return "/static/images/logo-nc.png"
+    else:
+        return "/static/images/logo-empty.png"
+
