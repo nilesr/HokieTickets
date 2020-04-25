@@ -9,6 +9,8 @@ KEYWORDS = {"from", "except", "if", "else", "elif", "return"}
 ## Restart mako-server every time you change this file ##
 #########################################################
 
+# EosioError encodes an error returned from cleos. It simply holds
+# a string called "output" containing the error message
 class EosioError(Exception):
     # TODO - more post-processing, parse out exact error message, etc...
     def __init__(self, output):
@@ -16,15 +18,33 @@ class EosioError(Exception):
     def __str__(self):
 	return "EosioError(output={})".format(self.output)
 
+# Symbolizes names on an object returned from json decoding the output of cleos
+# So for example, given a dict x returned from cleos containing {"a": "b"},
+# if _try_symbolize_names is called on x, it returns a new object, which
+# still allows x["a"] for accesses, but also allows x.a for accesses, making
+# the code look prettier.
+# It is recursive, so given a list of dictionaries or various arbitrarily nested data structures,
+# it will still transform every dict it can find, and leave other values untouched
 def _try_symbolize_names(l):
+	# list? Just try and recurse on everything in it
 	if isinstance(l, list): return [_try_symbolize_names(i) for i in l]
+	# Not a list or a dict? Just return it and move on
 	if not isinstance(l, dict): return l
+	# Ok, now we have a dict.
+	# Recurse on all the values, modifying the keys to not be KEYWORDS by adding an underscore if necessary
 	l = {k if k not in KEYWORDS else k + "_": _try_symbolize_names(v) for k, v in l.items()} # recurse
+	# Make a new class with the keys of the dict as its fields
 	cls = collections.namedtuple("t", l.keys())
+	# cls.__getitem__ is NOT a bound method of cls, it's a class method.
 	old_getitem = cls.__getitem__
+	# x.a accesses x[0] internally, so make suer that x[0] doesn't break, but also allow x["a"] to access
+	# our original dict
 	cls.__getitem__ = lambda self, k: l[k] if isinstance(k, str) else old_getitem(self, k)
+	# construct this magical class and hope for the best
 	return cls(**l)
 
+# Attempts to do the opposite of _try_symbolize_names, because calling json.dumps on a namedtuple
+# treats it like an actual tuple, not a dict.
 def _try_desymbolize_names(l):
 	if isinstance(l, list): return [_try_desymbolize_names(i) for i in l]
 	if isinstance(l, dict): return {k: _try_desymbolize_names(v) for k, v in l.items()}
@@ -32,14 +52,18 @@ def _try_desymbolize_names(l):
 	return l.__dict__
 
 
+# Attempts to safely execute a cleos command, and record and decode the output, or record and throw the error
+# message in an EosioError if the command failed
 def _exec(l, json_decode = True):
 	if not isinstance(l, list): raise TypeError("Invalid object passed to libgoblin._exec(): {}".format(str))
 	proc = subprocess.Popen(cleos + l, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	stdout, stderr = proc.communicate()
 	stdout = stdout.decode("utf-8")
 	stderr = stderr.decode("utf-8")
+	# Check for success
 	if proc.returncode != 0:
 		raise EosioError(stderr)
+	# try to decode if they wanted us to
 	if json_decode:
 		try:
 			return _try_symbolize_names(json.loads(stdout))
@@ -48,6 +72,7 @@ def _exec(l, json_decode = True):
 			raise e
 	return stdout
 
+# Attempts to run and return a cleos command, extracting the error message from the cleos error output if possible
 def wrap_exec(with_result, *args, **kwargs):
     try:
 	if with_result:
@@ -56,16 +81,22 @@ def wrap_exec(with_result, *args, **kwargs):
 	    return _exec(*args, **kwargs)
     except EosioError as e:
 	try:
+	    # Try and pull out the actual error message, like "That ticket is reserved for the lottery", from the output
+	    # (if possible)
 	    return json.dumps({"error": re.sub(u'\u001b\[.*?[@-~]', '', e.output.split("message: ")[1].replace("pending console output:", "").replace("\n",""))})
 	except:
 	    return json.dumps({"error": e.output})
 
+# Gets info about the current eosio installation, such as the version number and the last block number
+# Used to be used on index.pyhtml
 def get_info():
 	return _exec(["get", "info"])
 
+# Gets a user's account from the blockchain
 def get_user_info(user):
 	return _exec(["get", "account", "-j", user])
 
+# Checks to see if the passed user has allowed hokipoki to execute actions on their behalf
 def check_permissions_grant(user):
 	ui = get_user_info(user)
 	ps = [x for x in ui.permissions if x.perm_name == "active"]
@@ -73,6 +104,7 @@ def check_permissions_grant(user):
 	return any(f.permission.actor == "hokipoki" and f.permission.permission == "eosio.code" for f in ps[0].required_auth.accounts)
 
 
+# Gets the hokietoken balance of a particular user into a float
 def get_balance(user):
 	bal = _exec(["get", "currency", "balance", "eosio.token", user, "HTK"], False)
 	bal = bal.strip()
@@ -82,12 +114,19 @@ def get_balance(user):
 	# bal looks like "1000000000.00 HTK"
 	return float(bal.split()[0])
 
+# Gets statistics about the HTK currency, such as the current amount of HTK in circulation (including the hokipoki account)
 def get_currency_stats():
 	return _exec(["get", "currency", "stats", "eosio.token", "HTK"]).HTK
 
+# Given an amount of hokietokens, either as a string (like "1,234.56 HTK") or a number (like 1234.56)
+# returns a human-readable string, such as "1,234.56 HTK"
 def format_htk(c):
-	return "{:,.2f}".format(float(str(c).split()[0])) + " HTK"
+	return "{:,.2f} HTK".format(float(str(c).replace(",", "").split()[0]))
 
+# Repeats the given command until there are no more rows remaining. So for example, 
+# `cleos get table hokipoki hokipoki tickets` may only return the first 10 tickets, with "more"
+# set to true in the output, indicating that there are more rows
+# This function runs the command until it has all the rows
 def repeat_exec(*args, **kwargs):
     rows = []
     r = _exec(*args, **kwargs)
@@ -97,12 +136,20 @@ def repeat_exec(*args, **kwargs):
 	rows += r.rows
     return rows
 
+# Gets all entries in the passed table
 def get_raw_table(table):
 	return repeat_exec(["get", "table", "-l", "9999", "hokipoki", "hokipoki", table])
 
+# Lists the tables declared by the hokipoki abi. Used to be used in a debug page
+# for viewing raw tables, since removed
 def get_declared_tables():
 	return [t.name for t in _exec(["get", "abi", "hokipoki"]).tables]
 
+# Creates a new keypair, then a new user with their active permission key set to that keypair
+# (but their owner key set to KEY), and the required code grant for `hokipoki` to be able to run
+# actions on their behalf. Finally, it runs the `adduser` action on `hokipoki` to add the new
+# user to the list of users in the table. Returns the user's generated private and public keys,
+# so that the administrator creating the account can give them to the user
 def create_account(user):
 	keymat = list(map(lambda x: x.split(),_exec(["create", "key", "--to-console"], False).split("\n")))
 	priv = keymat[0][2]
@@ -115,9 +162,40 @@ def create_account(user):
 	_exec(["push", "action", "hokipoki", "adduser", json.dumps([user]), "-p", "hokipoki@active"], False)
 	return pub, priv
 
-# For debugging only. Put the output of debug_format() in a <pre> tag, or on the console
+# Used by debug_format to determine if it should recurse onto this object, or just print its string representation
 def _debug_is_complex(t):
 	return (isinstance(t, tuple) and type(t) != tuple) or isinstance(t, list) or "\n" in str(t)
+
+# For debugging only. Put the output of debug_format() in a <pre> tag, or on the console
+# Attempts to print out the complex data structures used by eosio after they have been put through
+# _try_symbolize_names
+# For example, print(debug_format(get_user_info("nilesr").permissions)) prints
+# - perm_name: active
+#   required_auth:
+#       threshold: 1
+#       keys:
+#             - key: EOS7KVoEcPrZtjFdNvCkAfehruSSCVcQQktgJ5aP35vGoLtqtWUk5
+#               weight: 1
+#       accounts:
+#             - weight: 1
+#               permission:
+#                   actor: hokipoki
+#                   permission: eosio.code
+#       waits:
+#
+#   parent: owner
+# - perm_name: owner
+#   required_auth:
+#       threshold: 1
+#       keys:
+#             - key: EOS7J1tYpCHkCCvi5DwYXkJMRKRzK9XAUVvMC7PnrcucNXS6ZuMC1
+#               weight: 1
+#       accounts:
+#
+#       waits:
+#
+#   parent: 
+
 def debug_format(t, depth=0, dash=False):
 	pad = "    " * depth
 	firstpad = pad[:-2] + "- " if dash else pad
@@ -129,8 +207,9 @@ def debug_format(t, depth=0, dash=False):
 	return firstpad + str(t)
 
 
-#TODO: make it return formatted output
 # USER ACTIONS
+# Given a user and a game id, pulls the first non-lottery ticket for that game owned by `hokipoki` and
+# buys it on behalf of the user on the blockchain.
 def buy(user, game_id):
     ticket_id = -1
     filtered = filter(lambda a:a["for_lottery"]==0 and a["owner"]=="hokipoki",get_tickets_for_game(game_id))

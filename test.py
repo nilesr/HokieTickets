@@ -121,15 +121,18 @@ import subprocess, collections, random, re
 
 #print(scan_qr_code(get_qr_code_data(25)))
 
-import libgoblin
-for uo in get_raw_table("users"):
-	u = uo.user
-	keymat = libgoblin._exec(["create", "key", "--to-console"], False).split("\n")
-	keymat = [x.split() for x in keymat]
-	priv = keymat[0][2]
-	pub = keymat[1][2]
-	libgoblin.import_key(priv)
-	print(u, pub, priv)
-	libgoblin._exec(["set", "account", "permission", u, "active",
-		'{"threshold":1, "keys":[{"key":"'+pub+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
-		"owner", "-p", u + "@owner"], False)
+##import libgoblin
+##for uo in get_raw_table("users"):
+##	u = uo.user
+##	keymat = libgoblin._exec(["create", "key", "--to-console"], False).split("\n")
+##	keymat = [x.split() for x in keymat]
+##	priv = keymat[0][2]
+##	pub = keymat[1][2]
+##	libgoblin.import_key(priv)
+##	print(u, pub, priv)
+##	libgoblin._exec(["set", "account", "permission", u, "active",
+##		'{"threshold":1, "keys":[{"key":"'+pub+'", "weight":1}], "accounts": [{"permission":{"actor":"hokipoki","permission":"eosio.code"},"weight":1}]}',
+##		"owner", "-p", u + "@owner"], False)
+
+
+print(debug_format(get_info()))
