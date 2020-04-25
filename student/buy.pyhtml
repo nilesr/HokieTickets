@@ -17,21 +17,6 @@ def format_time(date_time):
     time = int(date_time) % 10000   # Just HHMM
     obj = dt(date // 10000, (date // 100) % 100, date % 100, hour=(time // 100), minute=(time % 100)) #YYYY,MM,DD
     return obj.strftime("%-I:%M %p")
-def get_logo(game_name):
-    if "duke" in game_name.lower():
-        return "/static/images/logo-duke.png"
-    elif "spring game" in game_name.lower():
-        return "/static/images/logo-vt.png"
-    elif "ranchers" in game_name.lower():
-        return "/static/images/logo-ranchers.png"
-    elif "block.one" in game_name.lower():
-        return "/static/images/logo-blockone.png"
-    elif "radford" in game_name.lower():
-        return "/static/images/logo-radford.png"
-    elif "zoom" in game_name.lower():
-        return "/static/images/logo-zoom.png"
-    else:
-        return "/static/images/logo-empty.png"
 %>
 <%
 	user, session = goblin_auth.get_user(c)
@@ -82,7 +67,7 @@ def get_logo(game_name):
             % else:
                 % for i, r in list(enumerate(raw)):
                     <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
-                        <td><img src="${get_logo(r.name)}" ></td>
+                        <td><img src="${libgoblin.get_logo(r.name)}" ></td>
                         <td>
                             <h3>${r.name}</h3>
                             <p>${libgoblin.get_game_type(r.game_type)}</p>

@@ -508,3 +508,9 @@ tr.tableHeightOverride:nth-child(2n+1) {
     border: 1px solid #E87722;
     color: #fff;
 }
+
+.tx-new>td:first-child::before {
+    color: red;
+    content: 'NEW';
+    margin-right: 20px;
+}

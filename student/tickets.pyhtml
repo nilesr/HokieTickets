@@ -103,11 +103,13 @@ def format_time(date_time):
                         %endif
                         </td>
                         <td>
+                        % if not libgoblin.auction_for_ticket_id(t.id):
                             <button class="actionButton secondary" 
                                         onclick="openWindow('${user}', '${t.id}', 'sell', 
                                                             {'event_name': '${libgoblin.get_game(t.game_id).name}', 'current_balance': '${libgoblin.get_balance(user)}'})"
                                 >Sell Ticket</button>
-                            </td>
+                        %endif
+                        </td>
                         <td>
                         % if libgoblin.auction_for_ticket_id(t.id):
                             % if libgoblin.auction_ended(t.id):

@@ -11,6 +11,25 @@
 		<title>Student Account Information</title>
 		<link rel="stylesheet" href="/static/style.css"/>
         <link href="https://fonts.googleapis.com/css?family=Kanit|Lato&display=swap" rel="stylesheet"> 
+        <script>
+document.addEventListener("DOMContentLoaded", function() {
+    var m = localStorage.getItem("txs");
+    if (!m) {
+        m = {};
+    } else {
+        m = JSON.parse(m);
+    }
+    Array.prototype.slice.call(document.querySelectorAll(".tx"), 0).forEach(function(e) {
+        var txid = e.getAttribute("data-txid");
+        if (!m[txid]) {
+            e.classList.toggle("tx-new");
+            e.style.backgroundColor = "pink";
+            m[txid] = true;
+        }
+    })
+    localStorage.setItem("txs", JSON.stringify(m));
+});
+        </script>
 	</head>
     <body>
     <div class="banner">
@@ -125,14 +144,15 @@
                             %>
                             % for i, l in list(enumerate(libgoblin.get_history(user)))[::-1]:
                                 <%
-                                    t = time.strftime("%A, %B %-d %Y, %-l:%M:%S %p", time.strptime(l[0].block_time.split(".")[0], "%Y-%m-%dT%H:%M:%S"))
+                                    t = time.strftime("%A, %B %-d %Y, %-l:%M:%S %p", time.localtime(time.mktime(time.strptime(l[0].block_time.split(".")[0], "%Y-%m-%dT%H:%M:%S")) - (4 * 3600)))
                                     bal_fmt = libgoblin.format_htk(bal)
                                     hr = []
+				    txid = l[0].action_trace.trx_id
                                     for r in l:
                                         bal = backcompute_bal(bal, r)
                                         hr.append(get_hr_text(r))
                                 %>
-                                <tr style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
+                                <tr class="tx" data-txid="${txid}" style="background-color: ${"#ddd" if i % 2 == 1 else "#f9f9f9"};">
                                     <td>${t}</td>
                                     <td class="hr">${"<br />".join(hr)}</td>
                                     <td>${bal_fmt}</td>
