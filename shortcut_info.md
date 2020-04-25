@@ -5,6 +5,7 @@ Creates a game
 
 Preconditions:
 - num_tickets >= tickets_for_lottery
+
 Params:
 - `day`: day that the game occurs in yyyymmddhhmm format
 - `num_tickets`: number of tickets total for the game
@@ -46,6 +47,7 @@ Preconditions:
 - user must not already own a ticket
 - user must not be in the lottery
 - user must have proper amount of HTK 
+
 Params:
 - `user`: name of the user in EOSIO naming format
 - `ticket_id`: id of the ticket
@@ -54,6 +56,7 @@ sell name user, uint64_t ticket_id
 sells a ticket back to hokipoki
 Preconditions:
 - user must own ticket with corresponding id
+
 Params:
 - `user`: name of the user in EOSIO naming format
 - `ticket_id`: id of the ticket
@@ -67,6 +70,7 @@ Preconditions:
 - user does not already own a ticket
 - user is not already in the lottery
 - lottery has not already been executed
+
 Params:
 - `user`: name of the user in EOSIO naming format
 - `game_id`: id for the game
@@ -78,6 +82,7 @@ leaves user from the lottery
 
 Preconditions:
 - user is already in the lottery
+
 Params:
 - `user`: name of user in EOSIO naming format
 - `game_id`: id for the game
@@ -89,6 +94,7 @@ executes the lottery
 
 Preconditions:
 - the lottery has not been executed already
+
 Params:
 - `game_id`: id for the game
 
@@ -99,6 +105,7 @@ opens the lottery
 
 Preconditions:
 - a lottery exists for the given game
+
 Params:
 - `game_id`: id for the game
 
@@ -110,6 +117,7 @@ opens the lottery (lotteries for games start as closed)
 
 Preconditions:
 - the lottery has not been opened already
+
 Params:
 - `game_id`: id for the game
 
@@ -125,6 +133,7 @@ preconditions:
 - the starting bid is greater than or equal to the face value of the ticket, or the initial face value for the game if the ticket was from the llottery
 - the end date is not in the past
 - the end date is before midnight on the day of the game
+
 Params:
 - `user`: the user who owns the ticket
 - `ticket_id`: the ticket to auction off
@@ -144,6 +153,7 @@ preconditions:
 - the user is not the current top bidder on the ticket - NOT ENFORCED TODO
 - the auction has not already ended
 - the amount being bid is at least 1.00 HTK greater than the current highest bid
+
 params:
 - `ticket_id`: the id of the ticket to bid on
 - `user`: the user placing the bid
@@ -163,6 +173,7 @@ preconditions:
 - there is an auction on the ticket
 - it is past the end date on the auction on the ticket
 - user is the highest bidder of the auction
+
 params:
 - `ticket_id`: the id of the ticket
 - `user`: the highest bidder on the auction
@@ -181,6 +192,7 @@ preconditions:
 - there is an auction on the ticket
 - it is past the end date on the auction on the ticket
 - user is the owner of the ticket/creator of the auction
+
 params
 - `ticket_id`: the id of the ticket
 - `user`: the owner of the ticket and creator of the auction
@@ -193,6 +205,7 @@ Finds all auctions in progress for a particular game, and executes them, if it i
 preconditions:
 - the game exists
 - it is on or after the day of the game
+
 params:
 - `game_id`: the id of the game to execute all outstanding auctions on
 
@@ -205,6 +218,7 @@ preconditions:
 - the ticket exists
 - there is an active auction on the ticket
 - nobody has bid on the auction yet
+
 params:
 - `user`: the owner of the ticket/creator of the auction
 - `ticket_id`: the id of the ticket to delete the auction from

@@ -97,6 +97,8 @@ Users is a supplimentary table not used by any actions (except `adduser`) - it e
 
 `hokipoki` defines 16 actions, which are documented in `hokipoki.contracts.md`
 
+Most actions have better documentation given in their wrapper shortcut, listed in the [Shortcuts](#shortcuts) section
+
 ### Student Actions
 #### - Ticket Management
 - `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#buy)
@@ -115,6 +117,7 @@ Users is a supplimentary table not used by any actions (except `adduser`) - it e
 ### Administrator Actions
 - `creategame` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creategame)
 - `openlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#openlottery)
+- `executelotto` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#executelotto)
 - `adduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#adduser)
 - `rewarduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#rewarduser)
 - `aucexecall` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#aucexecall)
