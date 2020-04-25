@@ -72,7 +72,7 @@ Lottery entries have the following fields:
 - `uint64_t random_3`
 - `uint64_t random_4`
 
-All four random values from every student entered into the lottery are xored and otherwise combined together, so it's almost impossible for one student to choose their random values in a way that ensures a particular outcome. Even if you were the last student to enter the lottery, the only way you could construct the random values to ensure that you definitely got a ticket requires that you know the block number and block prefix of exactly when the administrator runs `executelotto`. In the future, `executelotto` will also accept a random number from the administrator that will also be used to seed the random number generator.
+All four random values from every student entered into the lottery are xored and otherwise combined together to form the seed for the random number generator. Since any student can change it, it's almost impossible for one student to choose their random values in a way that ensures a particular outcome. Even if you were the last student to enter the lottery, the only way you could construct the random values to ensure that you definitely got a ticket requires that you know the block number and block prefix of exactly when the administrator runs `executelotto`. In the future, `executelotto` will also accept a random number from the administrator that will also be used to seed the random number generator.
 
 `lottoentries` has secondary indexes on both `user` and `game`, making executing lotteries, as well as entering and leaving lotteries efficient.
 
