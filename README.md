@@ -45,7 +45,11 @@ Games have the following fields:
 	15 VOLLEYBALL
 	16 WRESTLING
 
+`games` has a secondary index on `date`, so you can easily see what games are on a given day, or after or before a certain day
+
 ### `tickets`
+Tickets have the following fields:
+
 - `uint64_t id`
 - `uint64_t game_id` The game that the ticket is for
 - `name owner` The current owner of the ticket, or `hokipoki` if it's not owned by any student
@@ -53,21 +57,67 @@ Games have the following fields:
 - `bool for_lottery` Whether the ticket is reserved for the lottery
 - `bool attended` Whether the ticket has been used to attend the game
 
+`tickets` has a secondary index on `owner`, so viewing all tickets owned by a particular user can be a fast and efficient query
+
 ### `lottoentries`
+Lottery entries have the following fields:
+
 - `uint64_t id`
 - `name user` The user entered in the lottery
 - `uint64_t game_id` The game the user is entered into
-- `uint64_t random_1` Random values, used for seeding the random number generator when executing the lottery
-- `uint64_t random_2` All four random values from every student entered into the lottery are xored and otherwise combined together, so it's almost impossible for one student to choose their random values in a way that ensures a particular outcome
+- `uint64_t random_1` Random values, see below
+- `uint64_t random_2` 
 - `uint64_t random_3`
 - `uint64_t random_4`
 
-TODO
+All four random values from every student entered into the lottery are xored and otherwise combined together, so it's almost impossible for one student to choose their random values in a way that ensures a particular outcome. Even if you were the last student to enter the lottery, the only way you could construct the random values to ensure that you definitely got a ticket requires that you know the block number and block prefix of exactly when the administrator runs `executelotto`. In the future, `executelotto` will also accept a random number from the administrator that will also be used to seed the random number generator.
 
+`lottoentries` has secondary indexes on both `user` and `game`, making executing lotteries, as well as entering and leaving lotteries efficient.
+
+### `auctions`
+Auctions have the following fields:
+- `uint64_t ticket_id` The ID of the ticket being auctioned - Doubles as the ID of the auction
+- `uint64_t game_id` Always equal to the game ID of the ticket
+- `name auction_owner` Always equal to the owner of the ticket
+- `uint64_t highest_bid` Current highest bid, in hokie tokens, or the initial bid if nobody has made a bid
+- `name top_bidder` Current highest bidder, or `auction_owner` if nobody has made a bid
+- `uint64_t end_date` The end date of the auction, in YYYYMMDDHHmm format
+
+`auctions` has secondary indexes on `game_id` and `top_bidder`. After an auction has been executed (which must be after its end date), the auction is deleted.
+
+### `users`
+Each user has the following field:
+- `name user` The user's eosio username
+
+Users is a supplimentary table not used by any actions (except `adduser`) - it exists to store the list of users who have been created using the HokieTickets web application, and is useful to administrators for seeing the current distribution of hokietokens, tickets, lottery entries, and so on.
 
 ## Actions
 
-TODO
+`hokipoki` defines 16 actions, which are documented in `hokipoki.contracts.md`
+
+### Student Actions
+#### Ticket Management
+- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#buy)
+- `sell` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#sell)
+#### Lottery Management
+- `enterlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#enterlottery)
+- `leavelottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#leavelottery)
+- `creatauction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creatauction)
+
+#### Auction Management
+- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#bid)
+- `execauction1` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction1)
+- `execauction2` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction2)
+- `cancelauctn` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#cancelauctn)
+
+### Administrator Actions
+- `creategame` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creategame)
+- `openlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#openlottery)
+- `adduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#adduser)
+- `rewarduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#rewarduser)
+- `aucexecall` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#aucexecall)
+### Debug Actions
+- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#reset)
 
 ## Using
 
