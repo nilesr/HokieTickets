@@ -98,18 +98,6 @@ Preconditions:
 Params:
 - `game_id`: id for the game
 
-## `lottery_info`
-`lottery_info uint64_t game_id`
-
-opens the lottery
-
-Preconditions:
-- a lottery exists for the given game
-
-Params:
-- `game_id`: id for the game
-
-
 ## `open_lottery`
 `open_lottery uint64_t game_id`
 

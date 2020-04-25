@@ -151,7 +151,6 @@ A companion shell script is included that has definitions of shortcuts that can 
 - `enter_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#enter_lottery)
 - `leave_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#leave_lottery)
 - `execute_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_lottery)
-- `lottery_info` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#lottery_info)
 - `open_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#open_lottery)
 - `create_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#create_auction)
 - `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#bid)
