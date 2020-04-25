@@ -1,6 +1,6 @@
 ![](https://www.dictionary.com/e/wp-content/uploads/2018/10/hokie-2-300x300.jpg)
 # `hokipoki` is the [EOSIO](https://eos.io) Smart Contract that powers <span style="color: #E87722;">Hokie</span><span style="color: #8B1F41;">Tickets</span>
-The `hokipoki` smart contract is defined by the C++ code in `hokipoki.cpp`, and describes tables and actions used to manage studen athletic tickets on the blockchain in a safe, secure, and fair way. 
+The `hokipoki` smart contract is defined by the C++ code in `hokipoki.cpp`, and describes tables and actions used to manage student athletic tickets on the blockchain in a safe, secure, and fair way. 
 
 `hokipoki` should be deployed using `cleos`, to an account of the same name. More information is in the [Using](#using) section
 
