@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# coding=utf-8
 import sqlite3, os, base64, cookies, pickle
 import libgoblin
 
