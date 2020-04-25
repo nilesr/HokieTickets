@@ -599,14 +599,28 @@ public:
         auctions.erase(aptr);
     }
 
+
+    // This action takes a game id, and checks that it is currently the day of the game.
+    // If so, it finds all auctions for that game and executes them. We know that the auctions
+    // must already be over, because you cannot have an auction end date that is on or after
+    // the day of the game, and bidding will not extend the end date of an auction past 11:59
+    // of the night before the game. Executing an auction simply transfers the ticket to the
+    // highest bidder, and the highest bid to the previous owner. If nobody bid on the ticket,
+    // the auction is deleted. Auctions could have finished and been executed before this action
+    // is called, this is simply a cleanup action to transfer tickets to students who won an
+    // auction but forgot to claim their ticket. Students do not have to wait for this action
+    // to be called to execute their auction, but they do have to wait for the end date of the
+    // auction. This action requries the active permission of `hokipoki`
     [[eosio::action]]
     void aucexecall(uint64_t game_id) {
+        // Lots f checks
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
         check(gptr != games.end(), "Game does not exist");
         check((current_datetime()/10000) >= (gptr->date/10000), "It is not yet the day of the game");
         tickets_index tickets(get_self(), get_first_receiver().value);
+        // Just loop through every ticket for that game, and check if it has an auction on it
         auto bygame = tickets.get_index<"bygame"_n>();
         auctions_index auctions(get_self(), get_first_receiver().value);
         for (auto tptr = bygame.lower_bound(game_id); tptr != bygame.end() && tptr->game_id == game_id; tptr++) {
@@ -617,8 +631,12 @@ public:
         }
     }
 
+    // This action takes an auction ID, and requires the active permission of the creator of that auction.
+    // If nobody has bid on the auction yet, it deletes the auction. If someone has already bid on the
+    // auction, it fails with an error.
     [[eosio::action]]
     void cancelauctn(uint64_t auction_id) {
+        // this is about 99% sanity checks
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(auction_id);
         check(tptr != tickets.end(), "That ticket does not exist");
@@ -627,9 +645,12 @@ public:
         auto aptr = auctions.find(auction_id);
         check(aptr != auctions.end(), "There is no active auction on that ticket");
         check(aptr->top_bidder == tptr->owner, "The auction can't be cancelled, there are already active bids on it.");
+        // finally erase the auction
         auctions.erase(aptr);
     }
 
+    // Debug action to reset everything. This action must be invoked with the active permission of `hokipoki`.
+    // All games, tickets, lottery entries and auctions are deleted.
     [[eosio::action]]
     void reset() {
         require_auth(get_self());
