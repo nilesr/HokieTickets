@@ -27,23 +27,23 @@ Games have the following fields:
 - `uint64_t reward` The reward to give students when their ticket is scanned, in 100ths of a hokietoken
 - `uint64_t game_type` The game type. The game types are described below:
 
-	0  FOOTBALL
-	1  MENS_BASKETBALL
-	2  WOMANS_BASKETBALL
-	3  MENS_SOCCER
-	4  WOMENS_SOCCER
-	5  BASEBALL
-	6  CROSS_COUNTRY
-	7  MENS_GOLF
-	8  WOMENS_GOLF
-	9  LACROSSE
-	10 SOFTBALL
-	11 SWIMMING_AND_DIVING
-	12 MENS_TENNIS
-	13 WOMENS_TENNIS
-	14 TRACK_AND_FIELD
-	15 VOLLEYBALL
-	16 WRESTLING
+    0  FOOTBALL
+    1  MENS_BASKETBALL
+    2  WOMANS_BASKETBALL
+    3  MENS_SOCCER
+    4  WOMENS_SOCCER
+    5  BASEBALL
+    6  CROSS_COUNTRY
+    7  MENS_GOLF
+    8  WOMENS_GOLF
+    9  LACROSSE
+    10 SOFTBALL
+    11 SWIMMING_AND_DIVING
+    12 MENS_TENNIS
+    13 WOMENS_TENNIS
+    14 TRACK_AND_FIELD
+    15 VOLLEYBALL
+    16 WRESTLING
 
 `games` has a secondary index on `date`, so you can easily see what games are on a given day, or after or before a certain day
 
@@ -96,15 +96,15 @@ Users is a supplimentary table not used by any actions (except `adduser`) - it e
 `hokipoki` defines 16 actions, which are documented in `hokipoki.contracts.md`
 
 ### Student Actions
-#### Ticket Management
+#### - Ticket Management
 - `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#buy)
 - `sell` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#sell)
-#### Lottery Management
+#### - Lottery Management
 - `enterlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#enterlottery)
 - `leavelottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#leavelottery)
 - `creatauction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creatauction)
 
-#### Auction Management
+#### - Auction Management
 - `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#bid)
 - `execauction1` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction1)
 - `execauction2` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction2)
@@ -137,5 +137,14 @@ Shortcuts for these actions are described in the [Shortcuts](#shortcuts) section
 
 ## Shortcuts
 
+A companion shell script is included that has definitions of shortcuts that can be used to save time when executing actions or viewing blockchain data from the command line. For example, `cleos push action hokipoki buy "['nilesr', 23]" -p nilesr@active` can be written as `buy nilesr 23`
+
+### Shortcuts for actions on hokipoki
+
 TODO
 
+## License
+
+The code under the `newlib/` directory is released under the license found in `newlib/LICENSE`
+
+All other code in the repository is copyright 2020 Niles Rogoff, Ankita Khera, Nathan Kennedy, Rachel Kitchen, and Sameer Dandekar
