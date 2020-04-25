@@ -7,21 +7,37 @@
 #include <stdio.h>
 
 extern "C" {
-#include "gmtime_r.c"
+#include "newlib/gmtime_r.c"
 }
 
 using eosio::contract, eosio::require_auth, eosio::check, eosio::name;
 
+// This class is used to generate "random" numbers
+// The numbers it generates MUST be deterministic, or different nodes on the blockchain
+// will get different transactions when they execute an action - but for selecting students
+// to win the ticket lottery, we want it to be as random as possible
+//
+// It seeds itself based on the current block number, which is mostly unpredictable
+// because the administrator can click the "execute lottery" button at any time, and
+// blocks are generated twice per second.
+//
+// Then, each student submitted 4 random numbers when they entered the lottery, and all
+// those numbers are xor'd, added, multiplied, and so on to get a final seed
+//
+// Based on that seed, random numbers are generated based on a linear congruency generator
+// set up with the same parameters as glibc's rand() function.
 struct random {
     uint64_t state = 0x4017117fdf7c8ee9;
     int n = 0;
     random() {
+        // seed with current block number
         auto mixedBlock = eosio::tapos_block_prefix() * eosio::tapos_block_num();
         eosio::checksum256 result = eosio::sha256((char*) &mixedBlock, sizeof(mixedBlock));
         static_assert(sizeof(result) / 8 >= 4, "pls");
         uint64_t* uptr = (uint64_t*) &result;
         update(uptr[0], uptr[1], uptr[2], uptr[3]);
     }
+    // Tumble around these new values to get a new state
     void update(uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4) {
         check(n == 0, "already called get().");
         state ^= r1;
@@ -46,13 +62,27 @@ class [[eosio::contract("hokipoki")]] hokipoki : public eosio::contract {
 public:
     using contract::contract;
 
+    // Returns the current time as a big integer of the format YYYYMMDDHHmm
+    // Since both gmtime and std::chrono are not included in the eosio C++ toochain,
+    // we use parts of a public library released under a free license called newlib.
+    // Since `struct tm` and `gmtime_r` are already reserved (the compiler gmtime_r
+    // exist but the linker doesn't), we took only the parts of newlib we needed
+    // (three functions, gmtime_r, mktime, and a helper function), and renamed
+    // the functions as necessary. The license for this code is in newlib/LICENSE
     uint64_t current_datetime() {
+        // Get the current time as an epoch
         time_t now = eosio::current_block_time().to_time_point().elapsed.to_seconds();
         now -= 4 * 3600; // time zone offset
         struct hokipoki_tm cal;
         hokipoki_gmtime_r(&now, &cal);
+        // Convert back to giant int
         return (((uint64_t) cal.tm_year + YEAR_BASE) * 100000000) + (((uint64_t) cal.tm_mon + 1) * 1000000) + ((uint64_t) (cal.tm_mday + 1) * 10000) + ((uint64_t) cal.tm_hour * 100) + (uint64_t) cal.tm_min;
     }
+    // Given a datetime in the format YYYYMMDDHHmm, it adds one minute and returns a date in the same format
+    // This is used for adding 1 minute to the closing times of auctions when someone bids on them
+    // mktime and gmtime_r are both coming from newlib, since the eosio C++ toolchain claims to support them but doesn't
+    // 
+    // A first pass at adding one minute simply added 1, resulting in times like 11:60 PM :(
     uint64_t datetime_add_1min(uint64_t datetime) {
         struct hokipoki_tm t{};
         t.tm_year = (datetime / 100000000) - 1900;
@@ -66,14 +96,31 @@ public:
         return (((uint64_t) t.tm_year + 1900) * 100000000) + (((uint64_t) t.tm_mon + 1) * 1000000) + ((uint64_t) (t.tm_mday + 1) * 10000) + ((uint64_t) t.tm_hour * 100) + (uint64_t) t.tm_min;
     }
 
+    // This action will create a game to be played on the specified day, as well as create the specified number of
+    // tickets for the game, all owned by hokipoki. Of those tickets, some will be set aside for the ticket lottery
+    // and will not be purchaseable. The number set aside for the lottery is equal to the `tickets_for_lotto` parameter.
+    // Tickets set aside for the lottery have a face value of 0.00 HTK, the rest of the tickets have a face value of
+    // `price`/100. This action must be invoked with the active permission of hokipoki.
     [[eosio::action]]
-    void creategame(uint64_t day, uint64_t num_tickets, uint64_t tickets_for_lotto, uint64_t price, std::string name, std::string location, uint64_t lottery_opens, uint64_t lottery_closes,uint64_t reward,uint64_t game_type) {
+    void creategame(
+            uint64_t day,
+            uint64_t num_tickets,
+            uint64_t tickets_for_lotto,
+            uint64_t price,
+            std::string name,
+            std::string location,
+            uint64_t lottery_opens,
+            uint64_t lottery_closes,
+            uint64_t reward,
+            uint64_t game_type) {
         require_auth(get_self());
         games_index games(get_self(), get_first_receiver().value);
+        // Get the next available ID
         uint64_t new_id = 0;
         if (games.cbegin() != games.cend()) {
             new_id = games.crbegin()->id + 1;
         }
+        // Get the next available number. The first game on each day is number 1, then 2 and 3 and so on. But if games are on different days, the numbers don't have any relation
         uint64_t new_number = 0;
         auto dayindex = games.get_index<"bydate"_n>();
         auto dayiter = dayindex.lower_bound(day);
@@ -83,6 +130,7 @@ public:
         }
         new_number += 1;
 
+        // Put the game in the table
         games.emplace(get_self(), [new_id, day, new_number, price, name, location, lottery_opens, lottery_closes,reward,game_type](auto& row) {
             row.id = new_id;
             row.date = day;
@@ -97,6 +145,7 @@ public:
             row.game_type = game_type;
         });
 
+        // Create a row in the tickets table for each ticket, each owned by hokipoki, and with the appropriate for_lotto and face_value
         tickets_index tickets(get_self(), get_first_receiver().value);
         uint64_t ticket_base_id = tickets.cbegin() == tickets.cend() ? 0 : tickets.crbegin()->id + 1;
         for (uint64_t i = 0; i < num_tickets; i++) {
@@ -113,8 +162,14 @@ public:
         }
     }
 
+    // This action takes a user and a ticket id. It must be invoked with the active permission of the passed user.
+    // If the ticket ID exists, is owned by hokipoki, is not reserved for the ticket lottery, and the user has
+    // enough available HTK to purchase the ticket, and the user has allowed the `hokipoki` smart contract to
+    // execute inline actions on `eosio.token` with the user's active permission, then the face value of the
+    // ticket is transfered to hokipoki, and the owner of the ticket is set to the calling user.
     [[eosio::action]]
     void buy(name user, uint64_t id) {
+        // Lots of preliminary checks before we do anything
         require_auth(user);
         check(user != get_self(), "Only students may purchase tickets.");
         tickets_index tickets(get_self(), get_first_receiver().value);
@@ -125,15 +180,12 @@ public:
         check(!tptr->for_lottery, "Ticket is not available for sale - it is reserved for the lottery.");
         
         uint64_t game_id = tptr->game_id;
+        // Users can't buy a ticket if they're already in the lottery for that game
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
         auto userindex = lottery_entries.get_index<"byuser"_n>();
         auto eptr = userindex.lower_bound(user.value);
         while (eptr != userindex.end() && eptr->user == user) {
             check(eptr->game_id != game_id, "You are already in the lottery for that game.");
-            // if(eptr->game_id == game_id){
-            //     printf("YOU FUCKING ALREADY HAVE TICKET\n");
-            //     return;
-            // }
             eptr++;
         }  
 
@@ -144,11 +196,9 @@ public:
         //     tptr++;
         // }
 
-
-
-        //eosio::transaction txn{};
-        //txn.actions.emplace_back()
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t.");
+        // If the value of the ticket is positive, transfer that amount of money from the student to hokipoki. 
+        // If the user doesn't have enough balance, the transfer fails and the whole action fails with an "Overdrawn balance" error
         if (tptr->face_value != 0) {
             const eosio::asset ass{(int64_t) tptr->face_value, eosio::symbol{"HTK", 2}};
             eosio::action{
@@ -158,13 +208,19 @@ public:
                 std::make_tuple(user, get_self(), ass, std::string{"Ticket Purchase"})
             }.send();
         }
+        // Finally, update the owner of the ticket
         tickets.modify(tptr, user, [user](auto& row) {
             row.owner = user;
         });
     }
 
+    // This action takes a user and a ticket id. It must be invoked with the active permission of the passed user.
+    // If the ticket ID exists, is owned by the calling user, and the user has allowed the `hokipoki` smart contract
+    // to execute inline actions on `eosio.token` with the user's active permission, then the face value of the ticket
+    // is transfered from hokipoki to the active user, and the owner of the ticket is set to `hokipoki`.
     [[eosio::action]]
     void sell(name user, uint64_t id) {
+        // Preliminary checks....
         require_auth(user);
         check(user != get_self(), "Only students may sell tickets.");
         tickets_index tickets(get_self(), get_first_receiver().value);
@@ -174,6 +230,9 @@ public:
         check(!tptr->attended, "This ticket can't be sold, it's already been used to attend the game!");
         check(tptr->face_value <= std::numeric_limits<int64_t>::max(), "Face value would integer overflow if converted to an int64_t");
         int new_face_value = tptr->face_value;
+        // If the ticket was free (i.e. a lottery ticket), then don't give the user any money, but update the face value of the ticket
+        // to be the initial face ticket vaue for the game. 
+        // Otherwise, if the user paid for this ticket, transfer the face value of the ticket back to them.
         if (new_face_value == 0) {
             games_index games(get_self(), get_first_receiver().value);
             auto gptr = games.find(tptr->game_id);
@@ -188,14 +247,19 @@ public:
                 std::make_tuple(get_self(), user, ass, std::string{"Ticket Sold"})
             }.send();
         }
+        // Finally, set the owner back to hokipoki and update the face value if necessary
         tickets.modify(tptr, user, [new_face_value](auto& row) {
             row.owner = "hokipoki"_n;
             row.face_value = new_face_value;
         });
     }
 
+    // This action takes a user and a game id. It must be invoked with the active permission of the passed user.
+    // If the game ID exists, the lottery is still open for that game, and the user has not already entered into the
+    // ticket lottery for that game, then the user is entered into the ticket lottery. The four passed random values should be randomly generated. 
     [[eosio::action]]
     void enterlottery(name user, uint64_t game_id, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4) {
+        // Preliminary checks, make sure the lottery is open, the user is not already in the lottery, etc...
         require_auth(user);
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
@@ -210,7 +274,7 @@ public:
             eptr++;
         }
 
-
+        // You cannot enter the lottery if you already have a ticket for that game
         tickets_index tickets{get_self(),get_first_receiver().value};
         auto gameindex = tickets.get_index<"bygame"_n>();
         auto tptr = gameindex.lower_bound(game_id);
@@ -219,6 +283,7 @@ public:
             tptr++;
         }
 
+        // Find the next available id and put the entry in the table
         uint64_t id = lottery_entries.cbegin() == lottery_entries.cend() ? 0 : lottery_entries.crbegin()->id + 1;
         lottery_entries.emplace(user, [id, user, game_id, r1, r2, r3, r4](auto& row) {
             row.id = id;
@@ -231,14 +296,19 @@ public:
         });
     }
 
+    // This action takes a user and a game id. It must be invoked with the active permission of the passed user.
+    // If the game ID exists, and the user has entered into the ticket lottery for that game, then the user is
+    // removed from the ticket lottery.
     [[eosio::action]]
     void leavelottery(name user, uint64_t game_id) {
+        // Checks, make sure lottery is still open, etc...
         require_auth(user);
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(game_id);
         check(gptr != games.end(), "That game does not exist.");
         check(gptr->lottery_open, "The lottery for that game has already ended.");
         lottery_entries_index lottery_entries(get_self(), get_first_receiver().value);
+        // Loop through all of that user's lottery entries until we find the one for this game
         auto userindex = lottery_entries.get_index<"byuser"_n>();
         auto eptr = userindex.lower_bound(user.value);
         while (eptr != userindex.end() && eptr->user == user) {
@@ -248,9 +318,17 @@ public:
             }
             eptr++;
         }
+        // If we didn't find any entry for that game, bail
         check(false, "You are not in the lottery for that game.");
     }
 
+    // This action takes a game id. It must be invoked with the active permission of `hokipoki`.
+    // If the game ID exists, and the lottery is still open for that game, each ticket for that game
+    // that is reserved for the lottery is assigned to a random student who has entered the lottery for
+    // that game, such that no two tickets are assigned to the same student. The face value for these
+    // tickets stays at 0. If there are more tickets than students, then for each remaining ticket,
+    // the owner stays as `hokipoki`, but their face value is updated to the price that was specified
+    // when the game was created. All tickets for the game are no longer reserved for the lottery.
     [[eosio::action]]
     void executelotto(uint64_t game_id) {
         require_auth(get_self());
@@ -301,6 +379,9 @@ public:
         });
     }
 
+    // This action takes a game id. It must be invoked with the active permission of `hokipoki`.
+    // If the game ID exists, and the lottery is not yet open for that game, it marks the lottery as
+    // being open, allowing students to enter themselves into the lottery.
     [[eosio::action]]
     void openlottery(uint64_t game_id) {
         require_auth(get_self());
@@ -313,6 +394,9 @@ public:
         });
     }
 
+    // This action takes a name, and adds it to the list of users who use HokieTickets. This list
+    // is used by the administrator on the website to view students balances and tickets. Must
+    // be run with the active permsision of `hokipoki`
     [[eosio::action]]
     void adduser(name user) {
         require_auth(get_self());
@@ -322,6 +406,8 @@ public:
         });
     }
 
+    // This action takes a ticket id, and it marks the ticket has having been used to attend a game,
+    // and transfers the game's reward amount to the owner of the ticket. Must be run with `hokipoki`'s active permission
     [[eosio::action]]
     void rewarduser(uint64_t ticket_id) {
         require_auth(get_self());
@@ -332,11 +418,13 @@ public:
         tickets.modify(tptr, tptr->owner, [](auto& row) {
             row.attended = true;
         });
-        require_recipient(tptr->owner);
+        require_recipient(tptr->owner); // Notifies the user in their transaction history that they were rewarded
+        // Figure out how many HTK to reward the user with
         games_index games(get_self(), get_first_receiver().value);
         auto gptr = games.find(tptr->game_id);
         check(gptr != games.end(), "Game does not exist");
         const eosio::asset ass{(int64_t) gptr->reward, eosio::symbol{"HTK", 2}};
+        // give them the money
         eosio::action{
             eosio::permission_level{get_self(), "active"_n},
             "eosio.token"_n,
@@ -345,8 +433,15 @@ public:
         }.send();
     }
 
+    // This action takes a ticket id, a starting bid amount, and an end date in the form YYYYMMDDHHmm.
+    // The ticket must exist, the starting bid amount must be greater than or equal to the face value
+    // of the ticket, and the end date must be after the current time but before 11:59 PM on the night
+    // before the game. There must not be an open auction on the ticket already, and the action requires
+    // the active permissions of the ticket owner. The action creates an auction with the current owner
+    // set as the highest bidder and the highest bid set as the opening bid.
     [[eosio::action]]
     void creatauction(uint64_t ticket_id, uint64_t initial_bid, uint64_t end_date) {
+        // Like a billion preliminary checks
         tickets_index tickets(get_self(), get_first_receiver().value);
         auto tptr = tickets.find(ticket_id);
         check(tptr != tickets.end(), "Ticket does not exist");
@@ -365,6 +460,7 @@ public:
         uint64_t now = current_datetime();
         check(now < end_date, "End date is in the past!");
         check((end_date/10000) < (gptr->date/10000), "End date is on or after the day of the game! Auctions must end before the day of the game.");
+        // Place the auction in the table, with the top bidder set to the owner and the highest bid set to the initial bid
         auctions.emplace(get_self(), [ticket_id, game_id, initial_bid, end_date, owner](auto& row) {
             row.ticket_id = ticket_id;
             row.game_id = game_id;

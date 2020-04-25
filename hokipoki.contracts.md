@@ -23,7 +23,7 @@ icon:
 ---
 spec-version: 0.1.0
 title: Enter Lottery
-summary: This action takes a user and a game id. It must be invoked with the active permission of the passed user. If the game ID exists, the lottery is still open for that game, and the user has not already entered into the ticket lottery for that game, then the user is entered into the ticket lottery. The four passed random values MUST be randomly generated. 
+summary: This action takes a user and a game id. It must be invoked with the active permission of the passed user. If the game ID exists, the lottery is still open for that game, and the user has not already entered into the ticket lottery for that game, then the user is entered into the ticket lottery. The four passed random values should be randomly generated. 
 icon:
 
 <h1 class="contract">leavelottery</h1>
@@ -40,11 +40,39 @@ title: Execute Lottery
 summary: This action takes a game id. It must be invoked with the active permission of `hokipoki`. If the game ID exists, and the lottery is still open for that game, each ticket for that game that is reserved for the lottery is assigned to a random student who has entered the lottery for that game, such that no two tickets are assigned to the same student. The face value for these tickets stays at 0. If there are more tickets than students, then for each remaining ticket, the owner stays as `hokipoki`, but their face value is updated to the price that was specified when the game was created. All tickets for the game are no longer reserved for the lottery.
 icon:
 
+<h1 class="contract">openlottery</h1>
+---
+spec-version: 0.1.0
+title: Open Lottery
+summary: This action takes a game id. It must be invoked with the active permission of `hokipoki`. If the game ID exists, and the lottery is not yet open for that game, it marks the lottery as being open, allowing students to enter themselves into the lottery.
+icon:
+
+<h1 class="contract">adduser</h1>
+---
+spec-version: 0.1.0
+title: Add User
+summary: This action takes a name, and adds it to the list of users who use HokieTickets. This list is used by the administrator on the website to view students balances and tickets. Must be run with the active permsision of `hokipoki`
+icon:
+
+<h1 class="contract">rewarduser</h1>
+---
+spec-version: 0.1.0
+title: Reward User
+summary: This action takes a ticket id, and it marks the ticket has having been used to attend a game, and transfers the game's reward amount to the owner of the ticket. Must be run with `hokipoki`'s active permission
+icon:
+
+<h1 class="contract">creatauction</h1>
+---
+spec-version: 0.1.0
+title: Create Auction
+summary: This action takes a ticket id, a starting bid amount, and an end date in the form YYYYMMDDHHmm. The ticket must exist, the starting bid amount must be greater than or equal to the face value of the ticket, and the end date must be after the current time but before 11:59 PM on the night before the game. There must not be an open auction on the ticket already, and the action requires the active permissions of the ticket owner. The action creates an auction with the current owner set as the highest bidder and the highest bid set as the opening bid.
+icon:
+
 <h1 class="contract">reset</h1>
 ---
 spec-version: 0.1.0
 title: Reset
-summary: This action must be invoked with the active permission of `hokipoki`. All games, tickets, and lottery entries are deleted.
+summary: This action must be invoked with the active permission of `hokipoki`. All games, tickets, lottery entries and auctions are deleted.
 icon:
 
 
