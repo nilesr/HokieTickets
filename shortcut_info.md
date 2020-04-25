@@ -17,6 +17,7 @@ Params:
 - `reward`: Number of HTK you get for attending a game in 100th of a HTK (ex. 100.00 HTK = 10000)
 - `game_type`: number specifying to game type, as follows
 
+```
     0  FOOTBALL
     1  MENS_BASKETBALL
     2  WOMANS_BASKETBALL
@@ -34,6 +35,7 @@ Params:
     14 TRACK_AND_FIELD
     15 VOLLEYBALL
     16 WRESTLING
+```
 
 ## `buy`
 `buy name user, uint64_t ticket_id`
@@ -222,12 +224,17 @@ view all active games
 ## `lottery_entries`
 `lottery_entries`
 
-view all active lottery_entries for all games
+view all active `lottery_entries` for all games
 
 ## `tickets`
 `tickets`
 
 view all active tickets
+
+## `auctions`
+`auctions`
+
+view all auctions
 
 ## `balance`
 `balance name user`

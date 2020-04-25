@@ -27,6 +27,7 @@ Games have the following fields:
 - `uint64_t reward` The reward to give students when their ticket is scanned, in 100ths of a hokietoken
 - `uint64_t game_type` The game type. The game types are described below:
 
+```
     0  FOOTBALL
     1  MENS_BASKETBALL
     2  WOMANS_BASKETBALL
@@ -44,6 +45,7 @@ Games have the following fields:
     14 TRACK_AND_FIELD
     15 VOLLEYBALL
     16 WRESTLING
+```
 
 `games` has a secondary index on `date`, so you can easily see what games are on a given day, or after or before a certain day
 
@@ -139,9 +141,38 @@ Shortcuts for these actions are described in the [Shortcuts](#shortcuts) section
 
 A companion shell script is included that has definitions of shortcuts that can be used to save time when executing actions or viewing blockchain data from the command line. For example, `cleos push action hokipoki buy "['nilesr', 23]" -p nilesr@active` can be written as `buy nilesr 23`
 
-### Shortcuts for actions on hokipoki
+### Shortcuts for actions on `hokipoki`
 
-TODO
+- `create_game` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#create_game)
+- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#buy)
+- `enter_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#enter_lottery)
+- `leave_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#leave_lottery)
+- `execute_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_lottery)
+- `lottery_info` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#lottery_info)
+- `open_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#open_lottery)
+- `create_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#create_auction)
+- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#bid)
+- `execute_auction_winner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_auction_winner)
+- `execute_auction_owner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_auction_owner)
+- `execute_all_auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_all_auctions)
+- `cancel_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#cancel_auction)
+- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#reset)
+
+### Shortcuts for actions on `eosio.token`
+
+- `transfer` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#transfer)
+
+### Shortcuts for viewing data in `hokipoki`
+
+- `games` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#games)
+- `lottery_entries` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#lottery_entries)
+- `tickets` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#tickets)
+- `auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#auctions)
+
+### Shortcuts for viewing data in `eosio.token`
+
+- `balance` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#balance)
+
 
 ## License
 
