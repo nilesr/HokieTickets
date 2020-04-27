@@ -60,7 +60,7 @@ if user == "hokipoki":
             % if user == "hokipoki":
                 <h1>Reward Attendance</h1>
                 <p>Validate that a user has attended the game on their ticket.</p>
-                <p>This is a placeholder until scanning QR codes is implemented.</p>
+                <p>This is a backup in case a QR code cannot be scanned. Scanning a student's QR code for a game performs the same action as this form.</p>
 
                 % if reward_status:
                     <div class="status-response" style="background-color: ${'#13CE66' if 'Success' in reward_status else '#BB0000'};">
