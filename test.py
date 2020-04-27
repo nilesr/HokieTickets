@@ -135,4 +135,4 @@ import subprocess, collections, random, re
 ##		"owner", "-p", u + "@owner"], False)
 
 
-print(debug_format(get_info()))
+print(debug_format(get_history("nilesr")[0][0].action_trace.act))

@@ -6,7 +6,31 @@
 
 ## `libgoblin` quirks
 
-TODO - write about `_try_symbolize_names`
+`cleos` returns composite and sometimes deeply nested objects to `libgoblin`. For example, here is a (very small) example of a portion of a transaction returned from `cleos`
+
+```
+account: hokipoki
+data:
+    user: nilesr
+    id: 200
+hex_data: 000000005caca29bc800000000000000
+authorization:
+      - actor: nilesr
+        permission: active
+name: sell
+```
+
+This is a `sell` action, where the user "nilesr" sold a ticket with id 200. If you have the whole transaction in a variable `tx`, getting the ID of the ticket sold might look like this
+
+     tx["action_trace"]["act"]["data"]["id"]
+	
+While functional, `libgoblin` deserializes these returned objects into modified objects that allow the following syntax:
+
+     tx.action_trace.act.data.id
+	
+Both styles work on these returned objects. One drawback of that approach is that serializing these objects to json often results json arrays of the values in the object, not json objects. `libgoblin` provides a `to_json` function for converting these objects into json, as well as a `debug_format` method which generates a human-readable representation of them formatted like the example object above.
+
+Under the hood, the functions that take care of these are `_try_symbolize_names` and `_try_desymbolize_names`
 
 ## `libgoblin`'s responsibilities
 
@@ -62,22 +86,22 @@ Functions for `eosio.token`:
 - `transfer_from` A more general transfer function that takes both a sender and a recipient
 
 Functions for `hokipoki`:
-- `buy`
-- `sell`
-- `enter_lottery`
-- `leave_lottery`
-- `create_auction`
-- `bid`
-- `execute_auction_winner`
-- `execute_auction_owner`
-- `cancel_auction`
-- `execute_lottery`
-- `open_lottery`
-- `create_game`
-- `execute_all_auctions`
-- `reset`
-- `penalize_users`
-- `reward_user`
+- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#buy)
+- `sell` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#sell)
+- `enter_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#enterlotto)
+- `leave_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#leavelotto)
+- `create_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#creatauction)
+- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#bid)
+- `execute_auction_winner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#execauction1)
+- `execute_auction_owner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#execauction2)
+- `cancel_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#cancelauctn)
+- `execute_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#executelotto)
+- `open_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#openlottery)
+- `create_game` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#creategame)
+- `execute_all_auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#aucexecall)
+- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#reset)
+- `penalize_users` - Not an action, calls `transfer_from` to deduct hokietokens from students who did not attend a game, if possible.
+- `reward_user` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#reward_user)
 
 The functions for `hokipoki` map directly onto the actions on the blockchain smart contract, which are documented in [`hokipoki`'s documentation](https://git.cs.vt.edu/goblins/hokipoki#readme)
 
@@ -113,3 +137,15 @@ Creating an account involves:
 3. Updating the `active` permission on the account to require either the private key generated in step 1, or the `eosio.code` permission of `hokipoki`, to allow the `hokipoki` smart contract to execute inline actions on the user's behalf.
 4. Running the `adduser` action on `hokipoki`, ensuring that the new user is added to the table of all users
 5. Returning the public and private keypair that was generated to the administrator, so they can be delivered to the user.
+
+## `goblin_auth` responsibilities
+
+`goblin_auth` is in charge of logging users in, and keeping them logged in. It does this by managing a local database of session cookies - generating, returning and storing a session cookie on a successful login, and validating passed session cookies to see if a user is logged in on a page load.
+
+`goblin_auth` contains the following functions:
+
+- `try_login` - Given a username and password, checks if they are valid. If so, creates a session cookie which is stored in the session database along with the username (overwriting any previous entries), and sends a `Set-Cookie` header back to the client with the session cookie.
+- `get_user` - Given a session cookie, ensures that it is valid, and if so, returns the username associated with that session from the session database
+- `destroy_session` - Given a session cookie, deletes it from the session database - essentially logging the user out.
+
+The session cookie is always called `auth`. More detailed comments on how these functions work are in the code.
