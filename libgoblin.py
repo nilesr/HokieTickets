@@ -37,7 +37,7 @@ def _try_symbolize_names(l):
 	cls = collections.namedtuple("t", l.keys())
 	# cls.__getitem__ is NOT a bound method of cls, it's a class method.
 	old_getitem = cls.__getitem__
-	# x.a accesses x[0] internally, so make suer that x[0] doesn't break, but also allow x["a"] to access
+	# x.a accesses x[0] internally, so make sure that x[0] doesn't break, but also allow x["a"] to access
 	# our original dict
 	cls.__getitem__ = lambda self, k: l[k] if isinstance(k, str) else old_getitem(self, k)
 	# construct this magical class and hope for the best
