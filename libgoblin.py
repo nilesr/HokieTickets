@@ -220,6 +220,7 @@ def buy(user, game_id):
 	return json.dumps({"balance":get_balance(user)})
     return wrap_exec(with_result, ["push", "action", "hokipoki", "buy", json.dumps([user, ticket_id]), "-p", user + "@active", "-j"])
 
+# Sells the given ticket id back to the university, assuming it is owned by `user`
 def sell(user, ticket_id):
     def with_result(r):
 	return json.dumps({"balance":get_balance(user)})
@@ -287,6 +288,8 @@ def execute_all_auctions(game_id):
 def reset():
 	return wrap_exec(False, ["push", "action", "hokipoki", "reset", json.dumps([]), "-p", "hokipoki@active", "-j"])
 
+
+# Transfers the given amount of money from `hokipoki` to the passed user, with the memo set to the passed message
 def transfer(user, amount, message):
     amount_str = str(amount)
     if "." not in amount_str:
@@ -330,6 +333,7 @@ def get_auction(ticket_id):
 	except:
 		return None
 
+# Gets all tickets for the passed game id
 def get_tickets_for_game(game_id):
 	try:
 		return repeat_exec(["get", "table", "hokipoki", "hokipoki", "tickets", "--index", "2", "--key-type", "i64", "-l", "9999", "-L", str(game_id), "-U", str(game_id)])
@@ -361,6 +365,9 @@ def user_in_lottery(user,game_id):
     return len(filter(lambda a:a["game_id"]==game_id,get_lottery_entries_by_user(user)))>0
 
 
+# Gets the transaction history for the given user, WITH DUPLICATES REMOVED
+# It groups all transactions in the same block into sub-lists, so this returns a list of lists of transactions, in order
+# only returns the last 100 transactions to make the page load faster
 def get_history(user):
     results = _exec(["get", "actions", user, "-j", "-1", "-100"]).actions
     l = []
@@ -393,7 +400,8 @@ def get_past_tickets(user):
 	return filter(lambda a:a.owner == user and (today > dates.get(a.game_id, today) or a.attended == True), get_raw_table("tickets")) # TODO put a "by owner" index on the tickets table, so we don't have to do a full table scan here
 
 
-
+# Wrapper for transfer from eosio.token, transfers HTK from one user to another
+# (the "transfer" function in this file is specifically for giving students money from hokipoki)
 def transfer_from(from_user, to_user, amount, message):
     amount_str = str(amount)
     if "." not in amount_str:
@@ -422,18 +430,22 @@ def penalize_users(game_id):
             r.append(user)
     return r
 
+# wrapper for the blockchain action
 def reward_user(ticket_id):
     owner = get_ticket(ticket_id).owner
     def with_result(r):
 	return {"success": "Success!", "user": owner}
     return wrap_exec(with_result, ["push", "action", "hokipoki", "rewarduser", json.dumps([ticket_id]), "-p", "hokipoki@active", "-p", owner + "@active", "-j"])
 
+# Returns all tickets for the give user for games that have not yet happened, and for which the ticket
+# has not been used yet
 def active_tickets(user):
 	r = []
 	now = int(datetime.datetime.now().strftime("%Y%m%d%H%M"))
 	return filter(lambda a: a["owner"] == user and not a.attended and int(get_game(a.game_id).date) >= now, get_raw_table("tickets"))
 
-def get_game_type(game_id):
+# Gets a human readable string for the passed game type
+def get_game_type(game_type):
 	games = {
 		0: "Football",
 		1: "Men's Basketball",
@@ -453,20 +465,22 @@ def get_game_type(game_id):
 		15: "Volleyball",
 		16: "Wrestling"
 	} 
-	return games.get(game_id, "Invalid Game ID")
+	return games.get(game_type, "Invalid Game ID")
 
 
+# Given a big boy in format YYYYMMDDhhmm it returns a formatted date like "Tuesday, April 14, 2020"
 def format_date(date):
     d = str(date)[:8]
     return time.strftime("%A, %B %-d, %Y", time.strptime(d, "%Y%m%d"))
 
+# Given a big boy in format YYYYMMDDhhmm it returns a formatted datetime like "11:30 AM on Tuesday, April 14, 2020"
 def format_datetime(dt):
     d = str(dt)
     return time.strftime("%-l:%M %P on %A, %B %-d, %Y", time.strptime(d, "%Y%m%d%H%M%S"))
 
 
 # AUCTION HELPERS
-
+# checks if there is currently an active auction on the given ticket
 def auction_for_ticket_id(ticket_id):
 	return get_auction(ticket_id) != None
 
@@ -483,11 +497,14 @@ def get_auction_by_ticket_id(ticket_id):
 	else:
 		return( auction )
 
+# Determines if the passed auction has ended already
 def auction_ended(ticket_id):
 	auction = get_auction(ticket_id)
 	dt_string = datetime.datetime.now().strftime("%Y%m%d%H%M")
 	return int(auction[0]) < int(dt_string)
 
+
+# No indexes for these two, have to do a full table scan :(
 def get_auctions_by_name(user):
 	auctions = filter(lambda a:a["auction_owner"] == user, get_raw_table("auctions"))
 	return auctions
@@ -509,6 +526,12 @@ def get_auction_groups():
     auctions = get_raw_table("auctions")
     return [[g, list(filter(lambda a: a.game_id == g.id and a.end_date > now, auctions))] for g in games]
 
+# Encoding key used for making the qr codes harder to read by nosy students
+# Every QR code encodes an ascii base64 string, which decodes to a series of bytes
+# The first byte is removed, and the rest of the bytes are xor'd with it
+# The remaining bytes are xor'd with secret, and you get
+# HOKIPOKI........nilesr, where ......... is an 8-byte representation of a uint64_t ticket id, 
+# and nilesr is the owner of the ticket.
 def get_qr_code_key_byte(s, i):
     secret = [
 	0x6b, 0x34, 0x4c, 0xbf, 0xa8, 0x4c, 0x52, 0x42, 0x6b, 0x0b, 0xbf, 0x44,
@@ -520,12 +543,15 @@ def get_qr_code_key_byte(s, i):
     ]
     return secret[i % len(secret)] ^ s
 
+# Given a ticket id, gets its owner and then constructs the base64 stream that needs to go into the qr code itself
 def get_qr_code_data(ticket_id):
     data = b"HOKIPOKI" + struct.pack(">Q", ticket_id) + get_ticket(ticket_id).owner.encode()
     s = random.randint(0, 255)
     data = b"".join([chr(s)] + [chr(ord(c) ^ get_qr_code_key_byte(s, i)) for i, c in enumerate(data)])
     return base64.b64encode(data)
 
+# Gets the raw bytes of a PNG image for the QR code
+# Sent directly back to the mobile app to be displayed, or encoded in a uri for display in the browser
 def get_qr_code(ticket_id):
     data = get_qr_code_data(ticket_id)
     i = io.BytesIO();
@@ -537,9 +563,14 @@ def get_qr_code(ticket_id):
     i.seek(0)
     return i.read()
 
+# Gets the data uri representation of the PNG file for a qr code - used on the web interface
 def get_qr_code_data_uri(ticket_id):
     return "data:image/png;base64," + base64.b64encode(get_qr_code(ticket_id))
 
+# Given the base64 stream of data from a qr code, attempt to scan it.
+# If the ticket is no longer owned by the person who generated the QR code, an error is returned
+# If the ticket has already been scanned, returns an error indicating what's wrong
+# Otherwise, calls down to the blockchain to run the rewarduser action to mark their ticket has being scanned and give them their hokietokens
 def scan_qr_code(data):
     data = base64.b64decode(data)
     data = b"".join([chr(ord(c) ^ get_qr_code_key_byte(ord(data[0]), i)) for i, c in enumerate(data[1:])])
@@ -556,24 +587,32 @@ def scan_qr_code(data):
 	return {"error": "That ticket has already been scanned!"}
     return reward_user(ticket_id)
 
+# If we don't _try_desymbolize_names before passing a symbolized object into json.dumps, it dumps it as an unlabeled array rather than a json object
 def to_json(data):
     return json.dumps(_try_desymbolize_names(data))
 
+# used for printing things that might be multiple
+# like `len(tickets) + " ticket" + s(len(tickets))` will print
+# "1 ticket" or "3 tickets"
 def s(thing):
     return "" if len(thing) == 1 else "s"
 
+# Returns the public key needed for the active permission of the passed user
+# Displayed in the footer of every student page
 def get_active_public_keys(user):
 	ui = get_user_info(user)
 	ps = [x for x in ui.permissions if x.perm_name == "active"]
 	if len(ps) != 1: return False
 	return [o.key for o in ps[0].required_auth.keys]
 
+# Runs cleos wallet import on the passed private key
 def import_key(priv):
     proc = subprocess.Popen(cleos + ["wallet", "import"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate(input=priv.encode())
     if proc.returncode != 0:
 	raise EosioError(out.decode() + "\n" + err.decode())
 
+# Attempts to guess the right logo to use for the game based on the name of the game
 def get_logo(game_name):
     if "duke" in game_name.lower():
         return "/static/images/logo-duke.png"
