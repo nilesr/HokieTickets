@@ -149,3 +149,7 @@ Creating an account involves:
 - `destroy_session` - Given a session cookie, deletes it from the session database - essentially logging the user out.
 
 The session cookie is always called `auth`. More detailed comments on how these functions work are in the code.
+
+## License
+
+All code in the repository is copyright 2020 Niles Rogoff, Ankita Khera, Nathan Kennedy, Rachel Kitchen, and Sameer Dandekar
