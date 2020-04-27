@@ -68,7 +68,7 @@ def format_time(date_time):
                         <td><img src="${libgoblin.get_logo(r.name)}"></td>
                         <td>
                             <h3>${r.name}</h3>
-                            <p>${libgoblin.get_game_type(r.id)}</p>
+                            <p>${libgoblin.get_game_type(r.game_type)}</p>
                         </td>
                         <td>
                             <p>${format_date(r.lottery_opens)}</p>
