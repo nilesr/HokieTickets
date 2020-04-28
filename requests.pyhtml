@@ -67,6 +67,10 @@ elif "user" in data and "action" in data:
     if data['action'] == "user_balance":
         resp = json.dumps({"balance": libgoblin.format_htk(libgoblin.get_balance(data['user']))})
 
+    # Get QR code
+    elif data['action'] == "get_qr":
+        resp = json.dumps({"url": libgoblin.get_qr_code_data_uri(data['ticket_id'])})        
+
     # Student ticket info    
     elif data['action'] == "get_tickets" and "user" in data:
         

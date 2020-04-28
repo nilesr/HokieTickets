@@ -85,7 +85,7 @@ function openWindow(user, id, action, info) {
         back.onclick = function(event) {
             // Close the modal
             modal.style.display = "none";
-            if (action == "bid" || action == "view") return;
+            if ( /*action == "bid" ||*/ action == "view") return;
             location.reload();
         }
     }
