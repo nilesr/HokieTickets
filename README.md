@@ -11,7 +11,7 @@ The `hokipoki` smart contract is defined by the C++ code in `hokipoki.cpp`, and 
 - `tickets`
 - `lottoentries`
 - `auctions`
-- `users` (supplimentary)
+- `users` (supplementary)
 
 ### `games`
 Games have the following fields:
@@ -130,7 +130,7 @@ To compile `hokipoki`, simply run `make hokipoki.wasm`. This will invoke `eosio-
 
 If you're running on a machine or virtual machine with only one or two cores, `eosio-cpp` usually deadlocks and never completes. Prefixing your `make` command with `strace -f` significantly lowers the chance that it deadlocks. 
 
-Once you've built `hokipoki.wasm` and `hokipoki.abi`, you can deploy it to an already-existing `hokipoki` account using `make deploy`, which uses `cleos set contract` to update the code and abi on the blockchian.
+Once you've built `hokipoki.wasm` and `hokipoki.abi`, you can deploy it to an already-existing `hokipoki` account using `make deploy`, which uses `cleos set contract` to update the code and ABI on the blockchain.
 
 `make clean` will remove the `.abi` and `.wasm` files, and `make all` will first clean, then build and deploy.
 
