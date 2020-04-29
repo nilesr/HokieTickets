@@ -1,3 +1,13 @@
+function cleos
+	echo
+	tput bold
+	tput setaf 46
+	echo "                  " cleos $argv
+	tput sgr0
+	echo
+	/usr/bin/env cleos $argv
+end
+
 function create_game 
 	cleos push action hokipoki creategame "["$argv[1]", "$argv[2]", "$argv[3]", "$argv[4]", \""$argv[5]"\", \""$argv[6]"\", "$argv[7]", "$argv[8]","$argv[9]", "$argv[10]"]" -p hokipoki@active
 end
@@ -60,16 +70,28 @@ function reset
 end
 
 function games
-	cleos get table -l -1 hokipoki hokipoki games
+	if test -z "$argv[1]"
+		cleos get table -l -1 hokipoki hokipoki games
+	else
+		cleos get table -l -1 hokipoki hokipoki games -L $argv[1] -U $argv[1]
+	end
 end
 function lottery_entries
 	cleos get table -l -1 hokipoki hokipoki lottoentries
 end
 function tickets
-	cleos get table -l -1 hokipoki hokipoki tickets
+	if test -z "$argv[1]"
+		cleos get table -l -1 hokipoki hokipoki tickets
+	else
+		cleos get table -l -1 hokipoki hokipoki tickets -L $argv[1] -U $argv[1]
+	end
 end
 function auctions
-	cleos get table -l -1 hokipoki hokipoki auctions
+	if test -z "$argv[1]"
+		cleos get table -l -1 hokipoki hokipoki auctions
+	else
+		cleos get table -l -1 hokipoki hokipoki auctions -L $argv[1] -U $argv[1]
+	end
 end
 
 function balance
