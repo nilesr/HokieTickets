@@ -35,11 +35,15 @@ Small version:
 
 ![](ss/backend.jpg)
 
-![](ss/sm1.jpeg)
-![](ss/sm2.jpeg)
+![](ss/sm5.jpg)
 
-![](ss/sm3.jpeg)
-![](ss/sm4.jpeg)
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm1.jpeg" width="50%" />
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm2.jpeg" width="50%" />
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm21.jpeg" width="50%" />
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm22.jpeg" width="50%" />
+
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm3.jpeg" width="50%" />
+<img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm4.jpeg" width="50%" />
 
 First round certificate:
 
