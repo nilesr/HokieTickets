@@ -11,14 +11,24 @@ Pictured: The Goblins (left to right: Rachel Kitchen, Nathan Kennedy, Sammer Dan
 
 Here is a brief (90 second) introduction to what <span style="color: #E87722;">Hokie</span><span style="color: #8B1F41;">Tickets</span> can do
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/zpFLHXPFAY8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Watch the video](https://img.youtube.com/vi/zpFLHXPFAY8/maxresdefault.jpg)](https://youtu.be/zpFLHXPFAY8)
 
 We also won both social media prizes for our twitter account [@goblinsvt](https://twitter.com/goblinsvt)
+
+You can see our code in the following subdirectories:
+
+| | |
+|--|--|
+|[`www`](https://github.com/nilesr/HokieTickets/tree/master/www)|Web-based Frontend|
+|[`libgoblin`](https://github.com/nilesr/HokieTickets/tree/master/libgoblin)|Blockchain Integration Library|
+|[`hokipoki`](https://github.com/nilesr/HokieTickets/tree/master/hokipoki)|Blockchain Smart Contract|
+|[`football-tickets`](https://github.com/nilesr/HokieTickets/tree/master/football-tickets)|iOS Companion App|
 
 ![](ss/cert-1.png)
 
 ![](ss/meeting1.png)
 
+Small version:
 ![](ss/meeting2.png)
 
 ![](ss/backend.jpg)
