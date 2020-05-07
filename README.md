@@ -50,6 +50,12 @@ Small version:
 
 ![](ss/sm5.jpg)
 
+![](ss/me.jpg)
+
+![](ss/google.png)
+
+![](ss/goblin.png)
+
 <img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm1.jpeg" width="49%" /><img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm2.jpeg" width="49%" /><img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm21.jpeg" width="49%" /><img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm22.jpeg" width="49%" />
 
 <img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm3.jpeg" width="49%" /><img src="https://raw.githubusercontent.com/nilesr/HokieTickets/master/ss/sm4.jpeg" width="49%" />
