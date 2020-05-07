@@ -86,24 +86,24 @@ Functions for `eosio.token`:
 - `transfer_from` A more general transfer function that takes both a sender and a recipient
 
 Functions for `hokipoki`:
-- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#buy)
-- `sell` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#sell)
-- `enter_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#enterlotto)
-- `leave_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#leavelotto)
-- `create_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#creatauction)
-- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#bid)
-- `execute_auction_winner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#execauction1)
-- `execute_auction_owner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#execauction2)
-- `cancel_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#cancelauctn)
-- `execute_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#executelotto)
-- `open_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#openlottery)
-- `create_game` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#creategame)
-- `execute_all_auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#aucexecall)
-- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#reset)
+- `buy` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#buy)
+- `sell` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#sell)
+- `enter_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#enterlotto)
+- `leave_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#leavelotto)
+- `create_auction` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#creatauction)
+- `bid` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#bid)
+- `execute_auction_winner` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#execauction1)
+- `execute_auction_owner` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#execauction2)
+- `cancel_auction` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#cancelauctn)
+- `execute_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#executelotto)
+- `open_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#openlottery)
+- `create_game` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#creategame)
+- `execute_all_auctions` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#aucexecall)
+- `reset` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#reset)
 - `penalize_users` - Not an action, calls `transfer_from` to deduct hokietokens from students who did not attend a game, if possible.
-- `reward_user` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/tree/master/hokipoki.contracts.md#reward_user)
+- `reward_user` - [Documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/hokipoki.contracts.md#reward_user)
 
-The functions for `hokipoki` map directly onto the actions on the blockchain smart contract, which are documented in [`hokipoki`'s documentation](https://git.cs.vt.edu/goblins/hokipoki#readme)
+The functions for `hokipoki` map directly onto the actions on the blockchain smart contract, which are documented in [`hokipoki`'s documentation](https://github.com/nilesr/HokieTickets/tree/master/hokipoki/README.md)
 
 ### Helper functions for HokieTickets
 

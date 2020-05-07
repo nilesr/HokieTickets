@@ -1,7 +1,7 @@
 ![](https://www.dictionary.com/e/wp-content/uploads/2018/10/hokie-2-300x300.jpg)
 # <span style="color: #E87722;">Hokie</span><span style="color: #8B1F41;">Tickets</span> is an [EOSIO](https://eos.io)-based application for simple and fair student athletic ticket management.
 
-HokieTickets is a blockchain-based web application for managing student athletic tickets and attending games. For code and documentation about the companion iOS app, see the [football-tickets repository](https://git.cs.vt.edu/goblins/football-tickets).
+HokieTickets is a blockchain-based web application for managing student athletic tickets and attending games. For code and documentation about the companion iOS app, see the [football-tickets repository](https://github.com/nilesr/HokieTickets/tree/master/football-tickets).
 
 HokieTickets prevents scalping and incentivizes students to attend VT sports events. You can use the app on web or on mobile to complete all actions, including buying/selling tickets, entering the lottery, auctioning, and viewing tickets. The mobile app also allows administrators to scan tickets for entry to games. Smart contracts are used for each of these actions using the [EOSIO](https://eos.io)-based token Hokie Tokens (HTK). Our app gives VT more control over their tickets, and creates a fair system that rewards students who show their school spirit.
 
@@ -11,7 +11,7 @@ The website is broken down into two main interfaces, the student interface and t
 
 ## Logging In (`login.pyhtml`)
 
-The login page is based on a single form, which POSTs the entered username and password back to the same page on submit. If the username and password sent in the POST request are correct, it redirects the user to either the student account page or the administrator accounts page. The session cookie to stay logged in is called `auth`, and it's discussed in more detail in the [`libgoblin`](https://git.cs.vt.edu/goblins/libgoblin#goblin_auth-responsibilities) documentation
+The login page is based on a single form, which POSTs the entered username and password back to the same page on submit. If the username and password sent in the POST request are correct, it redirects the user to either the student account page or the administrator accounts page. The session cookie to stay logged in is called `auth`, and it's discussed in more detail in the [`libgoblin`](https://github.com/nilesr/HokieTickets/tree/master/libgoblin) documentation
 
 `index.pyhtml` is a symbolic link to this page.
 
@@ -66,7 +66,7 @@ Administrators have access to the following pages
 
 ### Accounts (`admin/accounts.pyhtml`)
 
-The Accounts page displays all accounts on the blockchain that have been registered to use HokieTickets. It displays their balances of hokietokens, as well as their tickets and whether they received them from the lottery or not. It also contains a form for creating new accounts, which generates a new keypair for the new user as well. Details on the steps for creating a new user on the blockchain are documented in the [`libgoblin` repository's User Account Management section](https://git.cs.vt.edu/goblins/libgoblin#user-account-management)
+The Accounts page displays all accounts on the blockchain that have been registered to use HokieTickets. It displays their balances of hokietokens, as well as their tickets and whether they received them from the lottery or not. It also contains a form for creating new accounts, which generates a new keypair for the new user as well. Details on the steps for creating a new user on the blockchain are documented in the [`libgoblin` repository's User Account Management section](https://github.com/nilesr/HokieTickets/tree/master/libgoblin#user-account-management)
 
 ![](ss/admin:accounts.png)
 

@@ -101,28 +101,28 @@ Actions parameters and their types are documented in their wrapper shortcut's do
 
 ### Student Actions
 #### - Ticket Management
-- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#buy)
-- `sell` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#sell)
+- `buy` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#buy)
+- `sell` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#sell)
 #### - Lottery Management
-- `enterlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#enterlottery)
-- `leavelottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#leavelottery)
-- `creatauction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creatauction)
+- `enterlottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#enterlottery)
+- `leavelottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#leavelottery)
+- `creatauction` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#creatauction)
 
 #### - Auction Management
-- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#bid)
-- `execauction1` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction1)
-- `execauction2` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#execauction2)
-- `cancelauctn` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#cancelauctn)
+- `bid` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#bid)
+- `execauction1` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#execauction1)
+- `execauction2` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#execauction2)
+- `cancelauctn` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#cancelauctn)
 
 ### Administrator Actions
-- `creategame` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#creategame)
-- `openlottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#openlottery)
-- `executelotto` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#executelotto)
-- `adduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#adduser)
-- `rewarduser` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#rewarduser)
-- `aucexecall` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#aucexecall)
+- `creategame` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#creategame)
+- `openlottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#openlottery)
+- `executelotto` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#executelotto)
+- `adduser` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#adduser)
+- `rewarduser` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#rewarduser)
+- `aucexecall` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#aucexecall)
 ### Debug Actions
-- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/hokipoki.contracts.md#reset)
+- `reset` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/hokipoki.contracts.md#reset)
 
 ## Using
 
@@ -146,34 +146,34 @@ A companion shell script is included that has definitions of shortcuts that can 
 
 ### Shortcuts for actions on `hokipoki`
 
-- `create_game` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#create_game)
-- `buy` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#buy)
-- `enter_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#enter_lottery)
-- `leave_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#leave_lottery)
-- `execute_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_lottery)
-- `open_lottery` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#open_lottery)
-- `create_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#create_auction)
-- `bid` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#bid)
-- `execute_auction_winner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_auction_winner)
-- `execute_auction_owner` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_auction_owner)
-- `execute_all_auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#execute_all_auctions)
-- `cancel_auction` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#cancel_auction)
-- `reset` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#reset)
+- `create_game` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#create_game)
+- `buy` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#buy)
+- `enter_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#enter_lottery)
+- `leave_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#leave_lottery)
+- `execute_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#execute_lottery)
+- `open_lottery` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#open_lottery)
+- `create_auction` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#create_auction)
+- `bid` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#bid)
+- `execute_auction_winner` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#execute_auction_winner)
+- `execute_auction_owner` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#execute_auction_owner)
+- `execute_all_auctions` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#execute_all_auctions)
+- `cancel_auction` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#cancel_auction)
+- `reset` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#reset)
 
 ### Shortcuts for actions on `eosio.token`
 
-- `transfer` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#transfer)
+- `transfer` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#transfer)
 
 ### Shortcuts for viewing data in `hokipoki`
 
-- `games` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#games)
-- `lottery_entries` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#lottery_entries)
-- `tickets` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#tickets)
-- `auctions` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#auctions)
+- `games` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#games)
+- `lottery_entries` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#lottery_entries)
+- `tickets` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#tickets)
+- `auctions` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#auctions)
 
 ### Shortcuts for viewing data in `eosio.token`
 
-- `balance` - [Documentation](https://git.cs.vt.edu/goblins/hokipoki/blob/master/shortcut_info.md#balance)
+- `balance` - [Documentation](https://github.com/nilesr/HokieTickets/blob/master/hokipoki/shortcut_info.md#balance)
 
 
 ## License
