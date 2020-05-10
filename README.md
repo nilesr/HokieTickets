@@ -68,3 +68,5 @@ Older software diagram:
 
 ![](ss/diagram-old.png)
 
+![](ss/names.png)
+
